@@ -36,4 +36,4 @@ pyinstaller --onefile read_csv.py
 read_csv.exe a.xlsx
 =======
 
->>>>>>> 931fd95311f612e45374861061a495d4a38f936d
+>>>>>>> 
