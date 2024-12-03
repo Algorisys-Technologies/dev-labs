@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Python CSV/XLSX Reader Console Application
 
 This project demonstrates how to create a standalone executable (`.exe`) for a Python console application that reads a CSV or Excel (`.xlsx`) file provided via the command line. The executable runs on a Windows machine without requiring Python to be installed.
@@ -36,4 +36,4 @@ pyinstaller --onefile read_csv.py
 read_csv.exe a.xlsx
 =======
 
->>>>>>> 
+
