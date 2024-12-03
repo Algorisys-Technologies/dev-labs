@@ -34,6 +34,6 @@ pyinstaller --onefile read_csv.py
 
 ```bash
 read_csv.exe a.xlsx
-=======
+
 
 
