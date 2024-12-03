@@ -1,0 +1,7 @@
+pip install openpyxl
+pip install pyinstaller
+
+pyinstaller --onefile read_csv.py
+pyinstaller --onefile --log-level=DEBUG read_csv.py
+
+read_csv.exe a.xlsx

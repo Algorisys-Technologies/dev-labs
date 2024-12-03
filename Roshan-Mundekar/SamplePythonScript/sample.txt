@@ -1,0 +1,165 @@
+
+import sys
+sys.setrecursionlimit(sys.getrecursionlimit() * 5)
+import pandas as pd
+def process_excel(file_path):
+    # Path to the Excel file
+    # file_path = "a.xlsx"
+
+    # Load the Excel file
+    excel_data = pd.ExcelFile(file_path)
+
+    # Sheets to process only
+    sheets = ['GT', 'MT', 'Ecom', 'CSD', 'Insti', '3P', 'Export']
+
+    # Initialize the result DataFrame with required columns
+    ansDF = pd.DataFrame(columns=['SKU', 'Sheet', 'Measure', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+
+    # Iterate over the sheets to process
+    for sheet_name in sheets:
+        # Parse the selected sheet
+        df = excel_data.parse(sheet_name)
+        
+        # Find the column where row 7 has "Pack Link"
+        pack_link_column = df.columns[(df.iloc[7] == 'Pack Link').to_numpy()]
+
+        if not pack_link_column.empty:
+            # Extract the column name
+            column_name = pack_link_column[0]
+            
+            # Get all entries in the identified column starting from row 8 to row 108 (0-based index)
+            skus = df.loc[8:108, column_name].dropna().tolist()
+            
+            # Extract the row containing measures (row 6 in your example)
+            selected_row = df.iloc[6].dropna()
+            
+            # Extract the month names from row 7 (e.g., "Jan'23", "Feb'23", etc.)
+            month_names = []
+            for col in df.iloc[7].dropna():
+                if isinstance(col, str):  # Check if the value is a string
+                    # Extract the month part (e.g., "Jan" from "Jan'23")
+                    month_name = col.split("'")[0]
+                    month_names.append(month_name)
+                else:
+                    month_names.append('')  # Append an empty string for non-string values
+
+            # Ensure that the month names cover from Jan to Dec
+            month_dict = dict(zip(month_names, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']))
+
+            # Define column ranges dynamically for each measure
+            for index, measure in selected_row.items():
+                if pd.notna(measure):
+                    # Ensure measure is a string before calling `startswith`
+                    measure_str = str(measure)
+
+                    # For "Actual" measure, map to months Jan to Jul
+                    if measure_str.startswith('Actual'):
+                        start_col_index = df.columns.get_loc(index)  # Adjust for the proper column starting position
+                        end_col_index = start_col_index + 7  # Actual months (Jan to Jul)
+
+                        # Extract actual month data (Jan to Jul)
+                        if start_col_index < len(df.columns) and end_col_index <= len(df.columns):
+                            month_data = df.iloc[8:108, start_col_index:end_col_index].fillna(0)
+
+                            # Build rows for ansDF for "Actual"
+                            for sku, month_vals in zip(skus, month_data.values):
+                                # Create a dictionary for the month values (Jan to Jul only)
+                                month_dict_row = dict(zip(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], month_vals))
+                                
+                                # Add NaN or 0 for the remaining months (Aug to Dec)
+                                month_dict_row.update({'Aug': 0, 'Sep': 0, 'Oct': 0, 'Nov': 0, 'Dec': 0})
+
+                                # Build the new row
+                                new_row = {
+                                    'SKU': sku,
+                                    'Sheet': sheet_name,
+                                    'Measure': measure_str,
+                                    **month_dict_row
+                                }
+
+                                # Append the row to the result DataFrame
+                                ansDF = pd.concat([ansDF, pd.DataFrame([new_row])], ignore_index=True)
+
+                    # For "BE" measure, map to months Aug to Dec
+                    elif measure_str.startswith('BE'):
+                        start_col_index = df.columns.get_loc(index)  # Adjust for the proper column starting position
+                        end_col_index = start_col_index + 5  # BE months (Aug to Dec)
+
+                        # Extract BE month data (Aug to Dec)
+                        if start_col_index < len(df.columns) and end_col_index <= len(df.columns):
+                            month_data = df.iloc[8:108, start_col_index:end_col_index].fillna(0)
+
+                            # Build rows for ansDF for "BE"
+                            for sku, month_vals in zip(skus, month_data.values):
+                                # Create a dictionary for the month values (Aug to Dec only)
+                                month_dict_row = dict(zip(['Aug', 'Sep', 'Oct', 'Nov', 'Dec'], month_vals))
+                                
+                                # Add NaN or 0 for the remaining months (Jan to Jul)
+                                month_dict_row.update({'Jan': 0, 'Feb': 0, 'Mar': 0, 'Apr': 0, 'May': 0, 'Jun': 0, 'Jul': 0})
+
+                                # Build the new row
+                                new_row = {
+                                    'SKU': sku,
+                                    'Sheet': sheet_name,
+                                    'Measure': measure_str,
+                                    **month_dict_row
+                                }
+
+                                # Append the row to the result DataFrame
+                                ansDF = pd.concat([ansDF, pd.DataFrame([new_row])], ignore_index=True)
+
+                    # For other measures (not "Actual" or "BE"), map to months Jan to Dec
+                    else:
+                        start_col_index = df.columns.get_loc(index)  # Adjust for the proper column starting position
+                        end_col_index = start_col_index + 12  # All months (Jan to Dec)
+
+                        # Extract month data (Jan to Dec)
+                        if start_col_index < len(df.columns) and end_col_index <= len(df.columns):
+                            month_data = df.iloc[8:108, start_col_index:end_col_index].fillna(0)
+
+                            # Build rows for ansDF for other measures
+                            for sku, month_vals in zip(skus, month_data.values):
+                                # Create a dictionary for the month values (Jan to Dec)
+                                month_dict_row = dict(zip(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], month_vals))
+
+                                # Build the new row
+                                new_row = {
+                                    'SKU': sku,
+                                    'Sheet': sheet_name,
+                                    'Measure': measure_str,
+                                    **month_dict_row
+                                }
+
+                                # Append the row to the result DataFrame
+                                ansDF = pd.concat([ansDF, pd.DataFrame([new_row])], ignore_index=True)
+
+        else:
+            print(f"No column found with 'Pack Link' in row 7 in sheet: {sheet_name}")
+
+    # Display the top rows of the result DataFrame
+    # print(ansDF.head(10))
+
+    # Save the DataFrame as a CSV file
+    # output_file_csv = "output.csv"
+    # ansDF.to_csv(output_file_csv, index=False)
+    # print(f"CSV file saved successfully at {output_file_csv}.")
+
+    # Save the DataFrame as a Tab-delimited text file (.txt)
+    output_file_txt = "output.txt"
+    ansDF.to_csv(output_file_txt, sep='\t', index=False)
+    print(f"Tab-delimited text file saved successfully at {output_file_txt}.")
+
+
+
+
+if __name__ == "__main__":
+    # Read command-line arguments
+    if len(sys.argv) < 3:
+        print("Usage: read_excel.exe <file_path> <sheet_count>")
+        sys.exit(1)
+
+    file_path = sys.argv[1]
+    sheet_count = int(sys.argv[2])
+
+    process_excel(file_path, sheet_count)
+
