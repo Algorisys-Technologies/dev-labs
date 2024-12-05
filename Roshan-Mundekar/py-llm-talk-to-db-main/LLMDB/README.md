@@ -13,7 +13,8 @@ This Flask application allows users to input natural language queries, which are
 
 - Python 3.9 or higher
 - Microsoft SQL Server
-- ODBC Driver 17 for SQL Server
+- [ODBC Driver 17 for SQL Server](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)
+
 - Required Python libraries (listed in requirements.txt)
 
 ## Installation Guide
@@ -52,3 +53,6 @@ python app.py
 Step 2: Open in Browser
 Navigate to http://127.0.0.1:5000 in your web browser.
 
+## Results
+
+![Alt text](https://github.com/Algorisys-Technologies/dev-labs/blob/main/Roshan-Mundekar/py-llm-talk-to-db-main/LLMDB/demo.JPG)
