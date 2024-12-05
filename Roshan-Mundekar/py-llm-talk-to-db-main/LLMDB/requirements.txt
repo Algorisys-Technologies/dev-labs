@@ -1,0 +1,12 @@
+openai==0.28
+python-environ
+psycopg2
+psycopg2-binary
+langchain 
+langchain-community
+langchain==0.3.9 
+langchain-community==0.3.9 
+langchain-core==0.3.21 
+langchain-experimental==0.3.3 
+langchain-openai==0.2.11 
+langchain-text-splitters==0.3.2

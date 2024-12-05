@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Database Interaction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen flex flex-col md:flex-row bg-gray-100">
+    <!-- Sidebar -->
+    <div class="w-full md:w-1/5 bg-gray-800 text-white p-5 flex flex-col">
+        <h2 class="text-xl font-bold mb-4">DATABASE INTERACTION</h2>
+        <p class="text-sm">Use the main input to talk to the database.</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col p-6 space-y-4">
+        <h1 class="text-2xl font-bold text-gray-800">ENTER A QUERY</h1>
+        
+        <!-- Input Section -->
+        <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+            <input 
+                type="text" 
+                id="queryInput" 
+                placeholder="Enter your question" 
+                class="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button 
+                onclick="sendQuery()" 
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Submit
+            </button>
+        </div>
+        
+        <!-- Results Section -->
+        <div id="results" class="bg-white p-4 rounded-md shadow-md overflow-x-auto">
+            <p class="text-gray-500">Results will appear here...</p>
+        </div>
+    </div>
+
+    <script>
+        async function sendQuery() {
+            const query = document.getElementById('queryInput').value;
+            const resultsDiv = document.getElementById('results');
+    
+            resultsDiv.innerHTML = '<p class="text-gray-500">Loading...</p>';
+    
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+    
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+    
+                const data = await response.json();
+                resultsDiv.innerHTML = `<h3 class="text-lg font-semibold text-gray-800">SQL Query:</h3><pre class="bg-gray-100 p-2 rounded-md">${data.sql_query}</pre>`;
+    
+                if (data.results.length) {
+                    // Generate table
+                    let tableHTML = `
+                        <h3 class="text-lg font-semibold text-gray-800 mt-4">Results:</h3>
+                        <div class="overflow-auto">
+                            <table class="min-w-full border-collapse border border-gray-200">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        ${Object.keys(data.results[0]).map(key => `<th class="border border-gray-300 px-4 py-2 text-left">${key}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.results.map(row => `
+                                        <tr>
+                                            ${Object.values(row).map(value => `<td class="border border-gray-300 px-4 py-2">${value}</td>`).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>`;
+                    resultsDiv.innerHTML += tableHTML;
+                } else {
+                    resultsDiv.innerHTML += `<p class="text-gray-500 mt-4">No results found.</p>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+    
+</body>
+</html>
