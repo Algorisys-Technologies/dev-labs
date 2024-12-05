@@ -17,6 +17,12 @@ This Flask application allows users to input natural language queries, which are
 
 - Required Python libraries (listed in requirements.txt)
 
+
+## Results
+
+![Demo Image](https://raw.githubusercontent.com/Algorisys-Technologies/dev-labs/main/Roshan-Mundekar/py-llm-talk-to-db-main/LLMDB/demo.JPG)
+
+
 ## Installation Guide
 
 
@@ -53,6 +59,3 @@ python app.py
 Step 2: Open in Browser
 Navigate to http://127.0.0.1:5000 in your web browser.
 
-## Results
-
-![Demo Image](https://raw.githubusercontent.com/Algorisys-Technologies/dev-labs/main/Roshan-Mundekar/py-llm-talk-to-db-main/LLMDB/demo.JPG)
