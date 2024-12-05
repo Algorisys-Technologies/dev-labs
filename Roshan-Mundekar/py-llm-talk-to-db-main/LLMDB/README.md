@@ -49,3 +49,6 @@ password = 'your_database_password'
 ```bash
 python app.py
 
+Step 2: Open in Browser
+Navigate to http://127.0.0.1:5000 in your web browser.
+
