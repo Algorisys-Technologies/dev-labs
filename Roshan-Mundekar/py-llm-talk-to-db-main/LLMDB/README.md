@@ -55,4 +55,4 @@ Navigate to http://127.0.0.1:5000 in your web browser.
 
 ## Results
 
-![Alt text](https://github.com/Algorisys-Technologies/dev-labs/blob/main/Roshan-Mundekar/py-llm-talk-to-db-main/LLMDB/demo.JPG)
+![Demo Image](https://raw.githubusercontent.com/Algorisys-Technologies/dev-labs/main/Roshan-Mundekar/py-llm-talk-to-db-main/LLMDB/demo.JPG)
