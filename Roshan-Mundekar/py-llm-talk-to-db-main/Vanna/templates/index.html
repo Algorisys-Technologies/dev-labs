@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk to DB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <div class="flex flex-grow">
+
+        <!-- Sidebar -->
+        <aside class="bg-white w-64 md:w-72 lg:w-80 border-r shadow-md flex-shrink-0 hidden sm:block">
+            <div class="p-4 border-b">
+                <h3 class="text-lg font-bold text-gray-700">Databases</h3>
+            </div>
+            <ul id="db-list" class="p-4 space-y-2">
+                {% for db in databases %}
+                <li class="p-3 rounded cursor-pointer bg-gray-200 hover:bg-gray-300" onclick="selectDatabase('{{ db.name }}')">
+                    {{ db.name }}
+                </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <!-- Mobile Sidebar Button -->
+        <button id="mobile-menu-button"
+            class="sm:hidden fixed top-4 left-4 bg-gray-800 text-white px-4 py-2 rounded-lg z-10">
+            Menu
+        </button>
+
+        <!-- Mobile Sidebar -->
+        <div id="mobile-menu" class="fixed inset-0 bg-gray-800 bg-opacity-75 z-20 hidden">
+            <aside class="bg-white w-64 h-full shadow-md p-4">
+                <h3 class="text-lg font-bold text-gray-700 border-b pb-2">Databases</h3>
+                <ul id="mobile-db-list" class="mt-4 space-y-2">
+                    {% for db in databases %}
+                    <li class="p-3 rounded cursor-pointer bg-gray-200 hover:bg-gray-300" onclick="selectDatabase('{{ db.name }}')">
+                        {{ db.name }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </aside>
+        </div>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-6 mt-5">
+            <h3 id="db-title" class="text-xl font-semibold text-gray-800">Select a Database</h3>
+            <div id="chat-window" class="mt-6 flex flex-col h-[calc(100vh-100px)] sm:h-auto border rounded-lg bg-white shadow">
+                <div id="messages" class="flex-grow overflow-y-auto p-4 space-y-4">
+                    <p class="text-gray-500 italic">Start by selecting a database.</p>
+                </div>
+                <div class="border-t flex items-center">
+                    <input type="text" id="user-input" class="w-full px-4 py-2 border-none rounded-bl-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Type your query here..." />
+                    <button id="execute-query" class="ml-2 px-4 py-2 bg-indigo-600 text-white rounded-lg" onclick="sendQuery()">Execute</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile menu handling
+        const mobileMenu = document.getElementById("mobile-menu");
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle("hidden");
+        }
+
+        mobileMenuButton.addEventListener("click", toggleMobileMenu);
+
+        // Select a database and update the UI
+        function selectDatabase(dbName) {
+            document.getElementById("db-title").textContent = `Database: ${dbName}`;
+            document.getElementById("messages").innerHTML = `<p class="text-blue-600">Connected to ${dbName}</p>`;
+            window.selectedDb = dbName;
+        }
+
+        // Send a query to the backend
+        async function sendQuery() {
+            const query = document.getElementById('user-input').value.trim();
+            const resultsDiv = document.getElementById('messages');
+
+            if (!query || !window.selectedDb) return;
+
+            resultsDiv.innerHTML += `<div class="text-right"><strong>You:</strong> ${query}</div>`;
+            document.getElementById('user-input').value = '';
+            resultsDiv.innerHTML += '<p class="text-gray-500">Loading...</p>';
+
+            const queryData = {
+                database: window.selectedDb,
+                query: query
+            };
+
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(queryData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+
+                const data = await response.json();
+                resultsDiv.innerHTML = `<div><strong>DB:</strong> Executed SQL Query: ${data.sql_query}</div>`;
+
+                if (data.results.length) {
+                    // Generate table
+                    let tableHTML = `
+                        <h3 class="text-lg font-semibold text-gray-800 mt-4">Results:</h3>
+                        <div class="overflow-auto">
+                            <table class="min-w-full border-collapse border border-gray-200">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        ${Object.keys(data.results[0]).map(key => `<th class="border border-gray-300 px-4 py-2 text-left">${key}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.results.map(row => `
+                                        <tr>
+                                            ${Object.values(row).map(value => `<td class="border border-gray-300 px-4 py-2">${value}</td>`).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>`;
+                    resultsDiv.innerHTML += tableHTML;
+                } else {
+                    resultsDiv.innerHTML += `<p class="text-gray-500 mt-4">No results found.</p>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div><strong>DB:</strong> Error: ${error.message}</div>`;
+            }
+
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+{
+  "databases": [
+    {
+      "name": "MySQL_DB",
+      "type": "mysql",
+      "host": "localhost",
+      "user": "root",
+      "password": "root",
+      "database": "algoai"
+    },
+    {
+      "name": "SQLServer_DB",
+      "type": "sql_server",
+      "host": "DESKTOP-SFJI2T5\\SQLEXPRESS",
+      "user": "sa",
+      "password": "sqlpass",
+      "database": "llmtalktodb"
+    },
+    {
+      "name": "PostgreSQL_DB",
+      "type": "postgresql",
+      "host": "localhost",
+      "user": "postgres",
+      "password": "root",
+      "database": "llmtalktodb"
+    },
+    {
+        "name": "MongoDB",
+        "type": "mongodb",
+        "host": "localhost",
+        "user": "root",
+        "password": "root",
+        "database": "TodoAppFARM "
+    }
+  ]
+}
