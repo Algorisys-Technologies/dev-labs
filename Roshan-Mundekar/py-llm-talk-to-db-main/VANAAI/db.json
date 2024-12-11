@@ -1,0 +1,31 @@
+{
+    "mysql": {
+        "name": "MySQL",
+        "type": "mysql",
+        "host": "localhost",
+        "dbname": "ocrwebapp",
+        "user": "root",
+        "password": "root",
+        "port": 3306
+        
+    },
+    "postgres": {
+        "name": "PostgreSQL",
+        "type": "postgres",
+        "host": "localhost",
+        "dbname": "llmtalktodb",
+        "user": "postgres",
+        "password": "root",
+        "port": 5432
+    },
+    "mssql": {
+        "name": "MSSQL",
+        "type": "mssql",
+        "host": "DESKTOP-SFJI2T5\\SQLEXPRESS",
+        "dbname": "llmtalktodb",
+        "user": "sa",
+        "password": "sqlpass",
+        "port": 49500
+    }
+    
+}

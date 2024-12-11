@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk to DB App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Sidebar -->
+            <div class="bg-white p-4 rounded shadow-md">
+                <h3 class="text-xl font-semibold mb-4">Databases</h3>
+                <ul id="db-list" class="list-none">
+                    {% for db_name, config in db_config.items() %}
+                    <li class="cursor-pointer p-2 hover:bg-blue-100 rounded mb-2" data-db-name="{{ db_name }}">
+                        {{ config['name'] }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="col-span-2 bg-white p-4 rounded shadow-md">
+                <h3 class="text-xl font-semibold mb-4">Chat Interface</h3>
+                <div id="chat-box" class="mb-4 p-4 bg-gray-50 border rounded h-64 overflow-y-auto"></div>
+                
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="query" class="form-input w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300" placeholder="Enter SQL query or command">
+                    <button id="query-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Add 'active' class to selected database and send request
+            $('#db-list li').click(function() {
+                // Remove 'active' class from all items
+                $('#db-list li').removeClass('active');
+                
+                // Add 'active' class to clicked item
+                $(this).addClass('active');
+                
+                // Get the database name of the selected item
+                const dbName = $(this).data('db-name');
+                
+                // Send a request to the backend to connect to the selected database
+                $.ajax({
+                    url: '/select_database',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ db_name: dbName }),
+                    success: function(response) {
+                        console.log(response)
+                        $('#chat-box').html(`<p class="text-green-600">Connected to ${dbName}</p>`);
+                    },
+                    error: function(err) {
+                        $('#chat-box').html(`<p class="text-red-600">Error: ${err.responseJSON.error}</p>`);
+                    }
+                });
+            });
+
+            // On query button click, send the query to the selected database
+            $('#query-btn').click(function() {
+                const query = $('#query').val();
+                
+                // Get the name of the active database
+                const dbName = $('#db-list .active').data('db-name');
+                console.log(dbName);  // Debugging: ensure the active database is being passed
+                
+                // Send the query to the backend
+                $.ajax({
+                    url: '/query_db',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ db_name: dbName, query: query }),
+                    success: function(response) {
+                        const result = response.result;
+                
+                        if (result && result.length > 0) {
+                            // Extract table headers dynamically from the keys of the first row
+                            const headers = Object.keys(result[0]);
+                
+                            // Build the HTML table
+                            let table = '<table class="table-auto border-collapse border border-gray-300 w-full">';
+                            table += '<thead><tr class="bg-gray-200">';
+                
+                            // Add table headers
+                            headers.forEach(header => {
+                                table += `<th class="border border-gray-400 px-4 py-2">${header}</th>`;
+                            });
+                            table += '</tr></thead>';
+                
+                            // Add table rows
+                            table += '<tbody>';
+                            result.forEach(row => {
+                                table += '<tr>';
+                                headers.forEach(header => {
+                                    table += `<td class="border border-gray-400 px-4 py-2">${row[header]}</td>`;
+                                });
+                                table += '</tr>';
+                            });
+                            table += '</tbody></table>';
+                
+                            // Display the table in the chat box
+                            $('#chat-box').html(table);
+                        } else {
+                            $('#chat-box').html('<p class="text-blue-600">No results found.</p>');
+                        }
+                    },
+                    error: function(err) {
+                        $('#chat-box').html(`<p class="text-red-600">Error: ${err.responseJSON.error}</p>`);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
