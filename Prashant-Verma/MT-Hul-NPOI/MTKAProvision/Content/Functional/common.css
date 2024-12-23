@@ -1,0 +1,136 @@
+/* Margin setting */
+
+.mtop30 {
+    margin-top: 30px;
+}
+
+.lh2_2em {
+    line-height: 2.2em;
+}
+
+.w60 {
+    width: 60px;
+}
+
+.w80 {
+    width: 80px;
+}
+
+.w30 {
+    width: 30px;
+}
+
+.w40 {
+    width: 40px;
+}
+
+.mtop0 {
+    margin-top: 0px;
+}
+
+.mtop50 {
+    margin-top: 50px;
+}
+
+
+.mtop20 {
+    margin-top: 20px;
+}
+
+
+
+.well {
+    background: #fff;
+}
+
+.thermo-title {
+    margin-top: -20px;
+    color: purple;
+    font-size: 12px;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.logout {
+    font-weight: bold;
+}
+
+
+
+.down-arrow {
+    top: 6px;
+    color: blue;
+    right: 17px;
+    font-size: 20px;
+}
+
+.lpad0 {
+    padding-left: 0px !important;
+}
+
+
+.table {
+    margin-bottom: 0px !important;
+    font-size: 13px;
+    font-weight: normal;
+    text-align: left;
+    font-weight: normal !important;
+}
+
+th {
+    text-align: center;
+}
+
+
+
+
+/*For data table*/
+.dataTables_paginate {
+    display: none;
+}
+
+.dataTables_length {
+    display: none;
+}
+
+
+
+footer {
+    margin-top: 50px;
+}
+
+.leftaligncell {
+    text-align: left !important;
+}
+
+.rightaligncell {
+    text-align: right !important;
+}
+
+.disableClick {
+    pointer-events: none;
+}
+
+.deletemaster {
+    display: inline-block;
+    float: right;
+    font-size: 10px;
+    margin-top: 5px;
+}
+.audittrail{
+    box-shadow: -1px 0px 3px 1px !important;
+    padding: 3px !important;
+    margin-left: 10px;
+}
+.audittrail:after {
+   content: "Audit Trail";
+}
+
+.audittrail2{
+    box-shadow: -1px 0px 3px 1px !important;
+    padding: 3px !important;
+    margin-left: 10px;
+}
+.tblHeaderCenter {
+    text-align: center !important;
+}

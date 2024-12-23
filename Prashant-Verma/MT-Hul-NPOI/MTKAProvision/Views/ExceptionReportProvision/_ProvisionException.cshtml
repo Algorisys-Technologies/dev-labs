@@ -1,0 +1,173 @@
+﻿
+<input type="hidden" id="pageTitle" value="@ViewBag.PageTitle" />
+
+<!-- Data Table -->
+<section id="tableinfo" class="mtop20 ">
+    <div class="">
+        <table id="calculateProvisionExeptionTable" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Customer</th>
+                    <th>Outlet Category - Master</th>
+                    <th>Basepack</th>
+                    <th>Basepack</th>
+                    <th>PMH Brand</th>
+                    <th>PMH Brand</th>
+                    <th>Sales SubCategory</th>
+                    <th>Price List</th>
+                    <th>HUL Outlet Code</th>
+                    <th>HUL Outlet Code</th>
+                    <th>Chain Name</th>
+                    <th>Group Name</th>
+                    <th>Color / Non Color</th>
+                    <th>Branch - Master</th>
+                    <th>Branch - Master</th>
+                    <th>MOC</th>
+                    <th>Outlet Secondary Channel</th>
+                    <th>Cluster Code</th>
+                    <th>Cluster Code</th>
+                    <th>Outlet Tier</th>
+                    <th>Total Sales Value (INR)</th>
+                    <th>Sales Return Value (INR)</th>
+                    <th>Net Sales Value (INR)</th>
+                    <th>Net Sales Qty (KGs)</th>
+                    <th>Tax Code</th>
+                    <th>State Code</th>
+                    <th>Sales Tax</th>
+                    <th>GSV</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <th class="searchtext">Customer Code</th>
+                    <th class="searchtext">Customer Name</th>
+                    <th class="searchtext">Outlet Category Master</th>
+                    <th class="searchtext">Basepack Code</th>
+                    <th class="searchtext">Basepack Name</th>
+                    <th class="searchtext">PMH Brand Code</th>
+                    <th class="searchtext">PMH Brand Name</th>
+                    <th class="searchtext">Sales Sub Cat</th>
+                    <th class="searchtext">Price List</th>
+                    <th class="searchtext">Hul Outlet Code</th>
+                    <th class="searchtext">Hul Outlet Name</th>
+                    <th class="searchtext">Chain Name</th>
+                    <th class="searchtext">Group Name</th>
+                    <th class="searchtext">Color / Non Color</th>
+                    <th class="searchtext">BranchCode</th>
+                    <th class="searchtext">BranchName</th>
+                    <th class="searchtext">MOC</th>
+                    <th class="searchtext">Outlet Secondary Channel</th>
+                    <th class="searchtext">Cluster Code</th>
+                    <th class="searchtext">Cluster Name</th>
+                    <th class="searchtext">Outlet Tier</th>
+                    <th class="searchtext">Total Sales Value</th>
+                    <th class="searchtext">Sales Return Value</th>
+                    <th class="searchtext">Net Sales Value</th>
+                    <th class="searchtext">Net Sales Qty</th>
+                    <th class="searchtext">Tax Code</th>
+                    <th class="searchtext">State Code</th>
+                    <th class="searchtext">Sales Tax</th>
+                    <th class="searchtext">GSV</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="clearfix"></div>
+</section>
+
+<script>
+
+    var calculateGSVTable_dtObj;
+    $(document).ready(function () {
+
+        $('.titlename').html($("#pageTitle").val());
+        FillMOCCalculationTable();
+
+    })
+
+    function FillMOCCalculationTable() {
+        if (calculateGSVTable_dtObj != undefined) {
+            calculateGSVTable_dtObj.destroy();
+        }
+        $('#calculateProvisionExeptionTable tfoot th.searchtext').each(function () {
+            var title = $(this).text();
+            $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+        });
+        calculateGSVTable_dtObj = $('#calculateProvisionExeptionTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            //"pageLength": 50,
+            //"bFilter": false,
+            "info": true,
+            //"stateSave": true,
+            "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+            "ajax": {
+                "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/ExceptionReportProvision/AjaxGetProvisionExceptionData",
+                "type": "POST"
+            },
+            "columns": [
+                    { "data": "CustomerCode", "orderable": true },
+                    { "data": "CustomerName", "orderable": true, "class": "leftaligncell" },
+                    { "data": "OutletCategoryMaster", "orderable": true, "class": "leftaligncell" },
+                    { "data": "BasepackCode", "orderable": true },
+                    { "data": "BasepackName", "orderable": true, "class": "leftaligncell" },
+                    { "data": "PMHBrandCode", "orderable": true },
+                    { "data": "PMHBrandName", "orderable": true, "class": "leftaligncell" },
+                    { "data": "SalesSubCat", "orderable": true, "class": "leftaligncell" },
+                    { "data": "PriceList", "orderable": true },
+                    { "data": "HulOutletCode", "orderable": true, "class": "leftaligncell" },
+                    { "data": "HulOutletCodeName", "orderable": true, "class": "leftaligncell" },
+                    { "data": "ChainName", "orderable": true, "class": "leftaligncell" },
+                    { "data": "GroupName", "orderable": true, "class": "leftaligncell" },
+                    { "data": "ColorNonColor", "orderable": true },
+                    { "data": "BranchCode", "orderable": true },
+                    { "data": "BranchName", "orderable": true },
+                    { "data": "MOC", "orderable": true },
+                    { "data": "OutletSecChannel", "orderable": true },
+                    { "data": "ClusterCode", "orderable": true },
+                    { "data": "ClusterName", "orderable": true },
+                    { "data": "OutletTier", "orderable": true },
+                    { "data": "TotalSalesValue", "orderable": true, "class": "rightaligncell" },
+                    { "data": "SalesReturnValue", "orderable": true, "class": "rightaligncell" },
+                    { "data": "NetSalesValue", "orderable": true, "class": "rightaligncell" },
+                    { "data": "NetSalesQty", "orderable": true, "class": "rightaligncell" },
+                    { "data": "TaxCode", "orderable": true },
+                    { "data": "StateCode", "orderable": true },
+                    { "data": "SalesTaxRate", "orderable": true },
+                    { "data": "GSV", "orderable": true, "class": "rightaligncell" }
+            ],
+            "order": [[0, "asc"]],
+            "scrollX": true,
+            "scrollY": 400,
+            "scroller": {
+                loadingIndicator: true
+            }
+        });
+        $("#calculateProvisionExeptionTable_filter").hide();
+        // Apply the search
+        calculateGSVTable_dtObj.columns().every(function () {
+            var that = this;
+
+            $('input', this.footer()).on('keyup change', function () {
+                if (that.search() !== this.value) {
+                    that
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        setTimeout(function () {
+            $('<a href="#" id="dwncalculateProvisionEx"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span style="btn Color:blue;Padding:5px">Download</span></a>').insertBefore($("#calculateProvisionExeptionTable_length"))
+
+        }, 10);
+    }
+
+    $(document).on("click", "#dwncalculateProvisionEx", function () {
+
+        window.location = "/ExceptionReportProvision/DownloadProvisionChainNmGrpNmExpeption";
+
+    });
+
+</script>

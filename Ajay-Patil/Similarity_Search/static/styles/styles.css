@@ -1,0 +1,135 @@
+/* Container Styling */
+.container {
+    margin: 0 auto;
+    max-width: 960px; /* Adjust as needed */
+    padding: 20px;
+}
+
+/* Heading Styling */
+.heading {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Form Styling */
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cc4611;
+    padding: 20px;
+    margin: 0 auto 20px auto;
+    max-width: 500px; /* Adjust as needed */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* File Input Styling */
+.file-label {
+    display: inline-block;
+    padding: 10px;
+    border: 2px solid #0f7fc0;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    background-color: #f9f9f9;
+    width: 100%;
+    max-width: 100%;
+}
+.img-class{
+    height: 30px;
+    width: 30px;
+}
+.file-input {
+    display: none; /* Hide default file input */
+}
+
+.file-label-text {
+    display: inline-block;
+    padding: 5px;
+}
+
+/* Submit Button Styling */
+input[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Image Query Styling */
+img {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Results Section */
+figure {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+}
+
+figcaption {
+    margin-top: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    .form {
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    .file-label {
+        font-size: 14px;
+    }
+
+    input[type="submit"] {
+        width: 100%;
+        padding: 12px 0;
+    }
+
+    figure {
+        width: 100%;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .heading {
+        font-size: 24px;
+    }
+
+    input[type="submit"] {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    figure {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    img {
+        width: 100%;
+        height: auto;
+    }
+}

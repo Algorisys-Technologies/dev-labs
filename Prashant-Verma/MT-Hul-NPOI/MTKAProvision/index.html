@@ -1,0 +1,44 @@
+﻿<style>
+    .notification {
+        /*position: fixed;*/
+        left: 80%;
+        top: 100px;
+        margin-right: 0;
+        z-index: 2000;
+    }
+</style>
+
+
+<div notification>
+    <p>Modal Content Goes here<p>
+</div>
+
+<div class="well">
+    <h4>Help Documents {{filterTag}}</h4>
+    <div>
+        <div class="layout" style="float:right">
+            <div>
+                <span class="label label-danger" ng-style="visible" >debug:</span>
+                <input type="checkbox" class="float:right"  ng-style="visible" ng-model="debug" />
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <!-- main content-->
+    <div>
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-sm-12 col-md-10">
+                <post-document posts="posts" tag-filter="tagFilter" search="search"></post-document>
+            </div>
+        </div>
+        
+    </div>
+
+    <div id="debug" ng-if="debug">
+        <pre>{{ posts | json}}</pre>
+    </div>
+
+</div>
+

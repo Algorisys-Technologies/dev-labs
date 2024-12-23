@@ -1,0 +1,326 @@
+﻿@using MT.Model;
+@{
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isUploadRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "SUBCATBASEDTOT").FirstOrDefault().Write;
+}
+<input type="hidden" name="activeTabMaster" id="activeTabMaster" value="SubCategoryTOTMaster" data-uploadurl="/UploadSubCategoryTOTMaster/UploadSubCategoryTOTFile" />
+<input type="hidden" id="auditTrailEntity" value="SubCategoryTOTMaster" />
+<input type="hidden" id="auditTrailReportName" value="Sub Category TOT Master" />
+<div class="uploadMaster-tab-content active">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="col-sm-12">
+                    <!--  Upload section -->
+                    <section class="upload">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div id='dropAreaDiv' class="col-sm-3 dotted" data-isuploadright="@isUploadRight">
+                                    <figure id="upload">
+                                        <a href="javascript:void(0)">
+                                            <img src="/img/icons/Upload_Secondary_Sales.png" alt="">
+                                        </a>
+                                        <figcaption>
+                                            <div><strong>Click</strong> here to select file or</div><div><strong>Drag and Drop</strong> file here to upload.</div>
+                                        </figcaption>
+                                    </figure>
+                                    <div id="div_fileName">
+
+                                    </div>
+                                </div>
+                                <input id="fileInput" type="file" name="fileInput" style="display: none;" />
+                                <div class="col-sm-1">
+                                    <h1 class="hidden-xs">
+                                        <img src="/img/Icons/Left_Arrow1.png" alt="" class="mtop30">
+                                        <!-- <i class="glyphicon glyphicon-arrow-left text-info mtop40"></i> -->
+                                    </h1>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="col-xs-12  info-details">
+                                        <div class="quote-container">
+                                            <i class="pin"></i>
+                                            <blockquote class="note yellow">
+
+                                                <p><strong>MT Subcategory TOT % Master </strong> <span class="text-info">can be a <strong>full upload</strong> or <strong>incremental upload.</strong> Upload file format can be downloaded from the menu above.</span></p>
+
+                                                <p class="text-info">
+                                                    When full upload is done <u>system will automatically delete the existing data for current MOC </u> and upload <strong>fresh data.</strong>
+
+                                                </p>
+                                                <p class="text-danger">The formart of the file should be always .xls or .xlsx </p>
+                                            </blockquote>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div class="row mbottom10">
+                <div class="col-sm-12">
+                    <!-- Data Table -->
+                    <section id="tableinfo" >
+                        <div id="div_tableContainer" class="">
+                            <div style="text-align: center;">
+                                <label class="radio-inline"><input data-filename="DIRECT-ECOMM-HAIKO-TOT (On)" type="radio" name="TOTCategory_tableDisplay" value="on" checked="checked"><span class="lh2_2em">On Invoice</span></label>
+                                <label class="radio-inline"><input data-filename="DIRECT-ECOMM-HAIKO-TOT (Off)" type="radio" name="TOTCategory_tableDisplay" value="off"><span class="lh2_2em">Off Invoice Monthly</span></label>
+                                <label class="radio-inline"><input data-filename="DIRECT-ECOMM-HAIKO-TOT (OffQtr)" type="radio" name="TOTCategory_tableDisplay" value="quarterly"><span class="lh2_2em">Off Invoice Quarterly</span></label>
+                            </div>
+                            <div id="subCatTOTTable_Partial">
+                                @Html.Partial("_SubcategoryTOTRatesTabTable")
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </section>
+                </div>
+            </div>
+            <div class="mbottom10"></div>
+        </div>
+        <!--  Right Column -->
+    </div>
+</div>
+
+<script>
+    var uploadMasters1_dtObj;
+    $(document).ready(function () {
+
+        //FillSubCategoryTOTDataTable("DIRECT-ECOMM-HAIKO-TOT (On)");
+
+        $(document).on("click", "#download", function () {
+            var totCategory = $("input[name=TOTCategory_tableDisplay]:checked").val();
+            var sheetName = $("input[name=TOTCategory_tableDisplay]:checked").data("filename");
+            window.location = "/UploadSubCategoryTOTMaster/Download_SubCategoryTOTMasterExcel?totCategory=" + totCategory + "&sheetName=" + sheetName + "";
+        });
+    });
+
+    function FillSubCategoryTOTDataTable() {
+        var totCategory = $("input[name=TOTCategory_tableDisplay]:checked").val();
+        if (uploadMasters1_dtObj != undefined) {
+            uploadMasters1_dtObj.destroy();
+        }
+
+        if ($("#dropAreaDiv").data('isuploadright') == "True") {
+
+            uploadMasters1_dtObj = $('#uploadSubcategoryTOTMaster').DataTable({
+                "ajax": {
+                    "url": "/UploadSubCategoryTOTMaster/LoadSubCategoryTOTData",
+                    "type": "GET",
+                    "data": { totCategory: totCategory },
+                    "datatype": "json",
+                    "error": function (xhr, textStatus, errorThrown) {
+                        callOnError(xhr, textStatus, errorThrown);
+                    }
+                },
+                "columns": [{},
+                         { "data": "ChainName", "orderable": true, "class": "leftaligncell" },
+                            { "data": "GroupName", "orderable": true, "class": "leftaligncell" },
+                            { "data": "Branch", "orderable": true, "class": "leftaligncell" },
+                            { "data": "Eye", "orderable": true, "class": "rightaligncell" },
+                            { "data": "Face", "orderable": true, "class": "rightaligncell" },
+                            { "data": "LakmeSkin", "orderable": true, "class": "rightaligncell" },
+                            { "data": "Lip", "orderable": true, "class": "rightaligncell" },
+                            { "data": "Nail", "orderable": true, "class": "rightaligncell" },
+                            { "data": "PondsTopEnd", "orderable": true, "class": "rightaligncell" },
+                            { "data": "NailPolishRemover", "orderable": true, "class": "rightaligncell" },
+                            { "data": "OtherItems", "orderable": true, "class": "rightaligncell" },
+                            { "data": "LipNLove", "orderable": true, "class": "rightaligncell" },
+                            { "data": "TNG", "orderable": true, "class": "rightaligncell" }
+                ],
+                'columnDefs': [{
+                    'targets': 0,
+                    'searchable': false,
+                    'orderable': false,
+                    'className': 'dt-body-center dltcolumn',
+                    'sWidth': '5%',
+                    'render': function (data, type, full, meta) {
+                        return '<input type="checkbox" name="id" value="' + full.ChainName + full.GroupName + $('<div/>').text(data).html() + '">';
+                    }
+                }],
+                "scrollX": true,
+                "scrollY": 400,
+                "scroller": {
+                    loadingIndicator: true
+                }
+            });
+        }
+        else {
+            uploadMasters1_dtObj = $('#uploadSubcategoryTOTMaster').DataTable({
+                "ajax": {
+                    "url": "/UploadSubCategoryTOTMaster/LoadSubCategoryTOTData",
+                    "type": "GET",
+                    "data": { totCategory: totCategory },
+                    "datatype": "json",
+                    "error": function (xhr, textStatus, errorThrown) {
+                        callOnError(xhr, textStatus, errorThrown);
+                    }
+                },
+                "columns": [
+                         { "data": "ChainName", "orderable": true, "class": "leftaligncell" },
+                            { "data": "GroupName", "orderable": true, "class": "leftaligncell" },
+                            { "data": "Branch", "orderable": true, "class": "leftaligncell" },
+                            { "data": "Eye", "orderable": true, "class": "rightaligncell" },
+                            { "data": "Face", "orderable": true, "class": "rightaligncell" },
+                            { "data": "LakmeSkin", "orderable": true, "class": "rightaligncell" },
+                            { "data": "Lip", "orderable": true, "class": "rightaligncell" },
+                            { "data": "Nail", "orderable": true, "class": "rightaligncell" },
+                            { "data": "PondsTopEnd", "orderable": true, "class": "rightaligncell" },
+                            { "data": "NailPolishRemover", "orderable": true, "class": "rightaligncell" },
+                            { "data": "OtherItems", "orderable": true, "class": "rightaligncell" },
+                            { "data": "LipNLove", "orderable": true, "class": "rightaligncell" },
+                            { "data": "TNG", "orderable": true, "class": "rightaligncell" }
+                ],
+
+                "scrollX": true,
+                "scrollY": 400,
+                "scroller": {
+                    loadingIndicator: true
+                }
+            });
+        }
+        setTimeout(function () {
+
+            $("#tblheader").remove();
+            $('<div id="tblheader" class="mbottom5"><a href="#" id="download"><img class="downloadimg" src="/img/dashboard/download_excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a><span id="btnviewAuditTrail" class="btn audittrail" title="Audit Trail"><img src="/img/auditTrial2.png" width="20px"/></span></div>').insertBefore($("#uploadSubcategoryTOTMaster_length"));
+
+        }, 10);
+
+    }
+
+    $('input[type=radio][name=TOTCategory_tableDisplay]').change(function () {
+        //FillSubCategoryTOTDataTable();
+        UpdateTOTDataTable();
+    });
+
+    $(document).off("click", "#row-select-all").on("click", "#row-select-all", function () {
+        // Get all rows with search applied
+        var rows = uploadMasters1_dtObj.rows({ 'search': 'applied' }).nodes();
+        // Check/uncheck checkboxes for all rows in the table
+        $('input[type="checkbox"]', rows).prop('checked', this.checked);
+    });
+
+    $(document).off("click", "#btndeleteSubCategoryTOT").on("click", "#btndeleteSubCategoryTOT", function () {
+        if ($('input[type="checkbox"][name="id"]:checked').length > 0) {
+            bootbox.confirm(" Are you sure, delete selected row(s)?", function (result) {
+                if (result == true) {
+                    var form = this;
+                    // Iterate over all checkboxes in the table
+                    uploadMasters1_dtObj.$('input[type="checkbox"]').each(function () {
+                        // If checkbox doesn't exist in DOM
+                        if (!$.contains(document, this)) {
+                            // If checkbox is checked
+                            if (this.checked) {
+                                // Create a hidden element
+                                $(form).append(
+                                   $('<input>')
+                                      .attr('type', 'hidden')
+                                      .attr('name', this.name)
+                                      .val(this.value)
+                                );
+                            }
+                        }
+
+                    });
+                    var data = uploadMasters1_dtObj.$('input[type="checkbox"]').serialize();
+
+                    $.ajax({
+                        url: "/UploadSubCategoryTOTMaster/DeleteSubCategoryTOT",
+                        type: "Post",
+                        data: data,
+                        success: function (result) {
+                            //FillSubCategoryTOTDataTable();
+                            UpdateTOTDataTable();
+                            if (result.data.IsSuccess == false) {
+                                bootbox.alert({
+                                    message: result.data.MessageText,
+                                    title: "Error!"
+                                });
+                            }
+                            else {
+                                bootbox.alert({
+                                    message: result.data.MessageText,
+                                    title: "Message!"
+                                });
+                            }
+                        }
+                    })
+                }
+            })
+        }
+        else {
+            bootbox.alert("Please select records to delete");
+            return false;
+        }
+    });
+
+    function UpdateTOTDataTable() {
+        var totCategory = $("input[name=TOTCategory_tableDisplay]:checked").val();
+
+        $.ajax({
+            url: '/UploadProvisionMaster/UpdateTOTTable',
+            type: "GET",
+            data: { totCategory: totCategory },
+            datatype: "text/plain",
+            cache: false,
+            //async: false,
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (data) {
+                $('#subCatTOTTable_Partial').html(data);
+                if (uploadMasters1_dtObj != undefined) {
+                    uploadMasters1_dtObj.destroy();
+                }
+                uploadMasters1_dtObj = $('#uploadSubcategoryTOTMaster').DataTable({
+                    //scrollY: '50vh',
+                    ////scrollCollapse: true,
+                    ////paging: false,
+                    //scrollX: true
+                    "scrollX": true,
+                    "scrollY": 400,
+                    "scroller": {
+                        loadingIndicator: true
+                    }
+                });
+
+                setTimeout(function () {
+                    $("#tblheader").remove();
+                    $('<div id="tblheader" class="mbottom5"><a href="#" id="download"><img class="downloadimg" src="/img/dashboard/download_excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a><span id="btnviewAuditTrail" class="btn audittrail2" title="Audit Trail"><img src="/img/auditTrial2.png" width="20px"/>Audit Trail</span></div>').insertBefore($("#uploadSubcategoryTOTMaster_length"));
+
+                    //$("#download").remove();
+                    //$('<a href="#" id="download"><img class="downloadimg" src="/img/dashboard/download_excel.png" alt=""></a><label style="Color:blue;Padding:5px">Download</label>').insertBefore($("#uploadSubcategoryTOTMaster_length"));
+
+                }, 10);
+            },
+            complete: function (data) {
+                $('#loading').hide();
+            }
+        });
+    }
+
+    if (uploadMasters1_dtObj != undefined) {
+        uploadMasters1_dtObj.destroy();
+    }
+    uploadMasters1_dtObj = $('#uploadSubcategoryTOTMaster').DataTable({
+        //scrollY: '50vh',
+        ////scrollCollapse: true,
+        ////paging: false,
+        //scrollX: true
+        "scrollX": true,
+        "scrollY": 400,
+        "scroller": {
+            loadingIndicator: true
+        }
+    });
+
+    setTimeout(function () {
+        $("#tblheader").remove();
+        $('<div id="tblheader" class="mbottom5"><a href="#" id="download"><img class="downloadimg" src="/img/dashboard/download_excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a><span id="btnviewAuditTrail" class="btn audittrail2" title="Audit Trail"><img src="/img/auditTrial2.png" width="20px"/>Audit Trail</span></div>').insertBefore($("#uploadSubcategoryTOTMaster_length"));
+
+        //$("#download").remove();
+        //$('<a href="#" id="download"><img class="downloadimg" src="/img/dashboard/download_excel.png" alt=""></a><label style="Color:blue;Padding:5px">Download</label>').insertBefore($("#uploadSubcategoryTOTMaster_length"));
+
+    }, 10);
+</script>
+
+<script src="~/Scripts/custom/drag-and-dropping.js"></script>

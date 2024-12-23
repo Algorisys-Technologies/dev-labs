@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MT.Utility
+{
+    public class MTConstants
+    {
+
+    }
+    public class MasterConstants
+    {
+        public static string[] Cutomer_Group_Excel_Column = { "Customer code", "Region" };
+        public static string[] Cutomer_Group_DB_Column = { "CustomerCode", "StateCode" };
+        public static string Customer_Group_Master_Table_Name = "mtCustomerGroupMaster";
+<<<<<<< HEAD
+ 	    public static string[] Sku_Excel_Column = { "BasepackCode", "TaxCode" };
+        public static string[] ServiceTax_Excel_Column = { "ChainName", "GroupName","Rate" }; 
+        public static string ServiceTax_Master_Table_Name = "mtServiceTaxMaster";
+        public static string[] Sku_Db_Column = { "BasepackCode", "TaxCode" };
+        public static string Sku_Master_Table_Name = "mtSkuMaster";
+       
+=======
+        public static string[] Sku_Excel_Column = { "BasepackCode", "TaxCode" };
+        public static string[] ServiceTax_Excel_Column = { "ChainName", "GroupName", "Rate" };
+        public static string ServiceTax_Master_Table_Name = "mtServiceTaxMaster";
+        public static string[] Sku_Db_Column = { "BasepackCode", "TaxCode" };
+        public static string Sku_Master_Table_Name = "mtSkuMaster";
+        public static string[] ServiceTax_DB_Column = { "ChainName", "GroupName", "Rate" };
+>>>>>>> 5d8e2c1be49eb5ab575e8f8db39714f3ba2a96ce
+    }
+}

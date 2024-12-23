@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{59A53193-B652-442D-9882-5DAD6C8CCA5F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MT.Business</RootNamespace>
+    <AssemblyName>MT.Business</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EPPlus">
+      <HintPath>..\RefereanceDLL\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\RefereanceDLL\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdditionalMarginService.cs" />
+    <Compile Include="AssignAccessService.cs" />
+    <Compile Include="BaseService.cs" />
+    <Compile Include="CommonMasterService.cs" />
+    <Compile Include="LoginService.cs" />
+    <Compile Include="GroupWiseReportService.cs" />
+    <Compile Include="ReportService.cs" />
+    <Compile Include="UserService.cs" />
+    <Compile Include="GenerateJVService.cs" />
+    <Compile Include="ClusterRSCodeMappingMasterService.cs" />
+    <Compile Include="DownloadExcelFile.cs" />
+    <Compile Include="DashboardService.cs" />
+    <Compile Include="RolesService.cs" />
+    <Compile Include="SecSalesReportService.cs" />
+    <Compile Include="CustomerGroupService.cs" />
+    <Compile Include="HuggiesBasepackMasterService.cs" />
+    <Compile Include="MasterService.cs" />
+    <Compile Include="OutletMasterService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SalesTaxRateService.cs" />
+    <Compile Include="CalculateGSVService.cs" />
+    <Compile Include="CalculateProvisionService.cs" />
+    <Compile Include="ServiceTaxMasterService.cs" />
+    <Compile Include="SkuMasterService.cs" />
+    <Compile Include="SubcategoryMappingService.cs" />
+    <Compile Include="SubcategoryTOTRateService.cs" />
+    <Compile Include="TierBasedTOTMasterService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MT.DataAccessLayer\MT.DataAccessLayer.csproj">
+      <Project>{111e7e5a-275a-4425-b070-8dfc2235ca79}</Project>
+      <Name>MT.DataAccessLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MT.Model\MT.Model.csproj">
+      <Project>{26ac3f5a-da02-4bb2-bb52-020bedf335cd}</Project>
+      <Name>MT.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MT.SessionManager\MT.SessionManager.csproj">
+      <Project>{cfb0880a-ab79-4eb3-8652-979240e8d4f6}</Project>
+      <Name>MT.SessionManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MT.Utility\MT.Utility.csproj">
+      <Project>{e1a705b8-7b76-4c45-9ccb-81dc213174dd}</Project>
+      <Name>MT.Utility</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,215 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    background: url(../../img/Header_LeftSide.png) left top no-repeat, url(../../img/logo.png) right top no-repeat;
+    padding: 15px;
+    background-size: 100px, 100px;
+    background-position: 0px 0px,100% 1px;
+    font-family: 'Arial Unicode MS';
+}
+
+  .dotted {
+                border: 1px #C5B2B2 dotted;
+                padding: 10px;
+            }
+
+.logout {
+    font-weight: bold;
+    text-decoration: underline;
+}
+.stepno {
+    font-size: 10px;
+    margin-top: 5px;
+    display: inline-block;
+    background: #0F0E9A;
+    border-radius: 50px;
+    padding: 1px 6px;
+    color: #FFF;
+    text-align: center;
+    margin-right: 3px;
+}
+
+thead {
+    background: #52CFD5;
+}
+
+.logo {
+  width: 120px;
+}
+.mleft10{
+    margin-left: 10px;
+}
+.mbottom5 {
+    margin-bottom: 5px;
+}
+.mbottom10 {
+    margin-bottom: 10px;
+}
+.mtop30 {
+    margin-top: 30px;
+}
+.mtop5 {
+    margin-top: 5px;
+}
+.mtop10 {
+    margin-top: 10px;
+}
+.mtop40 {
+    margin-top: 40px;
+}
+header .container {
+    border-bottom: 1px solid #0D9AA1;
+    margin-bottom: 5px;
+}
+
+.user-details {
+    font-size: 14px;
+    color: #0168B3;
+    padding: 5px 10px;
+    border-radius: 16%;
+    margin-top: 5px !important;
+}
+
+.options-list {
+    text-align: center;
+    margin-left: 18%;
+    margin-top: 2%;
+}
+
+
+.options-list li {
+    min-width: 50px;
+}
+
+.titlename {
+    margin-top: 1%;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.sub-title {
+    margin-left: 1%;
+}
+
+.copyright {
+    color: #000 !important;
+    font-size: 12px !important;
+}
+
+.hulName {
+    font-size: 11px !important;
+}
+
+
+.navbar-default span {
+    color: #000;
+    font-weight: normal;
+}
+footer .text-info {
+    color: #00A9E0 !important;
+}
+
+.navbar-default span a {
+    cursor: pointer;
+    color: #000;
+    font-weight: normal;
+}
+
+.developedBy {
+    color: #0168B3 !important;
+    font-size: 12px !important;
+    text-decoration: underline;
+}
+
+.navbar-default span {
+    color: #000;
+    font-weight: normal;
+}
+
+
+
+.options-list li {
+min-width: 50px;
+
+}
+
+.options-list li figure img{
+width: 20px;
+}
+.options-list li figure figcaption {
+  font-weight: bold;
+    font-size: 12px;
+}
+
+.options-list li a.option-link {
+text-decoration: underline;
+transition: all 1s;
+color:#000;
+}
+
+.options-list li a.option-link:hover {
+text-decoration: underline;
+color: #0EE90E;;
+font-weight: bold;
+box-shadow: 1px 1px 5px 1px grey;
+}
+
+
+
+
+
+/* MEDIA QUERIES */
+/*  768  */
+
+ @media (min-width : 480px) and (max-width : 640px) {
+
+/*    body {
+        background: cyan;
+    }*/
+
+
+ .options-list {
+  text-align: center;
+    margin-left: -7%;
+    margin-bottom: 7%;
+}
+
+
+}
+
+
+ @media (min-width : 641px) and (max-width : 768px) {
+
+    /*body {
+        background: green;
+    }*/
+
+
+ .options-list {
+  text-align: center;
+    margin-left: -7%;
+    margin-bottom: 7%;
+}
+
+}
+
+
+
+
+ @media (min-width : 769px) and (max-width : 1210px){
+
+
+ul.options-list {
+    margin-left: 28%;
+}
+
+ }
+
+.downloadimg {
+    width:20px;
+}
+
+

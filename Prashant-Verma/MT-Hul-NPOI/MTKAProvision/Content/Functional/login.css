@@ -1,0 +1,390 @@
+﻿body {
+    overflow-y: auto;
+}
+
+
+img#logohul {
+  padding: 10px;
+  padding-bottom: 0px !important;
+  height: 90px;
+}
+
+div#login #leftcol  img {
+  height: 100vh;
+ }
+
+#login .well {
+	background: #fff;
+	border: 0px;
+	box-shadow: inset 0 0 0  rgba(0,0,0,.00);
+}
+
+#login .left-section img#logohul {
+  padding: 10px;
+  padding-bottom: 0px !important;
+  height: 90px;
+}
+
+#login .logo-title a{
+	font-size: 33px;
+  font-weight: bold;
+  margin: 10px;
+  padding: 10px;
+  text-decoration: none;
+  color: #00A9E0;
+}
+#login .left-section {
+	  font-weight: bold;
+	  color: #000;
+	  text-decoration: none;
+}
+
+#login .right-section {
+	margin-top: 20px;
+	/*margin-bottom: 10px;*/
+}
+
+#login .main-top {
+  border-bottom: 6px solid #F29200;
+  margin-bottom: 5px;
+}
+
+#login #rightcol {
+	  border-left: 3px solid #00A9E0;
+}
+
+/* Large desktops and laptops */
+@media (min-width: 1200px) {
+
+}
+
+/* Portrait tablets and medium desktops */
+@media (min-width: 992px) and (max-width: 1199px) {
+
+
+	#login .logo-title a
+	{
+	  font-size: 34px;
+	}
+		#login .right-section {
+		text-align: center;
+	}
+}
+
+/* Portrait tablets and small desktops */
+@media (min-width: 768px) and (max-width: 991px) {
+
+		#login .right-section {
+		text-align: center;
+	}
+
+	#login .left-section {
+	  text-align: center;
+	}
+}
+
+/* Landscape phones and portrait tablets */
+@media (max-width: 767px) {
+
+		#login .right-section {
+		text-align: center;
+	}
+
+
+
+#login .left-section {
+	text-align: center;
+}
+
+
+
+
+}
+
+/* Landscape phones and smaller */
+@media (max-width: 480px) {
+
+
+	#login .right-section {
+		text-align: center;
+	}
+
+
+
+
+#login .left-section {
+	text-align: center;
+}
+
+
+
+
+
+}
+
+.lpad0{
+    padding-left: 0px;
+}
+.rpad0{
+    padding-right: 0px;
+}
+
+
+#login .glyphicon.glyphicon-user{
+  color: rgb(19, 166, 200);
+}
+#login .glyphicon.glyphicon-lock{
+  color: rgb(19, 166, 200);
+}
+.mtop80{
+	margin-top: 80px;
+}
+
+
+
+#login #loginbox > div:first-child {
+    padding-bottom: 10px;
+}
+
+
+
+#login #form > div {
+    margin-bottom: 25px;
+}
+
+#login #form > div:last-child {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#login .panel {
+    background-color: transparent;
+}
+
+#login .panel-body {
+    padding-top: 30px;
+    background-color: rgba(2555,255,255,.3);
+}
+#login .panel-title {
+    padding :10px;
+background:rgb(19, 166, 200);
+    color:#fff;
+    font-size: 22px;
+    font-weight:bold;
+/*
+	color-stop(1, #FFFFFF),
+	color-stop(1, #FFFFFF)
+);
+background-image: -o-linear-gradient(right top, #1BCAFF 23%, #FFFFFF 100%, #FFFFFF 100%);
+background-image: -moz-linear-gradient(right top, #1BCAFF 23%, #FFFFFF 100%, #FFFFFF 100%);
+background-image: -webkit-linear-gradient(right top, #1BCAFF 23%, #FFFFFF 100%, #FFFFFF 100%);
+background-image: -ms-linear-gradient(right top, #1BCAFF 23%, #FFFFFF 100%, #FFFFFF 100%);
+background-image: linear-gradient(to right top, #1BCAFF 23%, #FFFFFF 100%, #FFFFFF 100%);
+    */
+}
+
+#login .txtblack{
+    color:#000 !important;
+}
+
+
+/*  Paper effect for login box */
+
+#login .box {
+
+	background:#FFF;
+}
+
+
+
+
+.copyright {
+    color: #000 !important;
+    font-size: 12px !important;
+}
+.hulName {
+    font-size: 11px !important;
+}
+.navbar-default span a {
+    cursor: pointer;
+    color: #000;
+    font-weight: normal;
+}
+.developedBy {
+    color: #0168B3 !important;
+    font-size: 12px !important;
+    text-decoration: underline;
+}
+footer .text-info {
+    color: #00A9E0 !important;
+}
+.navbar-default span {
+    color: #000;
+    font-weight: normal;
+}
+.mtop5 {
+    margin-top: 5px;
+}
+.rpad15{
+    padding-right: 15px;
+}
+ #login .main-title {
+    font-family: arial;
+    font-style: normal;
+    font-weight: bold;
+}
+
+    .logo {
+        width: 125px;
+        display: inline-block;
+        text-align: center;
+    }
+
+
+.mtop10{
+    margin-top: 10px;
+}
+.mtop20 {
+        margin-top: 20px !important;
+
+}
+
+   .mtop50{
+        margin-top: 50px !important;
+    }
+
+    .mtop80{
+        margin-top: 80px !important;
+    }
+.bottomtext {
+    height: 30px;
+}
+
+
+
+
+/*==================================================
+ * Effect 2  class used is box and effect2
+ * ===============================================*/
+#login .effect2
+{
+  position: relative;
+}
+#login .effect2:before, #login .effect2:after
+{
+  z-index: -1;
+  position: absolute;
+  content: "";
+  bottom: 15px;
+  left: 10px;
+  width: 50%;
+  top: 80%;
+  max-width:300px;
+  background: #777;
+  -webkit-box-shadow: 0 15px 10px #777;
+  -moz-box-shadow: 0 15px 10px #777;
+  box-shadow: 0 15px 10px #777;
+  -webkit-transform: rotate(-3deg);
+  -moz-transform: rotate(-3deg);
+  -o-transform: rotate(-3deg);
+  -ms-transform: rotate(-3deg);
+  transform: rotate(-3deg);
+}
+#login .effect2:after
+{
+  -webkit-transform: rotate(3deg);
+  -moz-transform: rotate(3deg);
+  -o-transform: rotate(3deg);
+  -ms-transform: rotate(3deg);
+  transform: rotate(3deg);
+  right: 10px;
+  left: auto;
+}
+
+
+
+/*  Media queries */
+
+
+
+
+	/* Large Devices, Wide Screens */
+	@media only screen and (max-width : 1200px){
+        div.bottomtext p.rightsec {
+         text-align: right;
+        }
+         div.bottomtext.leftsec {
+         text-align: left;
+        }
+	}
+
+
+    @media only screen and (min-width : 700px){
+        div.bottomtext p.rightsec {
+         text-align: right;
+        }
+               div.bottomtext.leftsec {
+         text-align: left;
+        }
+	}
+
+
+	/* Medium Devices, Desktops */
+	@media only screen and (max-width : 992px){
+    #login  #loginbox h2.txtblack{
+            font-size: 22px;
+        }
+
+     div.bottomtext p.rightsec {
+         text-align: center;
+        }
+            div.bottomtext.leftsec {
+         text-align: center;
+        }
+
+
+	}
+
+	/* Small Devices, Tablets */
+	@media only screen and (max-width : 768px){
+    #login  #loginbox h2.txtblack{
+            font-size: 22px;
+                       margin-top:0px;
+            margin-bottom:0px;
+
+        }
+
+    div.bottomtext p.rightsec {
+         text-align: center;
+        }
+            div.bottomtext.leftsec {
+         text-align: center;
+        }
+
+	}
+
+	/* Extra Small Devices, Phones */
+	@media only screen and (max-width : 480px){
+    #login  #loginbox h2.txtblack{
+            font-size: 18px;
+                       margin-top:0px;
+            margin-bottom:0px;
+
+        }
+
+
+
+
+	}
+
+	/* Custom, iPhone Retina */
+	@media only screen and (max-width : 320px){
+    #login  #loginbox h2.txtblack{
+            font-size: 18px;
+            margin-top:0px;
+            margin-bottom:0px;
+        }
+
+
+	}
+

@@ -1,0 +1,119 @@
+﻿
+using Ionic.Zip;
+using MT.DataAccessLayer;
+using MT.Utility;
+using OfficeOpenXml;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+
+namespace MT.Business
+{
+    public class BaseService
+    {
+        public string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        public SmartData smartDataObj = new SmartData();
+
+        public int GetTotalRowsCount(string search, string tableName)
+        {
+            DataTable dt = new DataTable();
+            DbRequest request = new DbRequest();
+            SmartData smartDataObj = new SmartData();
+            if (string.IsNullOrEmpty(search))
+            {
+                //dt = Ado.GetDataTable("Select Count(*) from mtCustomerGroupMaster", connection);
+                request.SqlQuery = "Select Count(*) from " + tableName ;
+                dt = smartDataObj.GetData(request);
+
+            }
+            else
+            {
+                //dt = Ado.GetDataTable("Select Count(*) from mtCustomerGroupMaster WHERE FREETEXT (*, '" + search + "')", connection);
+                request.SqlQuery = "Select Count(*) from " + tableName + " WHERE FREETEXT (*, '" + search + "')";
+                dt = smartDataObj.GetData(request);
+            }
+            int recordsCount = 0;
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                recordsCount = Convert.ToInt32(dr[0]);
+            }
+
+            return recordsCount;
+        }
+
+
+        public void ExportDataTableToExcel(DataTable sourceDt, string tableName)
+        {
+            using (ExcelPackage xp = new ExcelPackage())
+            {
+                if (sourceDt != null)
+                {
+
+                    ExcelWorksheet ws = xp.Workbook.Worksheets.Add(sourceDt.TableName);
+                    ws.Cells["A1"].LoadFromDataTable(sourceDt, true);
+
+
+                    HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=" + tableName + ".xlsx");
+                    HttpContext.Current.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                    xp.SaveAs(HttpContext.Current.Response.OutputStream);
+
+                    HttpContext.Current.Response.End();
+
+                }
+
+            }
+
+        }
+
+        public string SetCurrentMOC()
+        {
+            string currentMOC = string.Empty;
+            try
+            {
+                DbRequest request = new DbRequest();
+                request.SqlQuery = "SELECT * FROM " + DashBoardConstants.MOC_Status_Table_Name + " where Status='Open'";
+                DataTable dt = smartDataObj.GetData(request);
+                if (dt != null)
+                {
+                    currentMOC = dt.Rows[0]["MonthId"].ToString() + "." + dt.Rows[0]["Year"].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                currentMOC = string.Empty;
+            }
+            return currentMOC;
+        }
+
+
+        public void DownloadAllFileFormat()
+        {
+
+            ZipFile multipleFiles = new ZipFile();
+
+            HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=DownloadedFile.zip");
+
+            HttpContext.Current.Response.ContentType = "application/zip";
+            string[] fileNames = MasterConstants.DownloadAllFileFormatFileName;
+            foreach (string fileName in fileNames)
+            {
+
+                string filePath = System.Web.HttpContext.Current.Server.MapPath("/App_Data/Temp/" + fileName);
+                multipleFiles.AddFile(filePath, string.Empty);
+
+            }
+
+            multipleFiles.Save(HttpContext.Current.Response.OutputStream);
+
+        }
+
+        
+    }
+}

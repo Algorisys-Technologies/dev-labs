@@ -1,0 +1,183 @@
+﻿@using MT.Model;
+@using System.Globalization;
+@{
+    AuditTrailModel auditTrailModelList = ViewData["AuditTrailList"] as AuditTrailModel;
+    int srNo = 1;
+}
+<style>
+    .leftAlign {
+        text-align: left;
+    }
+</style>
+<div class="">
+    @*<center> <label>@ViewBag.ReportName</label></center>*@
+    <input type="hidden" id="hdnReportName" value="@ViewBag.ReportName" />
+    
+    @if (auditTrailModelList.ListColumnDetails.Count() > 0)
+    {   <div class="row mbottom10">
+            <div class="col-sm-12">
+                <!-- Data Table -->
+      
+                <section id="tableinfo">
+                    <div class="">
+  <a href="#" id="download"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a>
+ 
+                        <table id="tblAuditTrail" class="table table-striped table-bordered table-condensed dataTable no-footer" cellspacing="0" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th style="vertical-align:middle;"data-head="SrNo">Sr No</th>
+                                    @foreach (var columnitem in auditTrailModelList.ListColumnDetails)
+                                    {
+                                    <th  data-head="@columnitem.ColumnName">@columnitem.ColumnName</th>
+                                    }
+                                    <th data-head="Operation">Operation</th>
+                                    <th data-head="UpdatedBy">Updated By</th>
+                                    <th data-head="UpdatedDate">Updated Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="clearfix"></div>
+                </section>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row col-md-12">
+            <center>There is no any records in audit trail report!</center>
+        </div>
+    }
+
+</div>
+<script>
+    //oTable = $('#tblAuditTrail').DataTable({
+    //    //  "scrollX": true,
+    //    //   "scrollY": '500px'
+    //});
+    //$('#tblAuditTrailInputTextField').keyup(function () {
+    //    oTable.search($(this).val()).draw();
+    //})
+    $("#spnReportName").html($("#hdnReportName").val());
+
+    $(document).on("click", "#download", function () {
+        window.location = "/AuditTrailReport/Download_AuditTrailExcel?reportName=" + $("#auditTrailReportName").val() + "&entityName=" + $("#auditTrailEntity").val() + "&frmDate=" + $("#dtFrmDate").val() + "&toDate=" + $("#dtToDate").val();
+    });
+
+    var headercolumn = [];
+    $('#tblAuditTrail thead > tr > th').each(function () {
+        var that = $(this).attr('data-head');
+        headercolumn.push({ "data": that, "orderable": true });
+
+    })
+    var out = [];
+
+    //for (var i = 1, ien = 12 ; i < ien ; i++) {
+    //    out.push([i + '-1', i + '-2', i + '-3', i + '-4', i + '-5', i + '-5', i + '-5', i + '-5']);
+    //}
+    //$.ajax({
+    //    URL:"/AuditTrailReport/AjaxGetAuditTrailPageData",
+    //    type: "get",
+    //    success:function(data){
+    //        out = data;
+    //    }
+
+    //})
+    //console.log(headercolumn);
+    function test(start, length, searchValue) {
+        $.ajax({
+            URL:"/AuditTrailReport/AjaxGetAuditTrailPageData",
+            type: "get",
+            data: { searchValue: searchValue, entityName: $("#auditTrailEntity").val(), start: start, length: length },
+            success: function (data) {
+               // console.log(data);
+            }
+
+        })
+        for (var i = start, ien = start + length ; i < ien ; i++) {
+            out.push([i + '-1', i + '-2', i + '-3', i + '-4', i + '-5', i + '-5', i + '-5', i + '-5']);
+        }
+    }
+    uploadMasters1_dtObj = $('#tblAuditTrail').DataTable({
+        "processing": true,
+        "serverSide": true,
+        //"pageLength": 50,
+        "info": true,
+        //"stateSave": true,
+        "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+        @*"ajax": {
+            "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/UploadCustomerGroupMaster/AjaxGetCustomerGroupData",
+    "type": "POST",
+    "error": function (xhr, textStatus, errorThrown) {
+        callOnError(xhr, textStatus, errorThrown);
+    }
+        },*@
+        ajax: function (data, callback, settings) {
+            URL:"/AuditTrailReport/AjaxGetAuditTrailPageData",
+           // type: "get",
+           // data: { searchValue: searchValue, entityName: $("#auditTrailEntity").val(), start: start, length: length },
+            
+            //test(data.start, data.length, data.search.value);
+            //console.log(data);
+            setTimeout( function () {
+                callback( {
+                    draw: data.draw,
+                    data: out,
+                    recordsTotal: 5000000,
+                    recordsFiltered: 5000000
+                } );
+            }, 50 );
+        },
+        //"data": out,
+        //"columns": headercolumn,
+    //"columns": [
+    //        { "data": "CustomerCode", "orderable": true },
+    //        { "data": "StateCode", "orderable": true }
+    //],
+    "order": [[0, "asc"]],
+    "scrollX": true,
+    "scrollY": 400,
+    "scroller": {
+        loadingIndicator: true
+    }
+    });
+</script>
+
+@*createdRow: function(row, data, index) {
+    $('td', row).eq(6).addClass('whatever'); // 6 is index of column
+},
+
+yourDataTable.on( 'draw', function () {
+    $('tr td:nth-child(6)').each(function (){
+          $(this).addClass('class001')
+    })
+});*@
+
+
+    @*uploadMasters1_dtObj2 = $('#tblAuditTrai2l').DataTable({
+        serverSide: true,
+        ajax: function (data, callback, settings) {
+            // make a regular ajax request using data.start and data.length
+            $.get('/AuditTrailReport/AjaxGetAuditTrailPageData/', {
+                entityName:$("#auditTrailEntity").val(),
+                length: data.length,
+                start: data.start,
+                searchValue: data.search.value
+            }, function (res) {
+
+                // map your server's response to the DataTables format and pass it to
+                // DataTables' callback
+                callback({
+
+                //    recordsTotal: res.meta.total_count,
+                //    recordsFiltered: res.meta.total_count,
+                //    data: res.objects
+                });
+            });
+        }
+    });*@

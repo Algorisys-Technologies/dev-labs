@@ -1,0 +1,108 @@
+﻿@using MT.Model;
+@{
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isAdminUser = userRights.UserRole.RoleName == "Admin" ? true : false;
+}
+<header>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-2 pull-right">
+                <h4 class="pull-right user-details">
+                    Welcome <span class="user-name">@ViewBag.UserName</span><div><small class="currentdatetime"></small></div>@*11-May-2016 6.30pm*@
+                    <div><small><a href="@Url.Action("Logout", "Login") " class="logout">Log Out</a></small></div>
+
+                </h4>
+            </div>
+            <div class="col-sm-6 pull-right">
+                <ul class="list-unstyled list-inline options-list">
+                    <li>
+                        <a href="javascript:void(0);" class="option-link" id="btn_NewMOC" data-mocaction="new">
+                            <figure>
+                                <figcaption>New MOC</figcaption>
+                                <img src="/img/dashboard/newmoc.jpg" alt="" class="icon-plus-style">
+                            </figure>
+                        </a>
+                    </li>
+                    @if (isAdminUser == true)
+                    {
+                        <li>
+                            <a href="javascript:void(0);" class="option-link" id="btn_ReopenMOC" data-mocaction="reopen">
+                                <figure>
+                                    <figcaption>Reopen MOC</figcaption>
+                                    <img src="/img/dashboard/newmoc.jpg" alt="" class="icon-plus-style">
+                                </figure>
+                            </a>
+                        </li>
+                    }
+                    <li class="downloadAllFileFormat">
+                        <a id="downloadAllFileFormat" href="#" class="option-link">
+                            <figure>
+                                <figcaption>Download all file formats</figcaption>
+                                <img src="/img/dashboard/Download_Excel.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                    <li id="reportlink">
+                        <a href="/Reports/Index?moc=@ViewBag.currentMOC" class="option-link">
+                            <figure>
+                                <figcaption>Reports</figcaption>
+                                <img src="/img/dashboard/Reports.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                    @if (isAdminUser == true)
+                    {
+                        <li id="securitylink">
+                            <a href="/Security/Index" class="option-link">
+                                <figure>
+                                    <figcaption>Security</figcaption>
+                                    <img src="/img/Icons/Security.png" />
+                                </figure>
+                            </a>
+                        </li>
+                    }
+                    <!-- <li> <a href="#" class="option-link"><figure>
+                        <figcaption>Setting</figcaption>
+                        <img src="/img/dashboard/Settings.png" alt="">
+                    </figure> </a></li> -->
+                    <li>
+                        <a target="_blank" href="/Help/Index" class="option-link">
+                            <figure>
+                                <figcaption>Help</figcaption>
+                                <img src="/img/dashboard/Help.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Dashboard/Index" class="option-link" id="homelink">
+                            <figure>
+                                <figcaption>Home</figcaption>
+                                <img src="/img/icons/home.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div id="stepimage"></div> @*<div class="col-xs-3">
+                            <div class="row">
+                                <center >
+                                    <span class="stepno"></span>
+                                    <img src="" alt="" style="width: 40px; margin-top:5px;">
+                                </center>
+                            </div>
+                        </div>*@
+                    <div class="col-xs-9">
+                        <div class="row">
+                            <h3 class='titlename mbottom5'>Steps to make provision</h3>
+                            <h5 class="sub-title mtop5 titleMonth"></h5>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</header>

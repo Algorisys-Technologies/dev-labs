@@ -1,0 +1,57 @@
+﻿@using MT.Model;
+@using System.Globalization;
+@{
+    List<MonthlyToTProvisionTrend> MonthlyToTProvisionTrendList = ViewData["MonthlyToTProvisionTrendList"] as List<MonthlyToTProvisionTrend>;
+    string currentMOC = ViewBag.currentMOC;
+    string selectedMOC = ViewBag.selectedMOC;
+    SelectList MOCList = ViewBag.MOCList;
+}
+<style>
+    .leftAlign {
+        text-align: left;
+    }
+
+    .drpmoc {
+        width: 120px;
+      
+    }
+    .vcenter {
+      line-height:30px;
+      width:unset;
+    }
+</style>
+<div class="row">
+    <input type="hidden" value="@selectedMOC" id="selectedMOC" />
+    <div class="col-lg-1 vcenter"> MOC </div>
+       @Html.DropDownList("MOCList", MOCList, "-select-", new { @class = "form-control drpmoc  " })
+ 
+</div>
+<div id="trendAnalysisTable">
+
+
+</div>
+<script>
+
+    $(document).ready(function () {
+        document.getElementById("MOCList").selectedIndex = $("#selectedMOC").val();
+        $.ajax({
+            url: '/ProvisionReport/ProvisionTrendCategoryWise',
+            type: "GET",
+            data: "currentReportMOC=" + $("#currentReportMOC").val(),
+            success: function (data) {
+                $("#trendAnalysisTable").html(data.PartialView);
+            }
+        })
+    })
+    $(document).off("change", "#MOCList").on("change", "#MOCList", function () {
+        $.ajax({
+            url: '/ProvisionReport/ProvisionTrendCategoryWise',
+            type: "GET",
+            data: "currentReportMOC=" + $(this).val(),
+            success: function (data) {
+                $("#trendAnalysisTable").html(data.PartialView);
+            }
+        })
+    })
+
+</script>

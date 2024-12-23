@@ -1,0 +1,51 @@
+﻿@using MT.Model;
+<div class="donation-meter ">
+    <span class="glass">
+        <h6 class='vertical'>
+            Click on the month in <span class="green"> green color</span> to open reports or export JV
+        </h6>
+        @{
+            int bottomlentgh = 0;
+            }
+            @foreach (var item in Model)
+            {
+                if (item.MOCStatus == "close")
+                {
+                    <a href="#" data-month="@item.MOCMonth" class="mocclick">
+                        <strong class="total" style="bottom: @(bottomlentgh * 8)%">@item.MOCMonthName</strong>
+                        <span class="amount" style="background: #04B404; bottom: @(bottomlentgh * 8)%;">
+                        </span>
+                    </a>
+                }
+                else
+                    if (item.MOCStatus == "Open")
+                    {
+                        <a href="#" data-month="@item.MOCMonth" class="mocclick">
+                            <strong class="total" style="bottom: @(bottomlentgh * 8)%">@item.MOCMonthName</strong>
+                            <span class="amount" style="background: #F7FE2E; bottom: @(bottomlentgh * 8)%;">
+                            </span>
+                        </a>
+                    }
+                    else if (item.MOCStatus == "")
+                    {
+                        <a href="#" data-month="@item.MOCMonth" class="mocclick">
+                            <strong class="total" style="bottom: @(bottomlentgh * 8)%">@item.MOCMonthName</strong>
+                            <span class="amount" style="background: #808080; bottom: @(bottomlentgh * 8)%;">
+                            </span>
+                        </a>
+                    }
+                bottomlentgh++;
+            }
+
+    </span>
+
+    <div class="bulb">
+        <span class="red-circle"></span>
+        <span class="filler"><span></span></span>
+    </div>
+
+</div>
+<script>
+
+</script>
+

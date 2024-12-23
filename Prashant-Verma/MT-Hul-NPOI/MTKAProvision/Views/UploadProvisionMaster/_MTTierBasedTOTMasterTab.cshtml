@@ -1,0 +1,273 @@
+﻿@using MT.Model;
+@{
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isUploadRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "TIERBASEDTOT").FirstOrDefault().Write;
+}
+<input type="hidden" name="activeTabMaster" id="activeTabMaster" value="MTTierBasedTOTMaster" data-uploadurl="/MTTierBasedTOTMaster/UploadMTTierBasedTOTFile" />
+<input type="hidden" id="auditTrailEntity" value="TierBasedTOTRate" />
+<input type="hidden" id="auditTrailReportName" value="MT Tier Based TOT Master" />
+<div class="row">
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-12">
+                <!--  Upload section -->
+                <section class="upload">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div id='dropAreaDiv' class="col-sm-3 dotted" data-isuploadright="@isUploadRight">
+                                <figure id="upload">
+                                    <a href="javascript:void(0)">
+                                        <img src="/img/icons/Upload_Secondary_Sales.png" alt="">
+                                    </a>
+                                    <figcaption>
+                                        <div><strong>Click</strong> here to select file or</div><div><strong>Drag and Drop</strong> file here to upload.</div>
+                                    </figcaption>
+                                </figure>
+                                <div id="div_fileName">
+
+                                </div>
+                            </div>
+                            <input id="fileInput" type="file" name="fileInput" style="display: none;" />
+                            <div class="col-sm-1">
+                                <h1 class="hidden-xs">
+                                    <img src="/img/Icons/Left_Arrow1.png" alt="" class="mtop30">
+                                    <!-- <i class="glyphicon glyphicon-arrow-left text-info mtop40"></i> -->
+                                </h1>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="col-xs-12  info-details">
+                                    <!--       <div class="col-xs-1 col-sm-1">
+                                              <img src="/img/icons/info.png" alt="" style="width: 25px;">
+                                          </div> -->
+
+
+
+
+
+
+                                    <div class="quote-container">
+                                        <i class="pin"></i>
+                                        <blockquote class="note yellow">
+                                            <p>
+                                                <strong>MT Tier Based TOT % Master</strong> <span class="text-info">can be a  <strong>full upload</strong> or <strong>incremental upload.</strong>. Upload file format can be downloaded from the menu above.
+                                            </p>
+                                            @*<p class="text-info">When full upload is done <u>system will automatically delete the existing data for current MOC</u> and upload <strong> fresh data.</strong></p>*@
+                                            <p class="text-danger">The formart of the file should be always .xls or .xlsx </p>
+                                        </blockquote>
+                                    </div>
+
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div id="div_UploadBtn" class="row" style="display:none;">
+                        <a id="btnDroppedSave" href="javascript:void(0)" class="btn btn-primary btn-lg">Upload File</a>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="row mbottom10">
+            <div class="col-sm-12">
+                <!-- Data Table -->
+                <section id="tableinfo">
+                    <div class="">
+                        <table id="tblMTTierBaseTOT" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    @if (isUploadRight)
+                                    {
+                                        <th style="width:5%" class="spncheck">
+                                            <input type="checkbox" name="select_all" value="1" id="row-select-all">
+
+                                            <span id="btndeleteMTTierBaseTOT" class="btn btn-danger btn-xs deletemaster">Delete</span>
+
+                                        </th> }
+                                    <th style="vertical-align:middle;">Chain Name</th>
+                                    <th style="vertical-align:middle;">Group Name</th>
+                                    <th style="vertical-align:middle;">OutletTier</th>
+                                    <th style="vertical-align:middle;">Color NonColor</th>
+                                    <th style="vertical-align:middle;">Price List</th>
+                                    <th style="vertical-align:middle;">On Invoice Rate</th>
+                                    <th style="vertical-align:middle;">Off Invoice Monthly Rate</th>
+                                    <th style="vertical-align:middle;">Off Invoice Quarterly Rate</th>
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                </section>
+            </div>
+        </div>
+        <div class="mbottom10"></div>
+    </div>
+    <!--  Right Column -->
+</div>
+<script>
+    var tblMTTierBaseTOT_dtObj;
+    $(document).ready(function () {
+
+        FillMTTierBasedTOTDataTable();
+
+    })
+
+    function FillMTTierBasedTOTDataTable() {
+        if (tblMTTierBaseTOT_dtObj != undefined) {
+            tblMTTierBaseTOT_dtObj.destroy();
+        }
+        if ($("#dropAreaDiv").data('isuploadright') == "True") {
+            tblMTTierBaseTOT_dtObj = $('#tblMTTierBaseTOT').DataTable({
+                "processing": true,
+                "serverSide": true,
+                //"pageLength": 50,
+                "info": true,
+                //"stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/MTTierBasedTOTMaster/AjaxGetMTTierBasedTOTData",
+                    "type": "POST",
+                    "error": function (xhr, textStatus, errorThrown) {
+                        callOnError(xhr, textStatus, errorThrown);
+                    }
+                },
+                "columns": [{},
+                        { "data": "ChainName", "orderable": true, "class": "leftaligncell" },
+                        { "data": "GroupName", "orderable": true, "class": "leftaligncell" },
+                        { "data": "OutletTier", "orderable": true, "class": "leftaligncell" },
+                        { "data": "ColorNonColor", "orderable": true },
+                        { "data": "PriceList", "orderable": true, "class": "leftaligncell" },
+                        { "data": "OnInvoiceRate", "orderable": true, "class": "rightaligncell" },
+                        { "data": "OffInvoiceMthlyRate", "orderable": true, "class": "rightaligncell" },
+                        { "data": "OffInvoiceQtrlyRate", "orderable": true, "class": "rightaligncell" }
+                ],
+                'columnDefs': [{
+                    'targets': 0,
+                    'searchable': false,
+                    'orderable': false,
+                    'className': 'dt-body-center',
+                    'sWidth': '5%',
+                    'render': function (data, type, full, meta) {
+                        return '<input type="checkbox" name="id" value="' + full.Id + $('<div/>').text(data).html() + '">';
+                    }
+                }],
+                "order": [[1, "asc"]],
+                "scrollX": true,
+                "scrollY": 400,
+                "scroller": {
+                    loadingIndicator: true
+                }
+            });
+        } else {
+
+            tblMTTierBaseTOT_dtObj = $('#tblMTTierBaseTOT').DataTable({
+                "processing": true,
+                "serverSide": true,
+                //"pageLength": 50,
+                "info": true,
+                //"stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/MTTierBasedTOTMaster/AjaxGetMTTierBasedTOTData",
+                    "type": "POST",
+                    "error": function (xhr, textStatus, errorThrown) {
+                        callOnError(xhr, textStatus, errorThrown);
+                    }
+                },
+                "columns": [
+                        { "data": "ChainName", "orderable": true, "class": "leftaligncell" },
+                        { "data": "GroupName", "orderable": true, "class": "leftaligncell" },
+                        { "data": "OutletTier", "orderable": true, "class": "leftaligncell" },
+                        { "data": "ColorNonColor", "orderable": true },
+                        { "data": "PriceList", "orderable": true, "class": "leftaligncell" },
+                        { "data": "OnInvoiceRate", "orderable": true, "class": "rightaligncell" },
+                        { "data": "OffInvoiceMthlyRate", "orderable": true, "class": "rightaligncell" },
+                        { "data": "OffInvoiceQtrlyRate", "orderable": true, "class": "rightaligncell" }
+                ],
+
+                "order": [[0, "asc"]],
+                "scrollX": true,
+                "scrollY": 400,
+                "scroller": {
+                    loadingIndicator: true
+                }
+            });
+        }
+        setTimeout(function () {
+            $("#tblheader").remove();
+            $('<div id="tblheader" class="mbottom5"><a href="#" id="download"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a><span id="btnviewAuditTrail" class="btn audittrail" title="Audit Trail"><img src="/img/auditTrial2.png" width="20px"/></span></div>').insertBefore($("#tblMTTierBaseTOT_length"))
+        }, 10);
+    }
+
+    $(document).on("click", "#download", function () {
+
+        window.location = "/MTTierBasedTOTMaster/Download_MTTierBasedTOTMasterExcel";
+    });
+
+    $(document).off("click", "#row-select-all").on("click", "#row-select-all", function () {
+        // Get all rows with search applied
+        var rows = tblMTTierBaseTOT_dtObj.rows({ 'search': 'applied' }).nodes();
+        // Check/uncheck checkboxes for all rows in the table
+        $('input[type="checkbox"]', rows).prop('checked', this.checked);
+    });
+
+    $(document).off("click", "#btndeleteMTTierBaseTOT").on("click", "#btndeleteMTTierBaseTOT", function () {
+        if ($('input[type="checkbox"][name="id"]:checked').length > 0) {
+            bootbox.confirm(" Are you sure, delete selected row(s)?", function (result) {
+                if (result == true) {
+                    var form = this;
+                    // Iterate over all checkboxes in the table
+                    tblMTTierBaseTOT_dtObj.$('input[type="checkbox"]').each(function () {
+                        // If checkbox doesn't exist in DOM
+                        if (!$.contains(document, this)) {
+                            // If checkbox is checked
+                            if (this.checked) {
+                                // Create a hidden element
+                                $(form).append(
+                                   $('<input>')
+                                      .attr('type', 'hidden')
+                                      .attr('name', this.name)
+                                      .val(this.value)
+                                );
+                            }
+                        }
+
+                    });
+                    var data = tblMTTierBaseTOT_dtObj.$('input[type="checkbox"]').serialize();
+
+                    $.ajax({
+                        url: "/MTTierBasedTOTMaster/DeleteMTTierBasedTOT",
+                        type: "Post",
+                        data: data,
+                        success: function (result) {
+                            FillMTTierBasedTOTDataTable();
+                            if (result.data.IsSuccess == false) {
+                                bootbox.alert({
+                                    message: result.data.MessageText,
+                                    title: "Error!"
+                                });
+                            }
+                            else {
+                                bootbox.alert({
+                                    message: result.data.MessageText,
+                                    title: "Message!"
+                                });
+                            }
+                        }
+                    })
+                }
+            })
+        }
+        else {
+            bootbox.alert("Please select records to delete");
+            return false;
+        }
+    });
+
+</script>
+<script src="~/Scripts/custom/drag-and-dropping.js"></script>

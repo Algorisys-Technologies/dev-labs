@@ -1,0 +1,55 @@
+﻿@using MT.Model;
+@using System.Data;
+@{
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isUploadRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "SUBCATBASEDTOT").FirstOrDefault().Write;
+    DataTable dt = ViewBag.SubCatTOTRateData as DataTable;
+}
+<table id="uploadSubcategoryTOTMaster" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            @if (isUploadRight == true)
+            {
+                <th style="width:5%" class="spncheck dltcolumn">
+                    <input type="checkbox" name="select_all" value="1" id="row-select-all">
+
+                    <span id="btndeleteSubCategoryTOT" class="btn btn-danger btn-xs deletemaster">Delete</span>
+
+                </th> }
+            @foreach (DataColumn column in dt.Columns)
+            {
+                <th style="vertical-align:middle;">@column.ColumnName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DataRow dr in dt.Rows)
+        {
+            <tr>
+                @if (isUploadRight == true)
+                {
+                    <td>
+                        <input type="checkbox" name="id" value="@dr["Chain Name"].ToString()@dr["Group Name"].ToString()">
+                    </td>
+                }
+                @foreach (DataColumn dc in dt.Columns)
+                {
+                    <td>@dr[dc].ToString()</td>
+                }
+            </tr>
+        }
+
+    </tbody>
+</table>
+@*<script>
+    oTable = $('#uploadSubcategoryTOTMaster').DataTable({
+        //  "scrollX": true,
+        //   "scrollY": '500px'
+        "iDisplayLength": 50,
+        "scrollX": true,
+        "scrollY": 200,
+        "scroller": {
+            loadingIndicator: true
+        }
+    });
+</script>*@

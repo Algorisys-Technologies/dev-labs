@@ -1,0 +1,29 @@
+﻿<div class="row">
+
+    <div class="well col-xs-12 col-md-3 postdetails">
+        <img class="poster img-thumbnail img-responsive" ng-src="{{post.postImageUrl}}">
+
+        <br />
+        <a class="return-link" href="/">
+            <button class="return-btn btn btn-default">
+                <span class="glyphicon glyphicon-arrow-left"></span>
+                Return to Home
+            </button>
+        </a>
+    </div>
+    <div class="col-md-7">
+        <h1 class="post-title">{{post.postName}}({{post.publishedOn | date: 'yyyy'}})</h1>
+
+        <a ng-repeat="tag in post.tags" class="tag btn btn-info" href="#">{{tag.tagName}}</a>
+         
+        <div class="overview" data-ng-bind-html="post.description"></div>
+        
+        <div class="extra-details">
+            <kbd>Reading Time: {{post.readingTime | durations}} </kbd>
+            <kbd>Author: {{post.author}}</kbd>
+            <kbd>Ratings: {{post.normalizedRating}}</kbd>
+            <kbd>Published on: {{post.publishedOn | date}}</kbd>
+        </div>
+
+    </div>
+</div>

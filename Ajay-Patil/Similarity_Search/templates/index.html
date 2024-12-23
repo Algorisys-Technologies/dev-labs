@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/styles/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="heading">Simple Image Search Engine</h1>
+        <form method="POST" enctype="multipart/form-data" class="form">
+            <label class="file-label">
+                <input type="file" name="query_img" class="file-input" style="display: none">
+                <img src="{{query_path}}" alt="" class="img-class">
+                <span class="file-label-text">Choose an image...</span>
+            </label>
+            <input type="submit" value="Search">
+        </form>
+        <h2>Query:</h2>
+        {% if query_path %}
+        <img src="{{ query_path }}" width="300px">
+        {% endif %}
+        <h2>Showing Similar Images</h2>
+        {% for score in scores %}
+        <figure>
+            <img src="{{ score[1] }}" height="200px">
+            <figcaption>{{ score[0] }}</figcaption>
+        </figure>
+        {% endfor %}
+    </div>
+</body>
+</html>

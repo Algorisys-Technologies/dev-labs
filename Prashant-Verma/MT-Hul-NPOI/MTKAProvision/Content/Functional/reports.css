@@ -1,0 +1,341 @@
+figure {
+    text-align: center;
+}
+
+figure#upload img {
+width: 40%;
+}
+
+figcaption {
+  font-size: 12px;
+    color: #645959;
+}
+
+
+.allpad10 {
+  padding: 10px;
+}
+.mtop10{
+  margin-top: 10px;
+}
+
+.mtop60{
+  margin-top: 60px !important;
+}
+.mtop20 {
+  margin-top: 20px;
+}
+
+
+.mtop50 {
+  margin-top: 50px;
+}
+.mtop70 {
+  margin-top: 70px;
+}
+.info-icon {
+  font-size: 12px;
+    background-color: yellow;
+    padding: 3px;
+    border-radius: 50px;
+}
+
+.text-info {
+   color:  #185E9C ;
+}
+.glyphicon.text-info {
+   color: #1C97A4;
+}
+
+
+thead {
+    background : #52CFD5;
+}
+
+th, tr, td {
+    text-align: center;
+}
+
+.info-details p {
+    text-align: justify;
+}
+
+.options-list {
+    text-align: center;
+    margin-left: 40%;
+    margin-top: 2%;
+}
+
+ #secondarySales_filter    {
+    float: right;
+   }
+
+     #secondarySales_filter input {
+        margin-left: 18px;
+   }
+   #secondarySales_paginate {
+    float:right;
+   }
+
+   #secondarySales {
+    font-size: 12px;
+    font-family: sans-serif;
+   }
+
+   #secondarySales  th{
+    font-style: italic;
+   }
+ #secondarySales_wrapper label {
+      font-weight: normal;
+    }
+
+
+
+ @media  (max-width : 768px)  {
+
+/*body {
+  background: green;
+}*/
+figure#upload img {
+    width: 20%;
+}
+
+
+#secondarySales_filter {
+    /*float: none;*/
+}
+
+
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ul.list li {
+              display: block;
+              margin-bottom: 5px;
+            }
+            .list img{
+              width: 25px;
+              margin-right: 5px;
+            }
+            .list .list-name {
+              font-family: 'Arial Unicode MS';
+              font-size: 12px;
+            }
+            .mtop40 {
+              margin-top: 40px;
+            }
+            /*  uploadMaster tab */
+            div.uploadMaster-tab-container{
+              z-index: 10;
+              background-color: #ffffff;
+              padding: 0 !important;
+              border-radius: 4px;
+              -moz-border-radius: 4px;
+              /*border:1px solid #ddd;*/
+              margin-top: 30px;
+              /*margin-left: 50px;*/
+              /*-webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);*/
+              /*box-shadow: 0 6px 12px rgba(0,0,0,.175);*/
+              /*-moz-box-shadow: 0 6px 12px rgba(0,0,0,.175);*/
+              background-clip: padding-box;
+              opacity: 0.97;
+              filter: alpha(opacity=97);
+              min-height:80vh;
+            }
+            div.uploadMaster-tab-menu{
+              padding-right: 0;
+              padding-left: 0;
+              padding-bottom: 0;
+            }
+            div.uploadMaster-tab-menu div.list-group{
+              margin-bottom: 0;
+            }
+            div.uploadMaster-tab-menu div.list-group>a{
+              text-align: left;
+              margin-bottom: 0;
+            }
+            div.uploadMaster-tab-menu div.list-group>a .glyphicon,
+            div.uploadMaster-tab-menu div.list-group>a .fa {
+              color: #000;
+              padding-right: 20px;
+            }
+            div.uploadMaster-tab-menu div.list-group>a:first-child{
+              border-top-right-radius: 0;
+              -moz-border-top-right-radius: 0;
+            }
+            div.uploadMaster-tab-menu div.list-group>a:last-child{
+              border-bottom-right-radius: 0;
+              -moz-border-bottom-right-radius: 0;
+            }
+
+
+            div.uploadMaster-tab-menu div.list-group>a.active,
+            div.uploadMaster-tab-menu div.list-group>a.active .glyphicon,
+            div.uploadMaster-tab-menu div.list-group>a.active .fa{
+                background-color: #1A9FC6!important;
+    color: #ffffff;
+    text-align: right;
+    font-size: 17px;
+    border: none;
+    border-radius: 0px;
+            }
+            div.uploadMaster-tab-menu div.list-group>a.active:after{
+           content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    margin-top: -28px;
+    border-left: 0;
+    border-bottom: 29px solid transparent;
+    border-top: 29px solid transparent;
+    border-left: 19px solid #1A9FC6;
+ border-radius: 3px 2px 2px 3px;
+            }
+            div.uploadMaster-tab-content{
+              background-color: #ffffff;
+              /* border: 1px solid #eeeeee; */
+              padding-left: 20px;
+              /*padding-top: 10px;*/
+            }
+            div.uploadMaster-tab div.uploadMaster-tab-content:not(.active){
+              display: none;
+            }
+
+
+section {
+    /*margin-top: 20px;*/
+    margin-bottom: 20px;
+}
+
+.fa-arrow-circle-right {
+    color: #1A9FC6;
+}
+
+
+/* styling for datatable*/
+
+/* styling for datatable*/
+
+#calculateGsv_filter,
+#calculateProvision_filter,
+#jvOnInvoice_filter,
+#jvOffInvoice_filter,
+#tablename_filter,
+#report1_filter,
+#report2_filter
+{
+    float: right;
+}
+
+#calculateGsv_filter input,
+#calculateProvision_filter input,
+#jvOnInvoice_filter input,
+#jvOffInvoice_filter input,
+#tablename_filter input,
+#report1_filter input,
+#report2_filter input
+{
+    margin-left: 18px;
+}
+
+
+
+#calculateGsv_filter label,
+#calculateProvision_filter label,
+#jvOnInvoice_filter label,
+#jvOffInvoice_filter label,
+#tablename_filter label,
+#report1_filter label,
+#report2_filter label
+{
+    display: hidden;
+}
+
+
+#calculateGsv_paginate ul.pagination,
+#calculateProvision_paginate ul.pagination,
+#jvOnInvoice_paginate ul.pagination,
+#jvOffInvoice_paginate ul.pagination,
+#tablename_paginate ul.pagination,
+#report1_paginate ul.pagination,
+#report2_paginate ul.pagination
+{
+    float: right;
+}
+
+
+
+
+
+
+
+
+/**/
+
+
+.mtop30{
+    margin-top: 30px;
+}
+            .side-menu-icon {
+                height: 30px;
+                margin-right: 10px;
+            }
+
+
+
+            .glass {
+                margin: -53px 35px 10px;
+            }
+
+            .stepno {
+                font-size: 10px;
+                margin-top: 5px;
+                display: inline-block;
+                background: #0F0E9A;
+                border-radius: 50px;
+                padding: 1px 6px;
+                color: #FFF;
+                text-align: center;
+            }
+            .dotted {
+                border: 1px grey dotted;
+            }
+            .info-details {
+                font-size: 12px;
+            }
+
+            .uploadMaster-tab-container .list-group {
+                margin-left: 20px;
+            }
+
+.uploadMaster-tab .intro {
+}
+
+.mtop60 {
+    margin-top: 60px;
+}

@@ -1,0 +1,103 @@
+﻿using Ionic.Zip;
+using MT.Business;
+using MT.Model;
+using MT.SessionManager;
+using OfficeOpenXml;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+<<<<<<< HEAD
+using System.Web.Routing;
+=======
+using MT.Logging;
+>>>>>>> 525ccd191fc38c5ff33505912f67682c0a201cc7
+
+namespace MTKAProvision.Controllers
+{
+    public class AppController : Controller
+    {
+        public ILogger logger = LoggerFactory.GetLogger();
+        BaseService serviceObj = new BaseService();
+        public string CurrentMOC = string.Empty;
+        public string CurrentReportMOC = string.Empty;
+
+        public AppController()
+        {
+            CurrentMOC = SetCurrentMOC();
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+            UserRoleRights LoggedInUserRights = SessionManager<UserRoleRights>.Get("UserData");
+
+            if (LoggedInUserRights == null)
+            {
+                SessionManager<UserRoleRights>.Abandon();
+                filterContext.Result = new RedirectToRouteResult(
+                new RouteValueDictionary { { "controller", "Login" }, { "action", "Index" } });
+            }
+
+            ViewBag.UserName = (LoggedInUserRights == null) ? "" : LoggedInUserRights.UserId;
+            ViewBag.LoggedInUserRights = LoggedInUserRights;
+        }
+
+        public string SetCurrentMOC()
+        {
+            return serviceObj.SetCurrentMOC();
+        }
+        public void ExportDataTableToExcel(DataTable sourceDt, string tableName)
+        {
+            using (ExcelPackage xp = new ExcelPackage())
+            {
+                if (sourceDt != null)
+                {
+
+                    ExcelWorksheet ws = xp.Workbook.Worksheets.Add(sourceDt.TableName);
+                    ws.Cells["A1"].LoadFromDataTable(sourceDt, true);
+
+
+                    Response.AddHeader("content-disposition", "attachment;filename=" + tableName + ".xlsx");
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                    xp.SaveAs(Response.OutputStream);
+                    Response.End();
+
+                }
+
+            }
+
+        }
+
+        [HttpPost]
+        public void ExportHtmlToExcel(string fileName,string exportData)
+	 {
+
+            var data = HttpContext.Server.UrlDecode(exportData);
+
+            HttpContext.Response.Clear();
+            HttpContext.Response.AddHeader("content-disposition", "attachment;filename=" + fileName + ".xls");
+            HttpContext.Response.Charset = "";
+            HttpContext.Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            HttpContext.Response.ContentType = "application/vnd.ms-excel";
+
+            HttpContext.Response.Write(data);
+
+            HttpContext.Response.Flush();
+            HttpContext.Response.End();
+
+        }
+
+        public ActionResult DownloadAllFileFormat()
+        {
+
+            serviceObj.DownloadAllFileFormat();
+           return null;
+
+        }
+
+    }
+}

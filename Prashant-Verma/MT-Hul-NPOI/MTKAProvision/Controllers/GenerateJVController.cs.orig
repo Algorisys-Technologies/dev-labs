@@ -1,0 +1,249 @@
+﻿using MT.Business;
+using MT.DataAccessLayer;
+using MT.Model;
+using MT.Utility;
+using MTKAProvision.Models;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MTKAProvision.Controllers
+{
+    public class GenerateJVController : AppController
+    {
+        GenerateJVService generateJVService = new GenerateJVService();
+        //
+        DashboardService dashboardService = new DashboardService();
+        AssignAccessService assignAccessService = new AssignAccessService();
+        private int TOTAL_ROWS = 0;
+        public string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        SmartData smartDataObj = new SmartData();
+
+        public ActionResult OnInvoice()
+        {
+            return PartialView("OnInvoice");
+        }
+        public ActionResult OffInvoiceMthly()
+        {
+            return PartialView("OffInvoiceMthly");
+        }
+        public ActionResult OffInvoiceQtrly()
+        {
+            return PartialView("OffInvoiceQtrly");
+        }
+        [HttpGet]
+        public ActionResult Calculate()
+        {
+            string msg = "";
+<<<<<<< HEAD
+            bool errorstatus;
+            DbRequest request = new DbRequest();
+            request.Parameters = new List<Parameter>();
+            request.StoredProcedureName = "mtspGenerateJV";
+            Parameter param = new Parameter("MOC", CurrentMOC);
+            Parameter paramuser = new Parameter("user", "Admin");
+            request.Parameters.Add(param);
+            request.Parameters.Add(paramuser);
+            try
+            {
+                smartDataObj.ExecuteStoredProcedure(request);
+                errorstatus = false;
+                dashboardService.Update_SingleStepStatus(DashBoardConstants.GenerateJV_StepId, CurrentMOC);
+
+                msg = "Generate JV done Sucessfully!";
+=======
+            bool errorstatus ;
+            if (assignAccessService.CheckForStepExecuteRight(SecurityPageConstants.GenerateJV_PageId) == true)
+            {
+                DbRequest request = new DbRequest();
+                request.Parameters = new List<Parameter>();
+                request.StoredProcedureName = "mtspGenerateJV";
+                Parameter param = new Parameter("MOC", CurrentMOC);
+                Parameter paramuser = new Parameter("user", "Admin");
+                request.Parameters.Add(param);
+                request.Parameters.Add(paramuser);
+                try
+                {
+                    smartDataObj.ExecuteStoredProcedure(request);
+                    errorstatus = false;
+                    dashboardService.Update_SingleStepStatus(DashBoardConstants.GenerateJV_StepId, CurrentMOC);
+
+                    msg = "Generate JV done Sucessfully!";
+                }
+                catch (Exception ex)
+                {
+                    msg = ex.Message;
+                    errorstatus = true;
+                }
+>>>>>>> ef8b8d52cbdff862264eb036c591e1a315747445
+            }
+            else
+            {
+                errorstatus = true;
+                msg = MessageConstants.InsufficientPermission;
+            }
+            var data = new
+            {
+                error = errorstatus,
+                msg = msg
+            };
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult AjaxGetOnInvoiceJVData(int draw, int start, int length, string currentReportMOC)
+        {
+            string search = Request["search[value]"];
+            int sortColumn = -1;
+            string sortColumnName = "CustomerCode";
+            string sortDirection = "asc";
+
+            // note: we only sort one column at a time
+            if (Request["order[0][column]"] != null)
+            {
+                sortColumn = int.Parse(Request["order[0][column]"]);
+                sortColumnName = Request["columns[" + sortColumn + "][data]"];
+            }
+            if (Request["order[0][dir]"] != null)
+            {
+                sortDirection = Request["order[0][dir]"];
+            }
+            OnInvoiceJVDataTable dataTableData = new OnInvoiceJVDataTable();
+            dataTableData.draw = draw;
+            TOTAL_ROWS = generateJVService.GetTotalOnInvoiceJVRowsCount(search);
+            if (length == -1)
+            {
+                length = TOTAL_ROWS;
+            }
+            dataTableData.recordsTotal = TOTAL_ROWS;
+            int recordsFiltered = 0;
+            dataTableData.data = generateJVService.FilterOnInvoiceJVData(ref recordsFiltered, start, length, search, sortColumnName, sortDirection, currentReportMOC);
+            dataTableData.recordsFiltered = TOTAL_ROWS;
+
+            return Json(dataTableData, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult AjaxGetOffInvoiceQrtlyJVData(int draw, int start, int length, string currentReportMOC)
+        {
+            string search = Request["search[value]"];
+            int sortColumn = -1;
+            string sortColumnName = "CustomerCode";
+            string sortDirection = "asc";
+
+            // note: we only sort one column at a time
+            if (Request["order[0][column]"] != null)
+            {
+                sortColumn = int.Parse(Request["order[0][column]"]);
+                sortColumnName = Request["columns[" + sortColumn + "][data]"];
+            }
+            if (Request["order[0][dir]"] != null)
+            {
+                sortDirection = Request["order[0][dir]"];
+            }
+            OnInvoiceJVDataTable dataTableData = new OnInvoiceJVDataTable();
+            dataTableData.draw = draw;
+            TOTAL_ROWS = generateJVService.GetTotalOffInvoiceQrtlyJVRowsCount(search);
+            if (length == -1)
+            {
+                length = TOTAL_ROWS;
+            }
+            dataTableData.recordsTotal = TOTAL_ROWS;
+            int recordsFiltered = 0;
+            dataTableData.data = generateJVService.FilterOffInvoiceQrtlyJVData(ref recordsFiltered, start, length, search, sortColumnName, sortDirection, currentReportMOC);
+            dataTableData.recordsFiltered = TOTAL_ROWS;
+
+            return Json(dataTableData, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult AjaxGetOffInvoiceMonthlyJVData(int draw, int start, int length, string currentReportMOC)
+        {
+            string search = Request["search[value]"];
+            int sortColumn = -1;
+            string sortColumnName = "CustomerCode";
+            string sortDirection = "asc";
+
+            // note: we only sort one column at a time
+            if (Request["order[0][column]"] != null)
+            {
+                sortColumn = int.Parse(Request["order[0][column]"]);
+                sortColumnName = Request["columns[" + sortColumn + "][data]"];
+            }
+            if (Request["order[0][dir]"] != null)
+            {
+                sortDirection = Request["order[0][dir]"];
+            }
+            OnInvoiceJVDataTable dataTableData = new OnInvoiceJVDataTable();
+            dataTableData.draw = draw;
+            TOTAL_ROWS = generateJVService.GetTotalOffInvoiceMonthlyJVRowsCount(search);
+            if (length == -1)
+            {
+                length = TOTAL_ROWS;
+            }
+            dataTableData.recordsTotal = TOTAL_ROWS;
+            int recordsFiltered = 0;
+            dataTableData.data = generateJVService.FilterOffInvoiceMonthlyJVData(ref recordsFiltered, start, length, search, sortColumnName, sortDirection, currentReportMOC);
+            dataTableData.recordsFiltered = TOTAL_ROWS;
+
+            return Json(dataTableData, JsonRequestBehavior.AllowGet);
+        }
+
+        public void DownloadONInvoiceJVExcel()
+        {
+            using (DataSet ds = generateJVService.GetOnInvoiceJVServiceData(CurrentMOC))
+            {
+                if (ds != null && ds.Tables.Count > 0)
+                {
+
+                    foreach (DataTable dt in ds.Tables)
+                    {
+
+                        ExportDataTableToExcel(dt, "ON Invoice JV");
+                    }
+
+                }
+            }
+
+        }
+
+        public void DownloadOffInvoiceMonthlyJVExcel()
+        {
+            using (DataSet ds = generateJVService.GetOffInvoiceMonthlyJVServiceData(CurrentMOC))
+            {
+                if (ds != null && ds.Tables.Count > 0)
+                {
+
+                    foreach (DataTable dt in ds.Tables)
+                    {
+
+                        ExportDataTableToExcel(dt, "ON Invoice JV");
+                    }
+
+                }
+            }
+
+        }
+
+        public void DownloadOffInvoiceQrtlyJVExcel()
+        {
+            using (DataSet ds = generateJVService.GetOffInvoiceQrtlyJVServiceData(CurrentMOC))
+            {
+                if (ds != null && ds.Tables.Count > 0)
+                {
+
+                    foreach (DataTable dt in ds.Tables)
+                    {
+
+                        ExportDataTableToExcel(dt, "ON Invoice JV");
+                    }
+
+                }
+            }
+
+        }
+    }
+}

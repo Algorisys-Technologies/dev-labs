@@ -1,0 +1,60 @@
+
+/* styling for datatable*/
+#tbcalculategsv_filter {
+
+    float: right;
+}
+#tbcalculategsv_filter input {
+
+    margin-left: 18px;
+}
+
+#tbcalculategsv_paginate ul.pagination {
+
+    float: right;
+}
+
+
+    .mtop60 {
+    margin-top: 60px;
+}
+          .side-menu-icon {
+                height: 40px;
+                margin-right: 10px;
+            }
+
+            div.list-group > a:first-child {
+                height: 62px;
+                line-height: 40px;
+            }
+
+    /*        .glass {
+                margin: -53px 35px 10px;
+            }
+*/
+            .stepno {
+                font-size: 10px;
+                margin-top: 5px;
+                display: inline-block;
+                background: #0F0E9A;
+                border-radius: 50px;
+                padding: 1px 6px;
+                color: #FFF;
+                text-align: center;
+            }
+            .dotted {
+                border: 1px grey dotted;
+            }
+            .info-details {
+                font-size: 12px;
+            }
+.mtop70 {
+  margin-top: 70px;
+}
+
+
+
+table#tbcalculategsv td, table#tbcalculategsv th {
+    font-size: 10px;
+    text-align: left;
+}

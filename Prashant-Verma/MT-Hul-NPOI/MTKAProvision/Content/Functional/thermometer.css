@@ -1,0 +1,173 @@
+
+/* Stying for thermometer chart */
+
+a:hover {
+  color: green;
+}
+.green {
+  color: green;
+  text-decoration: underline;
+}
+footer {
+  margin-top: 10px;
+}
+.vertical {
+ transform: rotate(270deg);
+    transform-origin: left top 0;
+    float: left;
+    width: 342px;
+    left: -103%;
+    position: absolute;
+    font-size: 12px;
+    bottom: -3%;
+    font-weight: normal;
+}
+
+.donation-meter {
+  margin-left: 30px;
+  width: 80px;
+  /*margin-top: 0px;*/
+}
+
+.glass {
+  background: #e5e5e5;
+  border-radius: 100px 100px 0 0;
+  display: block;
+  height: 400px;
+margin: -20px 35px 10px;
+  /*padding: 5px;*/
+  position: relative;
+  width: 20px;
+}
+
+.amount {
+  display: block;
+  width: 20px;
+  position: absolute;
+  height: 7.5%;
+}
+
+strong {
+  /*display: block;
+  text-align: center;*/
+}
+
+.goal {
+  font-size: 30px;
+}
+
+.total {
+  font-size: 12px;
+  position: absolute;
+  left: 35px;
+}
+
+.bulb {
+  background: #e5e5e5;
+  border-radius: 100px;
+  display: block;
+  height: 50px;
+  margin: 0 35px 10px;
+  /*padding: 5px;*/
+  position: relative;
+  top: -20px;
+  right: 15px;
+  width: 50px;
+}
+
+.red-circle {
+  background: #04B404;
+  border-radius: 100px;
+  display: block;
+  height: 50px;
+  width: 50px;
+}
+
+.filler {
+  background: #04B404;
+  border-radius: 100px 100px 0 0;
+  display: block;
+  height: 30px;
+  width: 20px;
+  position: relative;
+  top: -65px;
+  right: -15px;
+  z-index: 30;
+}
+
+.thermo-title {
+   margin-top: -20px;
+    color: purple;
+    font-size: 12px;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+
+/* MEDIA QUERIES */
+/*  768  */
+
+ @media (min-width : 480px) and (max-width : 640px) {
+
+/*    body {
+        background: cyan;
+    }*/
+
+    .donation-meter {
+        margin-left: 40%;
+        width: 80px;
+        margin-top: 47px;
+        margin-bottom: 10%;
+    }
+
+
+ }
+
+
+
+
+
+
+ @media (min-width : 641px) and (max-width : 768px) {
+
+    /*body {
+        background: green;
+    }*/
+
+    .donation-meter {
+          margin-left: 24%;
+    width: 80px;
+    margin-top: 0px;
+    }
+
+.thermo-title {
+    margin-top: -20px;
+    color: purple;
+    font-weight: normal;
+    font-size: 14px;
+    text-decoration: underline;
+    text-align: center;
+}
+
+.glass {
+    margin: 0px 35px 10px;
+}
+
+}
+
+
+
+
+ @media (min-width : 769px) and (max-width : 1024px){
+
+
+
+ }
+
+
+
+
+
+
+
+

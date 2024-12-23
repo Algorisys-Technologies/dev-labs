@@ -1,0 +1,319 @@
+﻿
+@using MT.Model;
+@{
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isUploadRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "PriceList").FirstOrDefault().Write;
+}
+
+
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="row mbottom10">
+            <div class="col-sm-12">
+                <!-- Data Table -->
+                <section id="tableinfo" class="mtop20">
+                    <div class="">
+                        @*<button id="addNewPriceList">Add New</button>*@
+                        @if (isUploadRight == true)
+                        {
+                             <img src="/img/dashboard/newmoc.jpg" id="addNewPriceList" alt="" class="icon-plus-style" title="Add new PriceList">
+
+                        }
+                       
+                        <table id="priceListMaster" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%" data-isuploadright="@isUploadRight">
+                            <thead>
+                                <tr>
+                                    <th>PriceList</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                </section>
+            </div>
+        </div>
+        <div class="mbottom10"></div>
+    </div>
+    <!--  Right Column -->
+</div>
+<script>
+
+    var uploadMasters1_dtObj;
+ 
+    $(document).ready(function () {
+
+        GetPriceListMasterTableData();
+    });
+
+    function GetPriceListMasterTableData() {
+       
+
+        if (uploadMasters1_dtObj != undefined) {
+            uploadMasters1_dtObj.destroy();
+        }
+
+        uploadMasters1_dtObj = $('#priceListMaster').DataTable({
+
+
+            createdRow: function (row, data, dataIndex) {
+              
+                $(row).find('td:eq(2) a')
+          .attr('data-pricelist', data.PriceList)
+
+
+            },
+
+
+
+            "ajax": {
+                "url": "/PriceListMaster/GetPriceListData",
+                "type": "GET",
+                "datatype": "json",
+
+                //"error": function (xhr, textStatus, errorThrown) {
+                //    callOnError(xhr, textStatus, errorThrown);
+
+                //},
+                //"error": function (xhr, err) {
+                //    alert("readyState: " + xhr.readyState + "\nstatus: " + xhr.status);
+                //    alert("responseText: " + xhr.responseText);
+
+                //}
+
+            },
+
+            //"columnDefs": [{
+            //    "targets": -1,
+            //    "data": null,
+            //    "defaultContent": "<button>Click!</button>"
+            //}],
+            "columns": [
+
+                    { "data": "PriceList", "orderable": false },
+                    
+                    //{ "defaultContent": '<input type="checkbox" class="checkbox1"/>' },
+                    { "defaultContent": '<a class="edit" href=#>Edit </a><a class="hide cancel"  href=#>cancel</a>&nbsp&nbsp<a class="hide save"  href=#>save</a>' },
+                    { "defaultContent": '<a class="deletePriceList" href=#><span class="glyphicon glyphicon-trash text-danger"></span> </a>' },
+            ],
+
+
+            "scrollX": true,
+            "scrollY": 260,
+            "scroller": {
+                loadingIndicator: true
+            }
+
+        });
+
+
+    }
+
+    $(document).off('click', '#addNewPriceList').on('click', '#addNewPriceList', function () {
+        debugger;
+        $('#priceList').val(null);
+       
+        $('#priceListModal').modal('show');
+      
+    });
+
+    $(document).off('click', '#btnSavePriceList').on('click', '#btnSavePriceList', function () {
+       
+        var price= $('#priceList').val();        
+        if (price!= "") {
+            $.ajax({
+                type: 'GET',
+                url: '/PriceListMaster/AddPriceList',
+                data: {
+                    priceList: price,
+                   
+                },
+                success: function (data) {
+
+                    $('#priceListModal').modal('hide');
+                    bootbox.alert(data.msg);
+                    GetPriceListMasterTableData();
+
+                },
+                error: function (xhr, err) {
+                    alert("readyState: " + xhr.readyState + "\nstatus: " + xhr.status);
+                    alert("responseText: " + xhr.responseText);
+
+                }
+
+
+            })
+        }
+
+        else {
+
+            $('#priceListModal').modal('hide');
+            bootbox.alert("cant insert blank data");
+
+
+        }
+
+
+
+
+    });
+
+    $(document).off('click', '.deletePriceList').on('click', '.deletePriceList', function () {
+        var isUploadUserRight = $('#priceListMaster').data('isuploadright');
+        if (isUploadUserRight.toLowerCase() == "true")
+        {
+            var pricelist = $(this).data('pricelist');
+
+            var box = bootbox.confirm("Are you sure you want to delete PriceList ", function (result) {
+               
+                if (result == true) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/PriceListMaster/DeletePriceList',
+                        data: {
+                            priceListTODelete: pricelist,
+
+                        },
+                        success: function (data) {
+
+                            bootbox.alert(data.msg);
+
+                            GetPriceListMasterTableData();
+
+                        },
+                        error: function (xhr, err) {
+                            //bootbox.alert("readyState: " + xhr.readyState + "\nstatus: " + xhr.status);
+                          //  bootbox.alert("responseText: " + xhr.responseText);
+
+                        }
+
+                    });
+                }
+
+                else {
+                    box.modal('hide');
+                }
+
+            });
+           
+
+
+        }
+        else
+        {
+            bootbox.alert("You don't have permission to delete the records");
+
+        }
+
+       
+    });
+
+    $(document).off('click', '.edit').on('click', '.edit', function () {
+
+        var isUploadUserRight = $('#priceListMaster').data('isuploadright');
+        if (isUploadUserRight.toLowerCase() == "true")
+        {
+
+            if ($('#editPriceList').length == 0) {
+                $(this).next('a.cancel').removeClass('hide');
+                $(this).next('a').next('a.save').removeClass('hide');
+                $(this).addClass('hide');
+
+                //var val = $(this).closest('td').prev('td').text();
+                var val = $(this).closest('td').prev('td').text();
+
+                var innerHtml = '<input type="text" id="editPriceList" data-value=' + val + ' value=' + val + '>';
+                //$(this).prev('td').prev('td').html(innerHtml);
+                $(this).closest('td').prev('td').html(innerHtml);
+                //var isHuggies = $(this).closest('td').prev('td').text();
+
+
+                $('#editPriceList').focus();
+
+            }
+
+
+        }
+        else
+        {
+            bootbox.alert("You don't have permission to delete the records");
+
+        }
+
+
+    });
+
+
+    $(document).off('click', '.cancel').on('click', '.cancel', function () {
+       
+        $(this).next('a.save').addClass('hide');
+        $(this).prev('a.edit').removeClass('hide');
+        $(this).addClass('hide');
+        var val = $('#editPriceList').data('value');
+        $('#editPriceList').replaceWith(val);
+
+     
+    });
+
+
+    $(document).off('click', '.save').on('click', '.save', function () {
+
+       
+        edittextvalue = $('#editPriceList').val();
+        var val = $('#editPriceList').data('value'); 
+        $(this).prev('a.cancel').addClass('hide');
+        $(this).prev('a').prev('a.edit').removeClass('hide');
+        $(this).addClass('hide');
+
+        if (edittextvalue != "") {
+            var box = bootbox.confirm("Are you sure u want to save the changes", function (result) {
+
+                if (result == true) {
+                   
+                   
+                    $('#editPriceList').data('value', edittextvalue);
+                    $.ajax({
+                        type: 'GET',
+                        url: '/PriceListMaster/EditPriceListMaster',
+                        data: {
+                            newPriceList: edittextvalue,
+                            oldPriceList: val,
+                          
+                        },
+                        success: function (data) {
+                            bootbox.alert(data.msg);
+                            $('#editPriceList').replaceWith(edittextvalue);
+                          
+
+                            GetPriceListMasterTableData();
+
+                        }
+                    });
+
+
+                }
+                else {
+
+                    $('#editPriceList').replaceWith(val);
+                   
+                }
+
+            });
+
+        }
+        else {
+           
+            $('#editPriceList').replaceWith(val);
+           
+            bootbox.alert("Can not edit null value");
+        }
+
+
+    });
+
+</script>

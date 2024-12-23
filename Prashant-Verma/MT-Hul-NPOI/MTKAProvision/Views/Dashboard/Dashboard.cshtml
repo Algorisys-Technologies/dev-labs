@@ -1,0 +1,991 @@
+﻿@using MT.Model;
+@model DashBoardViewModel
+@{
+    ViewBag.Title = "Dashboard";
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isCalculateGSVRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "GSV").FirstOrDefault().Execute;
+    bool isCalculateProvisionRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "PVSION").FirstOrDefault().Execute;
+    bool isGenerateJVRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "JV").FirstOrDefault().Execute;
+    bool isExportJVRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "ExportJV").FirstOrDefault().Extract;
+    bool isCloseMOCRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "CLSMOC").FirstOrDefault().Execute;
+    List<int> thermoYears = ViewBag.ThermoYears as List<int>;
+    var maxYear = thermoYears.Max();
+}
+<div id="dashboard">
+    <!-- Begin page content -->
+    <div class="row">
+        <div class="container mtop40">
+            @* <h6 class="sub-title mtop6 text-warning"><label for="">Help : &nbsp;</label>periores tempore qui iure, nam, sed ratione deleniti maxime deserunt numquam? </h6>*@
+        </div>
+    </div>
+    <div class="clearfix mtop20 mbottom10">
+
+        <input type="hidden" id="currentReportMOC" value="@ViewBag.currentMOC" />
+        <div class="container-fluid">
+            <div class="row">
+                <div class="">
+                    <div class="col-xs-12 col-sm-7 process_wrapper">
+                        <!-- First row -->
+                        <div class="row">
+                            <div class="col-xs-10 col-sm-12 ">
+                                <div class="col-xs-2 process"></div>
+                                <div class="col-xs-2 process"><div class="arrow1"></div></div>
+                                <div class="col-xs-2 process">
+                                    @if (Model.DashboardSteps[1].IsActive)
+                                    {
+                                        <a href="/UploadProvisionMaster/UploadIndex" class="process-link" id="upload_prov_master">
+                                            <img src="/img/Icons/4Upload_Provision_master_Active.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">2</span></div><div><span class="process-title">Upload Provision Master</span></div>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0)" class="process-link disableClick" id="upload_prov_master">
+                                            <img src="/img/greyimg/4.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">2</span></div><div><span class="process-title">Upload Provision Master</span></div>
+                                        </a>
+                                    }
+                                </div>
+                                <div class="col-xs-2 process"><div class="arrow2"></div></div>
+                                <div class="col-xs-2 process">
+                                    @if (Model.DashboardSteps[2].IsActive)
+                                    {
+                                        <a href="/SecSalesReport/Index" class="process-link" id="uploadSecondarySales">
+                                            <img src="/img/Icons/1Secondary_Sales_Active.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">3</span></div>
+                                            <div>
+                                                <span class="process-title">Upload Secondary Sales</span>
+                                            </div>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0)" class="process-link disableClick" id="uploadSecondarySales">
+                                            <img src="/img/greyimg/1.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">3</span></div>
+                                            <div>
+                                                <span class="process-title">Upload Secondary Sales</span>
+                                            </div>
+                                        </a>
+                                    }
+                                    <!-- <div><input type="checkbox"></div> -->
+                                </div>
+                                <div class="col-xs-2 process"><div class="arrow3"></div></div>
+                            </div>
+                        </div>
+                        <!-- Second row -->
+                        <div class="row">
+                            <div class="col-xs-10 col-sm-12" id="second_row">
+                                <div class="col-xs-2 process">
+                                    @if (Model.DashboardSteps[0].IsActive)
+                                    {
+                                        <a href="/UploadMaster/Index" class="process-link" id="upload_masters">
+                                            <img src="/img/Icons/2Upload_Masters_Active.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">1</span></div><div><span class="process-title">Upload Masters</span></div>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0)" class="process-link disableClick" id="upload_masters">
+                                            <img src="/img/greyimg/2.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">1</span></div><div><span class="process-title">Upload Masters</span></div>
+                                        </a>
+                                    }
+
+                                    <div class="check">
+                                        <!-- <input type="checkbox" disabled="disabled" checked="checked" > -->
+                                    </div>
+                                </div>
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process"></div>
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process">
+                                    @if (Model.DashboardSteps[3].IsActive && isCalculateGSVRight)
+                                    {
+                                        <a href="#" class="process-link" id="calculate_gsv" data-toggle="modal" data-target="#mdcalculategsv">
+                                            <img src="/img/Icons/3Caculate_Sales_Active.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">4</span></div><div><span class="process-title">Calculate GSV</span></div>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0)" id="calculate_gsv" class="process-link disableClick">
+                                            <img src="/img/greyimg/3.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">4</span></div><div><span class="process-title">Calculate GSV</span></div>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Third row -->
+                        <div class="row">
+                            <div class="col-xs-10 col-sm-12 ">
+                                <div class="col-xs-2 process"></div>
+                                <div class="col-xs-2 process"><div class="arrow7"></div></div>
+                                <div class="col-xs-5 text-center process">
+                                    @if (Model.DashboardSteps[7].IsActive && isCloseMOCRight)
+                                    {
+                                        <a href="#" class="process-link" id="CloseMOC" data-toggle="modal" data-target="#mdCloseMOC">
+                                            <figure style="margin-top: -81%;margin-left: 5%;">
+                                                <img src="/img/Icons/8Close_MOC_Active.png" alt="" class="img-icon-style mtopn50">
+                                                <figcaption>
+                                                    <div><span class="stepno">8</span></div><div style="min-width: 112%;"><span class="process-title">Close MOC</span></div>
+                                                </figcaption>
+                                            </figure>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#" id="CloseMOC" class="process-link disableClick">
+                                            <figure style="margin-top: -81%;margin-left: 5%;">
+                                                <img src="/img/greyimg/8.png" alt="" class="img-icon-style mtopn50">
+                                                <figcaption>
+                                                    <div><span class="stepno">8</span></div><div style="min-width: 112%;"><span class="process-title">Close MOC</span></div>
+                                                </figcaption>
+                                            </figure>
+                                        </a>
+                                    }
+
+                                    <!-- <div><input type="checkbox"></div> -->
+                                </div>
+                                <!-- <div class="col-xs-2 process"><i class=""></i></div> -->
+                                <div class="col-xs-1 process"><i class=""></i></div>
+                                <div class="col-xs-2 process"><div class="arrow4"></div></div>
+                            </div>
+                        </div>
+                        <!-- Fourth row -->
+                        <div class="row">
+                            <div class="col-xs-10 col-sm-12">
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process"></div>
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process"></div>
+                            </div>
+                        </div>
+                        <!-- Fifth row -->
+                        <div class="row">
+                            <div class="col-xs-10 col-sm-12 fifth">
+                                <div class="col-xs-2 process"><i class=""></i></div>
+                                <div class="col-xs-2 process">
+                                    @if (Model.DashboardSteps[6].IsActive && isExportJVRight)
+                                    {
+                                        <a href="#" class="process-link" id="ExportJV" data-toggle="modal" data-target="#mdExportJV">
+                                            <img src="/img/Icons/7aDownload_JV_Active.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">7</span></div><div><span class="process-title">Export JV</span></div>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#" id="ExportJV" class="process-link disableClick" data-toggle="modal" data-target="#mdExportJV">
+                                            <img src="/img/greyimg/7.png" alt="" class="img-icon-style">
+                                            <div><span class="stepno">7</span></div><div><span class="process-title">Export JV</span></div>
+                                        </a>
+                                    }
+
+
+
+                                    <div>
+                                        <!-- <input type="checkbox" disabled="disabled" checked="checked"> -->
+                                    </div>
+                                </div>
+                                <div class="col-xs-2 process"><div class="arrow6"></div></div>
+                                <div class="col-xs-2 mtop50">
+                                    @if (Model.DashboardSteps[5].IsActive && isGenerateJVRight)
+                                    {
+                                        <a href="#" class="process-link" id="generate_jv" data-toggle="modal" data-target="#">
+                                            <figure style="margin-top: -3%;margin-left: 0%;">
+                                                <img src="/img/Icons/6Generate_JV_Active.png" alt="" class="img-icon-style mtopn50">
+                                                <figcaption>
+                                                    <div><span class="stepno">6</span></div><div><span class="process-title">Generate JV</span></div>
+                                                </figcaption>
+                                            </figure>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#" id="generate_jv" class="process-link disableClick">
+                                            <figure style="margin-top: -3%;margin-left: 0%;">
+                                                <img src="/img/greyimg/6.png" alt="" class="img-icon-style mtopn50">
+                                                <figcaption>
+                                                    <div><span class="stepno">6</span></div><div><span class="process-title">Generate JV</span></div>
+                                                </figcaption>
+                                            </figure>
+                                        </a>
+                                    }
+
+                                    <!-- <div><input type="checkbox"></div> -->
+                                </div>
+
+                                <!--      <img src="img/Icons/6Generate_JV_Active.png" alt="" class="img-icon-style"><div>6</div><div>Title here with</div></div>
+                                -->
+                                <div class="col-xs-2 process"><div class="arrow5"></div></div>
+                                <div class="col-xs-2 process">
+                                    @if (Model.DashboardSteps[4].IsActive && isCalculateProvisionRight)
+                                    {
+                                        <a href="#" class="process-link" id="calculate_provision" data-toggle="modal" data-target="#">
+                                            <figure style="margin-top: 19%;margin-left: -121%;">
+                                                <img src="/img/Icons/5Calculate_provision_Active.png" alt="" class="img-icon-style mtopn50">
+                                                <figcaption>
+                                                    <div><span class="stepno">5</span></div><div><span class="process-title">Calculate Provision</span></div>
+                                                </figcaption>
+                                            </figure>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#" id="calculate_provision" class="process-link disableClick">
+                                            <figure style="margin-top: 19%;margin-left: -121%;">
+                                                <img src="/img/greyimg/5.png" alt="" class="img-icon-style mtopn50">
+                                                <figcaption>
+                                                    <div><span class="stepno">5</span></div><div><span class="process-title">Calculate Provision</span></div>
+                                                </figcaption>
+                                            </figure>
+                                        </a>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="thermometerDiv" class="col-xs-12 col-sm-4 ">
+                        @*<div class=" col-sm-8 col-sm-offset-4">
+                                <div class="donation-meter ">
+                                    <span class="glass">
+                                        <h6 class='vertical'>
+                                            Click on the month in <span class="green"> green color</span> to open reports or export JV
+                                        </h6>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 2%">Jan</strong>
+                                            <span class="amount" style="background: #04B404; bottom: 0%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 9%">Feb</strong>
+                                            <span class="amount" style="background: #04B404; bottom: 8%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 17%">Mar</strong>
+                                            <span class="amount" style="background: #04B404; bottom: 16%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 25%">Apr</strong>
+                                            <span class="amount" style="background: #04B404; bottom: 24%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 33%">May</strong>
+                                            <span class="amount" style="background: #F7FE2E; bottom: 32%;">
+                                            </span>
+                                        </a>
+                                        <a href="">
+                                            <strong class="total" style="bottom: 42%">Jun</strong>
+                                            <span class="amount" style="background: #808080; bottom: 40%;">
+                                            </span>
+                                        </a>
+                                        <a href="">
+                                            <strong class="total" style="bottom: 50%">Jul</strong>
+                                            <span class="amount" style="background: #808080; bottom: 48%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 58%">Aug</strong>
+                                            <span class="amount" style="background: #808080; bottom: 56%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 66%">Sep</strong>
+                                            <span class="amount" style="background: #808080; bottom: 64%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 74%">Oct</strong>
+                                            <span class="amount" style="background: #808080; bottom: 72%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 83%">Nov</strong>
+                                            <span class="amount" style="background: #808080; bottom: 80%;">
+                                            </span>
+                                        </a>
+                                        <a href="reports.html">
+                                            <strong class="total" style="bottom: 91%">Dec</strong>
+                                            <span class="amount" style="background: #808080; bottom: 88%;">
+                                            </span></a>
+                                    </span>
+                                    <div class="bulb">
+                                        <span class="red-circle"></span>
+                                        <span class="filler"><span></span></span>
+                                    </div>
+                                </div>
+                                <h6 class="thermo-title">MOC Provision Status - 2016</h6>
+                            </div>*@
+                    </div>
+
+                </div>
+                <div class="" id="thermometerDropdownDiv" style="float:right;margin-right: 6%;">
+                    <div class="form-group">
+                        <label style="float: left; text-align: left;margin-top:5px;margin-right:5px">Select Year</label>
+
+                        <select class="form-control selectinput" name="thermoYear" id="thermoYearDropdown" style="display: inline-block;vertical-align: middle;width: auto">
+                            <option value="" disabled>Select Year</option>
+
+                            @foreach (var year in thermoYears)
+                            {
+                                if (year == maxYear)
+                                {
+                                    <option value="@year" selected>@year</option>
+                                }
+                                else
+                                {
+                                    <option value="@year">@year</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calculate GSV Modal -->
+<div class="modal fade" id="mdcalculategsv" tabindex="-1" role="dialog" aria-labelledby="mdcalculategsvLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="col-sm-2">
+                    <div class="row">
+                        <span class="stepno">4</span> <img src="/img/Icons/3Caculate_Sales_Active.png" alt="">
+                    </div>
+                </div>
+                <div class="col-sm-10">
+                    <div class="row">
+                        <div class="row">
+                            <div>Click on below button to start the calculation for Gross sales value (GSV).</div>
+                            <div><span class="text-danger">Once started you cannot stop the process in between.</span></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <p> &nbsp;</p>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="row ">
+                        <div class="col-sm-10">
+                            <form action="" method="post">
+                                <button type="button" class="btn btn-info btn-block" id="btncalculateGSV" data-toggle="modal" data-target="#">
+                                    Calculate Gross Sales (GSV)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer mtop10">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Calculated GSV Modal -->
+<div class="modal fade" id="mdcalculatedGsv" tabindex="-1" role="dialog" aria-labelledby="calculatedGsvLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h5><center>Click on below button to view Calculated Gross sales value (GSV).</center></h5>
+                        <div class="col-sm-5 col-sm-offset-1">
+                            <center>
+                                <a href="/CalculateGsv/GSVTableView">
+                                    <figure>
+                                        <img src="/img/Icons/1Secondary_Sales_Active.png" alt="" class="img-icon-style">
+                                        <figcaption>
+                                            View Calculated Gross Sales Value (GSV)
+                                        </figcaption>
+                                    </figure>
+                                </a>
+                            </center>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="row">
+                                <div style="margin-top: 35px; text-align: center; font-size: 20px;" class="text-info">OR</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <center>
+                                <a href="#" id="btnDownloadGSVExcel">
+                                    <figure>
+                                        <img src="/img/Icons/download.png" alt="" class="img-icon-style">
+                                        <figcaption>
+                                            Export calculated Gross Sales Value (GSV)
+                                        </figcaption>
+                                    </figure>
+                                </a>
+                            </center>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p>
+                    &nbsp;
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ************************************************************** -->
+<!-- **************************************************************** -->
+<!-- Calculate Provision Modal -->
+<div class="modal fade" id="mdcalculate_provision" tabindex="-1" role="dialog" aria-labelledby="mdcalculate_provision" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="col-sm-2">
+                    <div class="row">
+                        <span class="stepno">5</span> <img src="/img/Icons/5Calculate_provision_Active.png" alt="">
+
+                    </div>
+
+                </div>
+                <div class="col-sm-10">
+                    <div class="row">
+                        <div class="row">
+                            <div>Click on below button to start the calculation for provision.</div>
+                            <div><span class="text-danger">Once started you cannot stop the process in between.</span></div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <p> &nbsp;</p>
+                    </div>
+
+                    <div class="clearfix"></div>
+                    <div class="row ">
+                        <div class="col-sm-10">
+                            <form action="" method="post">
+                                <button type="button" class="btn btn-info btn-block" id="btncalculateProvision" data-toggle="modal" data-target="#">
+                                    Calculate Provision
+                                </button>
+
+
+
+                            </form>
+
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+
+
+
+
+            </div>
+            <div class="modal-footer mtop10">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Calculated Provision Modal -->
+
+<div class="modal fade" id="mdcalculated_provision" tabindex="-1" role="dialog" aria-labelledby="mdcalculated_provision">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h5><center>Click on below button to view Calculated Provision</center></h5>
+                        <div class="col-sm-5 col-sm-offset-1">
+                            <center>
+                                <a href="/CalculateProvision/Index">
+                                    <figure>
+                                        <img src="/img/Icons/Reports.png" alt="" class="img-icon-style">
+                                        <figcaption>
+                                            View Calculated Provision
+                                        </figcaption>
+                                    </figure>
+                                </a>
+                            </center>
+
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="row">
+                                <div style="margin-top: 35px; text-align: center; font-size: 20px;" class="text-info">OR</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <center>
+                                <a href="#" id="btnDownloadProvisionExcel">
+                                    <figure>
+                                        <img src="/img/Icons/download.png" alt="" class="img-icon-style">
+                                        <figcaption>
+                                            Export calculated Provision
+                                        </figcaption>
+                                    </figure>
+                                </a>
+                            </center>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p>
+                    &nbsp;
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Generat JV Modal -->
+<!-- Calculate Provision Modal -->
+<div class="modal fade" id="mdgenerate_jv" tabindex="-1" role="dialog" aria-labelledby="mdgenerate_jv" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="col-sm-2">
+                    <div class="row">
+                        <span class="stepno">6</span> <img src="/img/Icons/6Generate_JV_Active.png" alt="">
+
+                    </div>
+
+                </div>
+                <div class="col-sm-10">
+                    <div class="row">
+                        <div class="row">
+                            <div>Click on below button to Generate JV.</div>
+                            <div><span class="text-danger">Once started you cannot stop the process in between.</span></div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <p> &nbsp;</p>
+                    </div>
+
+                    <div class="clearfix"></div>
+                    <div class="row ">
+                        <div class="col-sm-10">
+                            <form action="" method="post">
+                                <button type="button" class="btn btn-info btn-block" id="btnGenerateJV">
+                                    Generate JV
+                                </button>
+
+
+
+                            </form>
+
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+
+
+
+
+            </div>
+            <div class="modal-footer mtop10">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--  Modal for Export JV - process 7 -->
+
+<div class="modal fade" id="mdExportJV" tabindex="-1" role="dialog" aria-labelledby="mdExportJV" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-sm-12">
+
+
+                        <div class="col-sm-2">
+                            <div class="row">
+                                <span class="stepno">7</span> <img src="/img/Icons/7aDownload_JV_Active.png" alt="">
+
+                            </div>
+
+                        </div>
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="row">
+                                    <div>Click on below button to Export JV.</div>
+                                    <div><span class="text-danger">Once started you cannot stop the process in between.</span></div>
+                                </div>
+
+                                <div class="clearfix"></div>
+                                <p> &nbsp;</p>
+                            </div>
+
+                            <div class="clearfix"></div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+
+                <div class="row">
+                    <div class="row ">
+                        <div class="col-sm-12">
+
+                            <div class="col-sm-4">
+                                <center>
+                                    <a id="ExportOnInvoice" href="#" class="btn btn-info btn-block">
+                                        <figure>
+                                            <img src="/img/Icons/downloadWhite.png" alt="" class="img-icon-style imgWhite">
+                                            <figcaption>
+                                                Export OnInvoice
+                                            </figcaption>
+                                        </figure>
+                                    </a>
+                                </center>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <center>
+                                    <a id="ExportOffInvoice" href="#" class="btn btn-info btn-block">
+                                        <figure>
+                                            <img src="/img/Icons/downloadWhite.png" alt="" class="img-icon-style imgWhite">
+                                            <figcaption>
+                                                Export OFFInvoice
+                                            </figcaption>
+                                        </figure>
+                                    </a>
+                                </center>
+                            </div>
+
+
+                            <div class="col-sm-4">
+                                <center>
+                                    <a id="ExportOffInvoiceQtrly" href="#" class="btn btn-info btn-block">
+                                        <figure>
+                                            <img src="/img/Icons/downloadWhite.png" alt="" class="img-icon-style imgWhite">
+                                            <figcaption>
+                                                Export OFFInvoice Qtrly.
+                                            </figcaption>
+                                        </figure>
+                                    </a>
+                                </center>
+                            </div>
+
+
+
+
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer mtop10">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="commonAlertModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Alert</h4>
+            </div>
+            <div class="modal-body">
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- close moc confirmation modal  -->
+<div id="closeMOCConfirmModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Close MOC</h4>
+            </div>
+            <div class="modal-body">
+                <p>Once you close the MOC then you are not able to modify it.Do you want to Proceed Anyway? </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnCloseMOC">Close MOC</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<script src="~/Scripts/custom/dashboard.js"></script>
+
+<script>
+    //calculate_gsv
+    $(document).on("click", "#calculate_gsv", function () {
+        // ////
+        $("#mdcalculategsv").modal({
+            backdrop: 'static',
+            keyboard: false
+
+        });
+    });
+    $(document).on("click", "#calculate_provision", function () {
+        // ////calculate_provision
+        $("#mdcalculate_provision").modal({
+            backdrop: 'static',
+            keyboard: false
+
+        });
+    });
+
+    $(document).on("click", "#generate_jv", function () {
+        // ////
+        $("#mdgenerate_jv").modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    });
+    $(document).on("click", "#btncalculateGSV", function () {
+
+        $.ajax({
+            url: "/CalculateGSV/Calculate",
+            type: "get",
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (result) {
+                if (result.error == true) {
+                    $("#mdcalculategsv").modal('hide');
+                    $('#loading').hide();
+                    $('#loading').hide();
+                    bootbox.dialog({
+                        message: result.msg,
+                        title: "Error!",
+                    });
+                    // $("#mderror").modal('show');
+                    // FillMOCCalculationTable();
+                }
+                else {
+                    //$("#mdcalculatedGsv").modal('show');
+                    $("#mdcalculategsv").modal('hide');
+                    $('#loading').hide();
+                    $("#calculate_provision").removeClass("disableClick");
+                    $("#calculate_provision>figure>img").attr('src', '/img/Icons/5Calculate_provision_Active.png');
+
+
+                    $("#generate_jv").addClass("disableClick");
+                    $("#generate_jv>figure>img").attr('src', '/img/greyimg/6.png');
+
+                    $("#ExportJV").addClass("disableClick");
+                    $("#ExportJV img").attr('src', '/img/greyimg/7.png');
+
+                    $("#CloseMOC").addClass("disableClick");
+                    $("#CloseMOC img").attr('src', '/img/greyimg/8.png');
+
+                    $("#mdcalculatedGsv").modal({
+                        backdrop: 'static',
+                        keyboard: false
+
+                    });
+
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        })
+    });
+    $(document).on("click", "#btnDownloadGSVExcel", function () {
+
+        window.location = "/CalculateGSV/DownloadExcel?currentReportMOC=" + $("#currentReportMOC").val();
+    });
+    $(document).on("click", "#btncalculateProvision", function () {
+
+        $.ajax({
+            url: "/CalculateProvision/Calculate",
+            type: "get",
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (result) {
+                if (result.error == true) {
+                    $("#mdcalculate_provision").modal('hide');
+                    $('#loading').hide();
+                    bootbox.dialog({
+                        message: result.msg,
+                        title: "Error!",
+                        //"Danger!": {
+                        //    className: "btn-danger",
+                        //    callback: function () { }
+                        //},
+                    });
+                    // $("#mderror").modal('show');
+                    // FillMOCCalculationTable();
+                }
+                else {
+                    $("#mdcalculate_provision").modal('hide');
+                    $('#loading').hide();
+                    $("#generate_jv").removeClass("disableClick");
+                    $("#generate_jv>figure>img").attr('src', '/img/Icons/6Generate_JV_Active.png');
+
+
+                    $("#ExportJV").addClass("disableClick");
+                    $("#ExportJV img").attr('src', '/img/greyimg/7.png');
+
+                    $("#CloseMOC").addClass("disableClick");
+                    $("#CloseMOC img").attr('src', '/img/greyimg/8.png');
+
+                    $("#mdcalculated_provision").modal({
+                        backdrop: 'static',
+                        keyboard: false
+
+                    });
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        })
+    });
+    $(document).on("click", "#btnGenerateJV", function () {
+        $.ajax({
+            url: "/GenerateJV/Calculate",
+            type: "get",
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (result) {
+                if (result.error == true) {
+                    $("#mdgenerate_jv").modal('hide');
+                    $('#loading').hide();
+                    bootbox.dialog({
+                        message: result.msg,
+                        title: "Error!"
+                    });
+                }
+                else {
+
+                    $("#ExportJV").removeClass("disableClick");
+                    $("#ExportJV img").attr('src', '/img/Icons/7aDownload_JV_Active.png');
+
+                    $("#CloseMOC").removeClass("disableClick");
+                    $("#CloseMOC img").attr('src', '/img/Icons/8Close_MOC_Active.png');
+                    $("#mdgenerate_jv").modal('hide');
+                    $('#loading').hide();
+                    bootbox.alert({
+                        message: result.msg
+                    });
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        })
+    });
+    $(document).on("click", "#btnDownloadProvisionExcel", function () {
+
+        window.location = "/CalculateProvision/DownloadExcel?currentReportMOC=" + $("#currentReportMOC").val();
+    });
+    $(document).on("click", "#calculateGSV", function () {
+
+        window.location = "/CalculateGSV/DownloadExcel?currentReportMOC=" + $("#currentReportMOC").val();
+
+    });
+    $(document).on("click", "#ExportOnInvoice", function () {
+        //
+        CheckExportJVRight("/ExportJV/ExportOnInvoice?currentReportMOC=" + $("#currentReportMOC").val());
+        //window.location = "/ExportJV/ExportOnInvoice";
+    });
+    $(document).on("click", "#ExportOffInvoiceQtrly", function () {
+        CheckExportJVRight("/ExportJV/ExportOffInvoiceQtrly?currentReportMOC=" + $("#currentReportMOC").val());
+        //window.location = "/ExportJV/ExportOffInvoiceQtrly";
+    });
+    $(document).on("click", "#ExportOffInvoice", function () {
+        CheckExportJVRight("/ExportJV/ExportOffInvoice?currentReportMOC=" + $("#currentReportMOC").val());
+        //window.location = "/ExportJV/ExportOffInvoice";
+    });
+
+    function CheckExportJVRight(path) {
+        $.ajax({
+            url: "/ExportJV/CheckExportJVRight",
+            type: "get",
+            success: function (result) {
+                //$("#mdExportJV").modal("hide");
+                if (result.error == true) {
+                    bootbox.dialog({
+                        message: result.msg,
+                        title: "Error!"
+                    });
+                }
+                else {
+                    window.location = path;
+                }
+            }
+        })
+    }
+    $('#homelink').remove();
+</script>
+
+<script src="~/Scripts/custom/thermometer.js"></script>
+
+<script>
+    $(document).on("change", "#thermoYearDropdown", function () {
+        var year = $(this).val();
+        SetThermometer(year);
+    });
+    $(document).ready(function () {
+
+        $.ajax({
+            url: "/Dashboard/LoadHeader",
+            type: "get",
+            data: "currentReportMOC=" + $("#currentReportMOC").val(),
+            success: function (result) {
+                $('.titleMonth').html(result.titleMonth);
+                $('.currentdatetime').html(result.currentdatetime);
+            }
+        })
+    })
+</script>

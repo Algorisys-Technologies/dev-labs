@@ -1,0 +1,562 @@
+body {
+    font-family: 'Arial' !important;
+    font-weight: normal;
+    height: auto;
+    height: 100%;
+    /*overflow-y: auto;*/
+    overflow: hidden;
+}
+
+
+.boxshadowin {
+    box-shadow: inset 1px 1px 33px 1px rgba(146, 199, 216, 0.8);
+}
+
+.boxshadow {
+    box-shadow: 1px 1px 10px 1px rgba(0,0,0,0.7);
+}
+
+.text-danger {
+    color: #F00905;
+}
+
+.boxstyle1 {
+    box-shadow: 1px 1px 10px 1px rgba(0,0,0,0.8);
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    /*color: #984C94;*/
+    color: #00A9E0;
+}
+
+a, a:hover, a:active, a:focus {
+    text-decoration: none;
+    border: 0;
+    outline: none !important;
+}
+
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 0px;
+    font-size: 12px;
+    font-family: "lato";
+}
+
+.tooltip {
+    position: absolute;
+    z-index: 1070;
+    display: block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.4;
+    filter: alpha(opacity=0);
+    opacity: 0;
+}
+
+.blue-tooltip + .tooltip > .tooltip-inner {
+    background-color: #00A9E0;
+    opacity: 1;
+}
+
+.blue-tooltip + .tooltip > .tooltip-arrow {
+    border-top-color: #00A9E0;
+    opacity: 1;
+}
+
+
+.text-warning {
+    color: #F29200;
+}
+
+
+.title {
+    color: #2E75B6;
+}
+
+
+.allpad0 {
+    padding: 0px;
+}
+
+.allpad5 {
+    padding: 5px;
+}
+
+
+.allpad10 {
+    padding: 10px;
+}
+
+.mleft15 {
+    margin-left: 15px;
+}
+
+.mtop50 {
+    margin-top: 50px;
+}
+
+.mtop100 {
+    margin-top: 100px;
+}
+
+.mtop40 {
+    margin-top: 40px;
+}
+
+.rpad5 {
+    padding-right: 5px;
+}
+
+.pleft20 {
+    padding-left: 20px;
+}
+
+.navbar {
+    min-height: 10px;
+}
+
+.marginall0 {
+    margin: 0px;
+}
+
+.mtop5 {
+    margin-top: 5px;
+}
+
+.mtop50 {
+    margin-top: 50px;
+}
+
+.mbottom50 {
+    margin-bottom: 50px;
+}
+
+.mbottom20 {
+    margin-bottom: 20px;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
+}
+
+.blue {
+    color: blue;
+}
+
+.yellow {
+    color: yellow;
+}
+
+.grey {
+    color: #AEAEAE;
+}
+
+.txtBlack {
+    color: #000000;
+    font-weight: normal;
+}
+
+.mleftn30 {
+    margin-left: 30px;
+}
+
+.ptop0 {
+    padding-top: 0px;
+}
+
+.mtop0 {
+    margin-top: 0px;
+}
+
+.mtop10 {
+    margin-top: 10px;
+}
+
+.mbottom0 {
+    margin-bottom: 0px;
+}
+
+.ptop0 {
+    padding-top: 0px;
+}
+
+.pbottom0 {
+    padding-bottom: 0px;
+}
+
+.lrpad50 {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.ptop10 {
+    padding-top: 10px;
+}
+
+.mtop20 {
+    margin-top: 20px;
+}
+
+.mtop30 {
+    margin-top: 30px;
+}
+
+.mtop40 {
+    margin-top: 40px;
+}
+
+.pleft0 {
+    padding-left: 0px;
+}
+
+.rpad0 {
+    padding-right: 0px;
+}
+
+.lpad0 {
+    padding-left: 0px;
+}
+
+.rpad5 {
+    padding-right: 5px;
+}
+
+.lpad5 {
+    padding-left: 5px;
+}
+
+.mleft5 {
+    margin-left: 5px;
+}
+
+.mright5 {
+    margin-right: 5px;
+}
+
+
+
+
+
+/* dashboard button style */
+
+.btnblue {
+    background: rgba(112,211,205,.7);
+    color: #000;
+}
+
+    .btnblue:hover {
+        background: rgba(112,211,205,.5);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(46, 180, 199, 1);
+    }
+
+
+.btngreen {
+    background: rgba(24,178,136,.7);
+    color: #000;
+}
+
+    .btngreen:hover {
+        background: rgba(24,178,136,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(24,178,136, 1);
+    }
+
+.btnred {
+    background: rgba(249,104,109,.7);
+    color: #000;
+}
+
+    .btnred:hover {
+        background: rgba(249,104,109,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(249,104,109, 1);
+    }
+
+
+.btnpurple {
+    background: rgba(210,115,176,.7);
+    color: #000;
+}
+
+    .btnpurple:hover {
+        background: rgba(210,115,176,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(210,115,176, 1);
+    }
+
+
+
+.btnyellow {
+    background: rgba(255,209,0,.7);
+    color: #000;
+}
+
+    .btnyellow:hover {
+        background: rgba(255,209,0,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(255,209,0, 1);
+    }
+
+
+.btnlgreen {
+    background: rgba(235,243,109,.7);
+    color: #000;
+}
+
+    .btnlgreen:hover {
+        background: rgba(235,243,109,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(235,243,109, 1);
+    }
+
+.btndarkgreen {
+    background: rgba(235,243,109,.7);
+    color: #000;
+}
+
+    .btndarkgreen:hover {
+        background: rgba(235,243,109,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(235,243,109, 1);
+    }
+
+.btnbrown {
+    background: rgba(241,160,109,.7);
+    color: #000;
+}
+
+    .btnbrown:hover {
+        background: rgba(241,160,109,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(241,160,109, 1);
+    }
+
+
+.btndarkgreen {
+    background: rgba(0,178,135,.7);
+    color: #000;
+}
+
+    .btndarkgreen:hover {
+        background: rgba(0,178,135,.8);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(0,178,135, 1);
+    }
+
+.btnlbrown {
+    background: rgba(185,100,0,.6);
+    color: #000;
+}
+
+    .btnlbrown:hover {
+        background: rgba(185,100,0,4);
+        color: #000;
+        box-shadow: inset 1px 1px 31px 1px rgba(185,100,0,.6);
+    }
+
+
+
+/* dashboard button style */
+
+
+
+
+
+
+.heading {
+    margin: 10px 0 10px;
+}
+
+.well {
+    background: #fff;
+}
+
+
+
+/*==================================================
+ * Effect 2  class used is box and effect2
+ * ===============================================*/
+.effect2 {
+    position: relative;
+}
+
+    .effect2:before, #login .effect2:after {
+        z-index: -1;
+        position: absolute;
+        content: "";
+        bottom: 15px;
+        left: 10px;
+        width: 50%;
+        top: 80%;
+        max-width: 300px;
+        background: #777;
+        -webkit-box-shadow: 0 15px 10px #777;
+        -moz-box-shadow: 0 15px 10px #777;
+        box-shadow: 0 15px 10px #777;
+        -webkit-transform: rotate(-3deg);
+        -moz-transform: rotate(-3deg);
+        -o-transform: rotate(-3deg);
+        -ms-transform: rotate(-3deg);
+        transform: rotate(-3deg);
+    }
+
+    .effect2:after {
+        -webkit-transform: rotate(3deg);
+        -moz-transform: rotate(3deg);
+        -o-transform: rotate(3deg);
+        -ms-transform: rotate(3deg);
+        transform: rotate(3deg);
+        right: 10px;
+        left: auto;
+    }
+
+/* Modal window style  Start*/
+
+.modal-header .close {
+    margin-top: -2px;
+    padding: 10px;
+    /*line-height: 1.4em;*/
+    color: #FFF;
+    opacity: 1;
+    font-weight: normal;
+    font-size: 26px;
+}
+
+/*.modal .modal-dialog
+{
+    height: 500px;
+    max-height: 600px;
+    overflow-y: scroll;
+
+
+}
+*/
+.modal .modal-body-lg {
+    /*height: 500px;
+    overflow-y: scroll;*/
+    height: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.4em;
+    padding: 15px;
+    width: 100%;
+}
+
+.modal .modal-body-full {
+    /*height: 500px;
+    overflow-y: scroll;*/
+    height: auto;
+    /*max-height:none;*/
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.4em;
+    padding: 15px;
+    width: 100%;
+    height: 100%;
+}
+
+.hasscroll {
+    height: 400px;
+    overflow-y: scroll;
+}
+
+.noscroll {
+    overflow: hidden !important;
+}
+
+.modal .modal-title {
+    background: rgba(0, 169, 224, .5);
+    color: #FFF;
+    padding: 5px 10px;
+    font-weight: normal;
+}
+
+.modal p {
+    font-family: 'Lato', sans-serif !important;
+    font-weight: 500;
+}
+
+/* Modal window style END */
+
+
+
+/* Cockpit style */
+
+.aclass {
+    width: 20%;
+    display: inline-block;
+    border-radius: 25%;
+}
+
+.txtblue1 {
+    font-size: 14px;
+    padding: 2px 3px;
+    color: rgb(65, 143, 205);
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.field-validation-error {
+    color: #f00;
+}
+
+.closex {
+    color: red;
+    cursor: pointer;
+}
+
+.smlbl {
+    font-size: 12px;
+    line-height: 2em;
+}
+
+.modelminHeight {
+    min-height: 400px !important;
+}
+
+#loading {
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    display: block;
+    opacity: 0.7;
+    background-color: #fff;
+    z-index: 99;
+    text-align: center;
+}
+
+#loading-image {
+    position: absolute;
+    top: 200px;
+    left: 500px;
+    z-index: 777;
+}
+
+
+.bgBlack {
+    background: rgba(0,0,0,.8);
+}
+
+.bgOrange {
+    background-color: rgba(242, 146, 0, 0.65);
+    color: #FFF;
+}
+
+.displayContentScroll {
+    height: 80vh !important;
+    overflow-y: auto;
+}
+
+.middleAlign {
+    vertical-align: middle;
+}
+

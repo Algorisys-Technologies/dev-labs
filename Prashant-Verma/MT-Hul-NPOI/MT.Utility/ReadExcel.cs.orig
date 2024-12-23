@@ -1,0 +1,505 @@
+﻿using MT.Model;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Web;
+
+namespace MT.Utility
+{
+    public class ReadExcel
+    {
+        public DataTable ReadExcelFile(string path)
+        {
+
+            using (OleDbConnection conn = new OleDbConnection())
+            {
+
+
+                DataTable dt1 = new DataTable();
+                DataTable dt = new DataTable();
+                string Import_FileName = path;
+                string fileExtension = Path.GetExtension(Import_FileName);
+
+                if (fileExtension == ".xls")
+                    // conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=YES;TypeGuessRows=0;ImportMixedTypes=Text""";
+                if (fileExtension == ".xlsx")
+                    // conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+                    conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=YES;TypeGuessRows=0;ImportMixedTypes=Text""";
+
+
+                conn.Open();
+                dt1 = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+
+
+
+
+
+                if (dt1 == null)
+                {
+                    return null;
+                }
+
+                String[] excelSheets = new String[dt1.Rows.Count];
+                int i = 0;
+
+                // Add the sheet name to the string array.
+                foreach (DataRow row in dt1.Rows)
+                {
+                    excelSheets[i] = row["TABLE_NAME"].ToString();
+                    i++;
+                }
+
+
+
+                using (OleDbCommand comm = new OleDbCommand())
+                {
+
+                    // comm.CommandText = "Select * from [" + sheetName + "$]";
+
+                    comm.CommandText = "Select * from [" + excelSheets[0] + "]";
+                    comm.Connection = conn;
+
+
+                    using (OleDbDataAdapter da = new OleDbDataAdapter())
+                    {
+                        da.SelectCommand = comm;
+                        da.Fill(dt);
+                        string[] columnNames = dt.Columns.Cast<DataColumn>()
+                                 .Select(x => x.ColumnName)
+                                 .ToArray();
+
+                        string[] columnsToCheck = { "Customer code", "Region" };
+
+                        foreach (var col in columnNames)
+                        {
+                            int pos = Array.IndexOf(columnsToCheck, col);
+                            if (pos <= -1)
+                            {
+                                // the array contains the string and the pos variable
+                                // will have its position in the array
+                                dt.Columns.Remove(col);
+                            }
+
+                        }
+                        return dt;
+                    }
+
+                }
+            }
+        }
+
+        public bool ValidateExcel(string path)
+        {
+            var isValid = true;
+            using (OleDbConnection conn = new OleDbConnection())
+            {
+
+
+                DataTable dt1 = new DataTable();
+                DataTable dt = new DataTable();
+                string Import_FileName = path;
+                string fileExtension = Path.GetExtension(Import_FileName);
+
+                //if (fileExtension == ".xls")
+                //    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                //if (fileExtension == ".xlsb")
+                //    conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+
+                if (fileExtension == ".xls")
+                    // conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=YES;TypeGuessRows=0;ImportMixedTypes=Text""";
+                if (fileExtension == ".xlsx")
+                    // conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+                    conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=YES;TypeGuessRows=0;ImportMixedTypes=Text""";
+
+                conn.Open();
+                dt1 = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+
+                if (dt1 == null)
+                {
+                    return false;
+                }
+
+                String[] excelSheets = new String[dt1.Rows.Count];
+                int i = 0;
+
+                // Add the sheet name to the string array.
+                foreach (DataRow row in dt1.Rows)
+                {
+                    excelSheets[i] = row["TABLE_NAME"].ToString();
+                    i++;
+                }
+
+
+
+                using (OleDbCommand comm = new OleDbCommand())
+                {
+
+                    // comm.CommandText = "Select * from [" + sheetName + "$]";
+
+                    comm.CommandText = "Select * from [" + excelSheets[0] + "]";
+                    comm.Connection = conn;
+
+
+                    using (OleDbDataAdapter da = new OleDbDataAdapter())
+                    {
+                        da.SelectCommand = comm;
+                        da.Fill(dt);
+                    }
+
+                }
+
+                string[] columnNames = dt.Columns.Cast<DataColumn>()
+                                 .Select(x => x.ColumnName)
+                                 .ToArray();
+
+                string[] columnsToCheck = { "Customer code", "Region" };
+
+                isValid = !columnsToCheck.Except(columnNames).Any();
+            }
+
+            return isValid;
+        }
+
+        public DataTable GetDataTableFromExcel(string path, bool hasHeader = true)
+        {
+            using (var pck = new OfficeOpenXml.ExcelPackage())
+            {
+                using (var stream = File.OpenRead(path))
+                {
+                    pck.Load(stream);
+                }
+                var ws = pck.Workbook.Worksheets.First();
+                DataTable tbl = new DataTable();
+                foreach (var firstRowCell in ws.Cells[1, 1, 1, ws.Dimension.End.Column])
+                {
+                    tbl.Columns.Add(hasHeader ? firstRowCell.Text : string.Format("Column {0}", firstRowCell.Start.Column));
+                }
+                var startRow = hasHeader ? 2 : 1;
+                for (int rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
+                {
+                    var wsRow = ws.Cells[rowNum, 1, rowNum, ws.Dimension.End.Column];
+                    DataRow row = tbl.Rows.Add();
+                    foreach (var cell in wsRow)
+                    {
+                        row[cell.Start.Column - 1] = cell.Text;
+                    }
+                }
+                return tbl;
+            }
+        }
+
+        public MasterResponse ValidateAndReadExcel(string path, string[] columnsInExcel)
+        {
+            MasterResponse response = new MasterResponse();
+            using (OleDbConnection conn = new OleDbConnection())
+            {
+                DataTable dt1 = new DataTable();
+                DataTable dt = new DataTable();
+                string Import_FileName = path;
+                string fileExtension = Path.GetExtension(Import_FileName);
+
+                if (fileExtension == ".xls")
+                    // conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;HDR=Yes;IMEX=1;""";
+                if (fileExtension == ".xlsx" || fileExtension == ".xlsb")
+                    // conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+                   // conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;HDR=Yes;IMEX=1;""";
+                    conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=Yes;READONLY=0""";
+
+
+                conn.Open();
+                dt1 = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+
+                if (dt1 == null)
+                {
+                    return null;
+                }
+
+                String[] excelSheets = new String[dt1.Rows.Count];
+                int i = 0;
+
+                // Add the sheet name to the string array.
+                foreach (DataRow row in dt1.Rows)
+                {
+                    excelSheets[i] = row["TABLE_NAME"].ToString();
+                    i++;
+                }
+
+
+
+                using (OleDbCommand comm = new OleDbCommand())
+                {
+
+                    // comm.CommandText = "Select * from [" + sheetName + "$]";
+                    var columnString = "";
+                    var lastColumn = columnsInExcel.Last();
+                    foreach (var col in columnsInExcel)
+                    {
+                        if (col != lastColumn)
+                        {
+                            columnString += "[" + col + "],";
+                        }
+                        else
+                        {
+                            columnString += "[" + col + "]";
+                        }
+                    }
+
+                    
+                   comm.CommandText = "Select " + columnString + " from [" + excelSheets[0] + "]";
+                    
+                    comm.Connection = conn;
+
+
+                    using (OleDbDataAdapter da = new OleDbDataAdapter())
+                    {
+                        da.SelectCommand = comm;
+                        da.Fill(dt);
+
+                        string[] columnNames = dt.Columns.Cast<DataColumn>()
+                                 .Select(x => x.ColumnName)
+                                 .ToArray();
+
+                        response.IsSuccess = !columnsInExcel.Except(columnNames).Any();
+
+                        if (response.IsSuccess)
+                        {
+                            //foreach (var col in columnNames)
+                            //{
+                            //    int pos = Array.IndexOf(columnsInExcel, col);
+                            //    if (pos <= -1)
+                            //    {
+                            //        // the array contains the string and the pos variable
+                            //        // will have its position in the array
+                            //        dt.Columns.Remove(col);
+                            //    }
+
+                            //}
+
+                            //for (var j = 0; j < columnsInExcel.Count(); j++)
+                            //{
+                            //    dt.Columns[columnsInExcel[j]].ColumnName = columnsInDB[j];
+                            //}
+
+                            //System.Data.DataColumn newColumn1 = new System.Data.DataColumn("CreatedAt", typeof(System.DateTime));
+                            //newColumn1.DefaultValue = DateTime.Now;
+                            //dt.Columns.Add(newColumn1);
+
+                            //System.Data.DataColumn newColumn2 = new System.Data.DataColumn("CreatedBy", typeof(System.String));
+                            //newColumn2.DefaultValue = "admin";
+                            //dt.Columns.Add(newColumn2);
+
+                            //System.Data.DataColumn newColumn3 = new System.Data.DataColumn("UpdatedAt", typeof(System.DateTime));
+                            //newColumn3.DefaultValue = null;
+                            //dt.Columns.Add(newColumn3);
+
+                            //System.Data.DataColumn newColumn4 = new System.Data.DataColumn("UpdatedBy", typeof(System.DateTime));
+                            //newColumn4.DefaultValue = null;
+                            //dt.Columns.Add(newColumn4);
+
+                            response.Data = dt;
+                            response.MessageText = "success";
+                        }
+                        else
+                        {
+                            response.Data = null;
+                            response.MessageText = "fail";
+                        }
+
+                        return response;
+                    }
+
+                }
+            }
+        }
+
+
+        public DataTable RemoveDuplicates(DataTable table, List<string> keyColumns)
+        {
+            var uniqueness = new HashSet<string>();
+            StringBuilder sb = new StringBuilder();
+          //  int rowIndex = 0;
+          // DataRow row;
+            DataRowCollection rows = table.Rows;
+            ArrayList duplicateList = new ArrayList();
+            //var newTable = table.Clone();
+            int i = rows.Count;
+            foreach (DataRow row in table.Rows)
+            {
+                //row = rows[rowIndex];
+                sb.Length = 0;
+                foreach (string colname in keyColumns)
+                {
+                    sb.Append(row[colname].ToString().Trim());
+                    sb.Append("|");
+                }
+
+                if (uniqueness.Contains(sb.ToString()))
+                {
+                    duplicateList.Add(row);
+                    //rows.Remove(row);
+                    
+                }
+                else
+                {
+                    uniqueness.Add(sb.ToString());
+                    //newTable.Rows.Add(row);
+                    //rowIndex++;
+         
+                }
+            }
+
+            foreach (DataRow dRow in duplicateList)
+                table.Rows.Remove(dRow);
+
+            //var newTable = table.Clone();
+            //newTable.Rows.a
+
+            return table;
+        }
+
+        public DataTable RemoveDuplicateRows(DataTable dTable, string colName)
+        {
+            Hashtable hTable = new Hashtable();
+            ArrayList duplicateList = new ArrayList();
+
+            //Add list of all the unique item value to hashtable, which stores combination of key, value pair.
+            //And add duplicate item value in arraylist.
+            foreach (DataRow drow in dTable.Rows)
+            {
+                if (hTable.Contains(drow[colName]))
+                    duplicateList.Add(drow);
+                else
+                    hTable.Add(drow[colName], string.Empty);
+            }
+
+            //Removing a list of duplicate items from datatable.
+            foreach (DataRow dRow in duplicateList)
+                dTable.Rows.Remove(dRow);
+
+            //Datatable which contains unique records will be return as output.
+            return dTable;
+        }
+
+        public MasterResponse ValidateAndReadSubCategoryTOTExcel(string path, string[] columnsInExcel, string totCategory)
+        {
+            MasterResponse response = new MasterResponse();
+            using (OleDbConnection conn = new OleDbConnection())
+            {
+                DataTable dt1 = new DataTable();
+                DataTable dt = new DataTable();
+                string Import_FileName = path;
+                string fileExtension = Path.GetExtension(Import_FileName);
+
+                if (fileExtension == ".xls")
+<<<<<<< HEAD
+                    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;HDR=YES;IMEX=1;""";
+                    //conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=NO;TypeGuessRows=0;ImportMixedTypes=Text""";
+                if (fileExtension == ".xlsx")
+                    conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=YES;READONLY=0""";
+=======
+                    // conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;HDR=NO;IMEX=1;""";
+                if (fileExtension == ".xlsx")
+                    conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=NO;READONLY=0""";
+                    // conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+                    //conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + @";Extended Properties=""Excel 8.0;IMEX=1;HDR=NO;TypeGuessRows=0;ImportMixedTypes=Text""";
+>>>>>>> 92b9dff87e9a34362f34ba3efc9ad145464d48a8
+               
+
+
+             
+                conn.Open();
+                dt1 = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+
+                if (dt1 == null)
+                {
+                    return null;
+                }
+
+                String[] excelSheets = new String[dt1.Rows.Count];
+                int i = 0;
+
+                // Add the sheet name to the string array.
+                foreach (DataRow row in dt1.Rows)
+                {
+                    excelSheets[i] = row["TABLE_NAME"].ToString();
+                    i++;
+                }
+
+
+
+                using (OleDbCommand comm = new OleDbCommand())
+                {
+
+                    // comm.CommandText = "Select * from [" + sheetName + "$]";
+                    var columnString = "";
+                    var lastColumn = columnsInExcel.Last();
+                    foreach (var col in columnsInExcel)
+                    {
+                        if (col != lastColumn)
+                        {
+                            columnString += "[" + col + "],";
+                        }
+                        else
+                        {
+                            columnString += "[" + col + "]";
+                        }
+                    }
+
+                    string sheetName = "";
+                    if (totCategory == "on")
+                    {
+                        sheetName = "DIRECT -ECOMM HAIKO - TOT  (On)";
+                    }
+                    else if (totCategory == "off")
+                    {
+                        sheetName = "DIRECT ECOMM HAIKO - TOT% (Off)";
+                    }
+                    else if (totCategory == "quarterly")
+                    {
+                        sheetName = "DIRECT ECOMM HAIKO - TOT% (Off)";
+                    }
+                    
+                    ////comm.CommandText = "Select * from [" + excelSheets[1].Replace("'", string.Empty) + "A3:O]";
+                    comm.CommandText = "Select * from [" + sheetName + "$]";
+                    comm.Connection = conn;
+
+
+                    using (OleDbDataAdapter da = new OleDbDataAdapter())
+                    {
+                        da.SelectCommand = comm;
+                        da.Fill(dt);
+                        //response.IsSuccess = true;
+                        string[] columnNames = dt.Columns.Cast<DataColumn>()
+                                 .Select(x => x.ColumnName.Trim())
+                                 .ToArray();
+
+                        response.IsSuccess = !columnsInExcel.Except(columnNames).Any();
+
+                        if (response.IsSuccess)
+                        {
+                            response.Data = dt;
+                            response.MessageText = "success";
+                        }
+                        else
+                        {
+                            response.Data = null;
+                            response.MessageText = "fail";
+                        }
+
+                        return response;
+                    }
+
+                }
+            }
+        }
+    }
+}

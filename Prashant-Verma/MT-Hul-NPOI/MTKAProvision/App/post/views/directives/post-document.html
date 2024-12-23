@@ -1,0 +1,31 @@
+﻿<div class="row">
+    <div class="col-md-3">
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="m in menu | orderBy:sortOrder | filter:search"
+                ng-class="{active: isActive(m.obj.url)}">
+                <a class="appendImage" ng-click="expandCollapse(m)" ng-show="m.children.length>0 && !m.expanded"><i class="glyphicon glyphicon-plus"></i></a>
+                <a class="appendImage" ng-click="expandCollapse(m)" ng-show="m.children.length>0 && m.expanded"><i class="glyphicon glyphicon-minus"></i></a>
+                <a ui-sref="posts.show({id: m.obj.id})">{{m.obj.title}}</a>
+                <!--<a ui-sref="posts.show({id: m.obj.id})">{{m.obj.title}}</a>-->
+                <a ui-sref="posts.edit({id: m.obj.id})" ng-style="visible">edit</a>
+                <a ng-click="delete(m)" ng-style="visible">delete</a>
+
+                <ul ng-repeat="cm in m.children" ng-show="m.expanded">
+                    <li>
+                        <a ui-sref="posts.show({id: cm.obj.id})">{{cm.obj.title}}</a>
+                        <!--<a ui-sref="posts.show({id: m.obj.id})">{{cm.obj.title}}</a>-->
+                        <a ui-sref="posts.edit({id: cm.obj.id})" ng-style="visible">edit</a>
+                        <a ng-click="delete(cm)" ng-style="visible">delete</a>
+                    </li>
+                </ul>
+            </li>            
+        </ul>
+        
+    </div>
+    
+        
+    
+    <div class="col-md-9" ui-view>
+      
+    </div>
+</div>

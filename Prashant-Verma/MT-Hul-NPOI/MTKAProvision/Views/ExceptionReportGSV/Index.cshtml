@@ -1,0 +1,112 @@
+﻿
+<input type="hidden" id="currentReportMOC" value="@ViewBag.currentMOC" />
+<input type="hidden" id="pageTitle" value="@ViewBag.PageTitle" />
+<style>
+    .vcenter {
+        line-height: 30px;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+
+        <!--  Left Column -->
+
+
+        <div class="col-sm-12">
+            <div class="col-sm-1">
+                <button class="btn btn-default " type="button" id="btngsv">GSV</button>
+            </div><div class="col-sm-2">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">
+                        Provision
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" id="btnProvBaseonChainNmGrpNm">Missing Outlet Code</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#" id="btnProvBaseonTotSubcat">Missing TOT Sub-Categary</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="vcenter" id="lbltablehead"></label>
+            </div>
+            <div class="row mbottom10">
+                <div class="col-sm-12" id="reportTable">
+
+                </div>
+            </div>
+
+            <p class="mbottom10">&nbsp;</p>
+            <p class="mbottom10">&nbsp;</p>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+
+    var calculateGSVTable_dtObj;
+    $(document).ready(function () {
+
+        $('.titlename').html($("#pageTitle").val());
+        //FillMOCCalculationTable();
+
+        //$.ajax({
+        //    url: "/ExceptionReportGSV/GSVException",
+        //    type: "get",
+        //     data: "currentReportMOC=" + $("#currentReportMOC").val(),
+        //    success: function (result) {
+        //        $('#reportTable').html(result);
+        //        $('#lbltablehead').html("GSV Exception");
+        //    }
+        //})
+    })
+
+
+
+    $.ajax({
+        url: "/Dashboard/LoadHeader",
+        type: "get",
+        data: "currentReportMOC=" + $("#currentReportMOC").val(),
+        success: function (result) {
+            $('.titleMonth').html(result.titleMonth);
+            $('.currentdatetime').html(result.currentdatetime);
+        }
+    })
+    $("#btnProvBaseonChainNmGrpNm").click(function () {
+        $.ajax({
+            url: "/ExceptionReportProvision/ExceptionDataOutLetCode",
+            type: "get",
+            data: "currentReportMOC=" + $("#currentReportMOC").val(),
+            success: function (result) {
+                $('#reportTable').html(result);
+                $('#lbltablehead').html("Provision Outlet Code Exception Report");
+            }
+        })
+    })
+    $("#btnProvBaseonTotSubcat").click(function () {
+        $.ajax({
+            url: "/ExceptionReportProvision/TOTSubCategoryException",
+            type: "get",
+            data: "currentReportMOC=" + $("#currentReportMOC").val(),
+            success: function (result) {
+                $('#reportTable').html(result);
+                $('#lbltablehead').html("Provision TOT Sub-Category Exception Report");
+            }
+        })
+    });
+    $("#btngsv").click(function () {
+        $.ajax({
+            url: "/ExceptionReportGSV/GSVException",
+            type: "get",
+            data: "currentReportMOC=" + $("#currentReportMOC").val(),
+            success: function (result) {
+                $('#reportTable').html(result);
+                $('#lbltablehead').html("GSV Exception Report");
+            }
+        })
+    })
+
+</script>

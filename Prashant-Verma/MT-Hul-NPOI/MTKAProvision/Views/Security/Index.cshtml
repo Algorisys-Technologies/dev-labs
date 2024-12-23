@@ -1,0 +1,656 @@
+﻿<div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Delete RoleName</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure.you want to delete Rolename </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="btnDelete" type="button" class="btn btn-primary" id="btnUploadSecSales">Yes, Delete</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<body>
+    <div id="confirmModalUser" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Delete Role Name</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure.you want to delete User Name </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id="btnDeleteUser" type="button" class="btn btn-primary" id="btnUploadSecSales">Yes, Delete</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <body>
+        <div id="security">
+            <!-- Begin page content -->
+
+            <div class="container mtop30">
+                <div class="row">
+                    <div class="security">
+                        <div class="security-row nav nav-tabs">
+                            <div class="security-step">
+                                <button data-step="role" type="button" class="btn btn-info btn-circle" data-toggle="tab" href="#roles"><img class="w60" src="/img/icons/role.png" alt=""></button>
+                                <p><strong>Roles</strong></p>
+                            </div>
+                            <div class="security-step">
+                                <button data-step="user" type="button" class="btn btn-default btn-circle" data-toggle="tab" href="#users"><img class="w60" src="/img/icons/user.png" alt=""></button>
+                                <p><strong>Users</strong></p>
+                            </div>
+                            <div class="security-step">
+                                <button data-step="access" type="button" class="btn btn-default btn-circle" data-toggle="tab" href="#assignAccess"><img class="w40" src="/img/icons/key.png" alt=""></button>
+                                <p><strong>Assign Access</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content">
+                        <div id="roles" class="tab-pane fade active in">
+                            <div class="col-sm-6 col-sm-offset-3">
+                                <div class="row mbottom5">
+                                    <div class="col-sm-12">
+                                        <a href="#" id="showAddRole" class=" pull-right"><img src="/img/dashboard/newmoc.jpg" alt="" class="icon-plus-style"></a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <!--  Will display on click on + -->
+                                    <div id="role">
+                                        <div class="form-group">
+                                            <div class="col-sm-10">
+
+                                                <label for="">Role Name</label>
+
+                                                <input id="createRoleInput" type="text" class="form-control">
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <label for=""> &nbsp;</label>
+                                                <a href="#" id="saveRoleName" class="btn btn-info btn-block "> Save</a>
+
+                                            </div>
+                                            <!-- <label for="role">Role Name</label>
+                                            <input type="text" class="form-control"> -->
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <!-- <div class="row mbottom5">
+                                            <div class="col-sm-12">
+                                                <div class="col-sm-3 col-sm-offset-3">
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                    </div>
+                                </div>
+                                <!-- <div class="row mbottom5">
+                                <div class="col-sm-3 col-sm-offset-3">
+                                    <a href="#" class="btn btn-info btn-block "> Save</a>
+                                </div>
+                                </div>
+                                -->
+                                <table id="roleTable" class="table table-bordered table-striped mtop5 " cellspacing="0" width="100%">
+                                    <thead>
+
+                                        <tr>
+                                            <th>Sr. No</th>
+                                            <th>Role Name</th>
+                                            <th>Action</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @*<tr>
+                                                <td> 1</td>
+                                                <td colspan=2>Admin</td>
+                                                <td class="text-center"><a href="#"><span class="glyphicon glyphicon-trash text-danger"></span> </a></td>
+                                            </tr>
+                                            <tr>
+                                                <td> 2</td>
+                                                <td colspan=2>MT-InputUser</td>
+                                                <td class="text-center"><a href="#"><span class="glyphicon glyphicon-trash text-danger"></span> </a></td>
+                                            </tr>
+                                            <tr>
+                                                <td> 3</td>
+                                                <td colspan=2>MT-ReportUser</td>
+                                                <td class="text-center"><a href="#"><span class="glyphicon glyphicon-trash text-danger"></span> </a></td>
+                                            </tr>
+                                            <tr>
+                                                <td> 4</td>
+                                                <td colspan=2>MT-ViewUser</td>
+                                                <td class="text-center"><a href="#"><span class="glyphicon glyphicon-trash text-danger"></span> </a></td>
+                                            </tr>*@
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="clearfix"></div>
+                            <!-- <div class="col-sm-6 col-sm-offset-3">
+                               <ul class="list-unstyled list-inline pull-right">
+                                   <li><button type="button" class="btn btn-info next-step">Next <i class="fa fa-chevron-right"></i></button></li>
+                               </ul>
+                            </div> -->
+                        </div>
+
+
+
+                        <!--  Users tab content -->
+                        <div id="users" class="tab-pane fade">
+                            <div class="col-sm-6 col-sm-offset-3">
+
+                                <div class="">
+                                    <div class="row">
+
+                                        <div class="col-sm-12">
+                                            <div class="panel-group" id="accordion">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">
+                                                        <h4 class="panel-title">
+                                                            <a id="domainUser" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" data-islocaluser="0">
+                                                                <!-- <span class="glyphicon glyphicon-file"> -->
+                                                                </span><strong>Domain User (S1 Authentication)</strong>
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapseOne" class="panel-collapse collapse">
+                                                        <div class="panel-body">
+                                                            <div class="col-sm-12">
+
+                                                                <div class="col-sm-12">
+                                                                    <a href="#" id="showAddUser" class=" pull-right"><img src="/img/dashboard/newmoc.jpg" alt="" class="icon-plus-style"></a>
+                                                                </div>
+
+                                                                <div id="user">
+                                                                    <div class="form-group">
+                                                                        <div class="col-sm-10">
+
+                                                                            <label for="">User Name</label>
+
+                                                                            <input id="createUserInput" type="text" class="form-control">
+                                                                        </div>
+                                                                        <div class="col-sm-2">
+                                                                            <label for=""> &nbsp;</label>
+                                                                            <a href="#" id="saveUserName" class="btn btn-info btn-block "> Save</a>
+
+                                                                        </div>
+                                                                        <!-- <label for="role">Role Name</label>
+                                                                        <input type="text" class="form-control"> -->
+                                                                        <div class="clearfix"></div>
+                                                                    </div>
+                                                                   
+                                                                </div>
+                                                               
+                                                                <div class="row ">
+
+                                                                    <div class="col-sm-12   ">
+
+                                                                        <table id="userTable" class="table table-bordered table-striped" cellspacing="0" width="100%">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Sr. No</th>
+                                                                                    <th>User Name</th>
+                                                                                    <th>Edit Role</th>
+                                                                                    <th>Role Name</th>
+                                                                                    <th>Action</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                               
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel panel-default" style="display:none;">
+                                                    <div class="panel-heading">
+                                                        <h4 class="panel-title">
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                                                <!-- <span class="glyphicon glyphicon-th-list"> -->
+                                                                </span><strong>Local User</strong>
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapseTwo" class="panel-collapse collapse">
+                                                        <div class="panel-body">
+                                                            <div class="row mbottom5">
+                                                                <!--       <div class="col-sm-3">
+                                                                          <input type="radio" name="users"><label for="">Local User</label>
+                                                                      </div> -->
+
+                                                            </div>
+
+                                                            <div class="row ">
+
+                                                                <div class="col-sm-12   ">
+                                                                    <div class="row mbottom5">
+                                                                        <div class="col-sm-12">
+                                                                            <a href="#" id="AddUser" class=" pull-right"><img src="img/dashboard/newmoc.jpg" alt="" class="icon-plus-style"></a>
+                                                                        </div>
+
+
+
+
+                                                                    </div>
+
+
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12" id="user">
+
+                                                                            <div class="col-sm-5">
+
+                                                                                <div class="row">
+                                                                                    <div class="">
+                                                                                        <div class="formgroup">
+                                                                                            <label for="">User Name</label>
+                                                                                            <input type="text" class="form-control">
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                            <div class="col-sm-3">
+                                                                                <div class="row">
+                                                                                    <div class="col-sm-12">
+                                                                                        <div class="formgroup">
+                                                                                            <label for="">User ID</label>
+                                                                                            <input type="text" class="form-control">
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                            <div class="col-sm-2">
+                                                                                <div class="formgroup ">
+                                                                                    <label for="">Role</label>
+                                                                                    <div>
+                                                                                        <a href="#" class="process-link" id="selectrole" data-toggle="modal" data-target="#mdSelectRole">
+
+                                                                                            <img src="img/icons/role.png" alt="" class="w30">
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-sm-2 lpad0">
+                                                                                <label for="">&nbsp;</label>
+                                                                                <div class="row">
+
+                                                                                    <button class="btn btn-block btn-info">Save</button>
+                                                                                </div>
+                                                                            </div>
+
+
+                                                                            <div class="clearfix"></div>
+
+
+
+
+
+                                                                        </div>
+                                                                    </div>
+
+
+
+                                                                    <!-- <table class="table table-bordered table-striped" id="usersTable"> -->
+                                                                    <table class="table table-striped table-condensed mtop10" id="usersTable">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Sr. No.</th>
+                                                                                <th>User Name</th>
+                                                                                <th>User ID</th>
+                                                                                <th>Roles</th>
+                                                                                <th class="text-center">Action</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td>1</td>
+                                                                                <td>Radhika Pillai</td>
+                                                                                <td>radhika</td>
+                                                                                <td>Admin</td>
+                                                                                <td class="text-center">
+                                                                                    <a href="#" class="glyphicon glyphicon-trash text-danger "></a>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>2</td>
+                                                                                <td>Urvashi Sachdev</td>
+                                                                                <td>urvashi</td>
+                                                                                <td>MT-InputUser</td>
+                                                                                <td class="text-center">
+                                                                                    <a href="#" class="glyphicon glyphicon-trash text-danger"></a>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>3</td>
+                                                                                <td>Deepti Nair</td>
+                                                                                <td>deepti</td>
+                                                                                <td>MT-ViewUser</td>
+                                                                                <td class="text-center">
+                                                                                    <a href="#" class="glyphicon glyphicon-trash text-danger"></a>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>4</td>
+                                                                                <td>Rajni Nair</td>
+                                                                                <td>rajni</td>
+                                                                                <td>MT-ReportUser</td>
+                                                                                <td class="text-center">
+                                                                                    <a href="#" class="glyphicon glyphicon-trash text-danger"></a>
+                                                                                </td>
+                                                                            </tr>
+
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="row mbottom5">
+                                <div class="col-sm-3 col-sm-offset-3">
+                                    <a href="#" class="btn btn-info btn-block "> Save</a>
+                                </div>
+                                </div>
+                                -->
+
+
+
+                            </div>
+                            <div class="clearfix"></div>
+                            <!-- <div class="col-sm-6 col-sm-offset-3">
+                               <ul class="list-unstyled list-inline pull-right">
+                                   <li><button type="button" class="btn btn-info next-step">Next <i class="fa fa-chevron-right"></i></button></li>
+                               </ul>
+                            </div> -->
+                        </div>
+
+
+
+
+
+                        <!--  Assign Access Tab -->
+                        <div id="assignAccess" class="tab-pane fade">
+                            
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+        <!--  Modal to close MOC 8 -->
+
+        <div class="modal fade" id="mdSelectRole" tabindex="-1" role="dialog" aria-labelledby="mdSelectRolelbl" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    </div>
+                    <div class="modal-body">
+
+
+                        <div class="row">
+
+                            <div class="dual-list list-left col-sm-5">
+                                <h3 class="mtop0"><img class="w40" src="/img/icons/role.png" alt=""> Select Role</h3>
+                                <div class="well text-right">
+                                    <div class="row">
+                                        <div class="col-sm-10">
+                                            <div class="">
+                                                <!-- <span class="input-group-addon glyphicon glyphicon-search"></span> -->
+                                                <input type="text" name="SearchDualList" class="form-control" placeholder="search" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-1">
+                                            @*<div class="row">
+                                                <a class=" selector" title="select all"><i class="glyphicon glyphicon-unchecked"></i></a>
+                                            </div>*@
+                                        </div>
+                                    </div>
+                                    <div class="list-wrapper">
+                                        <ul id="selectedUserRole" class="list-group">
+                                            @*<li class="list-group-item">bootstrap-duallist <a href="https://github.com/bbilginn/bootstrap-duallist" target="_blank">github</a></li>
+                                            <li class="list-group-item">Dapibus ac facilisis in</li>
+                                            <li class="list-group-item">Morbi leo risus</li>
+                                            <li class="list-group-item">Porta ac consectetur ac</li>
+                                            <li class="list-group-item">Vestibulum at eros</li>*@
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="list-arrows col-sm-1 text-center">
+                                <button class="btn btn-default btn-sm move-left">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                </button>
+
+                                <button class="btn btn-default btn-sm move-right">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </button>
+                            </div>
+
+                            <div class="dual-list list-right col-md-5">
+
+                                <div class="mtop50">
+                                    <h5><strong>Selected Roles</strong></h5>
+                                    <div class="well ">
+
+                                        <div class="row">
+                                            <div class="col-sm-10">
+                                                <div class="">
+                                                    <!-- <span class="input-group-addon glyphicon glyphicon-search"></span> -->
+                                                    @*<input type="text" name="SearchDualList" class="form-control" placeholder="search" />*@
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                @*<div class="row">
+                                                    <a class=" selector" title="select all"><i class="glyphicon glyphicon-unchecked"></i></a>
+                                                </div>*@
+                                            </div>
+                                        </div>
+
+
+
+
+
+
+
+                                        <div class="list-wrapper">
+                                            <ul id="selectedRoleName" class="list-group">
+                                                @*<li class="list-group-item">Cras justo odio</li>
+                                                <li class="list-group-item">Dapibus ac facilisis in</li>
+                                                <li class="list-group-item">Morbi leo risus</li>
+                                                <li class="list-group-item">Porta ac consectetur ac</li>
+                                                <li class="list-group-item">Vestibulum at eros</li>*@
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-11">
+                                    <a id="saveUserRoleName" href="#" class="btn btn-info btn-md pull-right">DONE</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+
+
+
+                </div>
+                <div class="modal-footer mtop10">
+                </div>
+            </div>
+        </div>
+        </div>
+
+
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
+        <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+        <script src="js/jquery-1.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="~/Scripts/custom/Security.js"></script>
+
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <!-- <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->
+        <script>
+            $(document).ready(function () {
+                GetRoleNames();
+                $('.btn-circle').on('click', function () {
+                    $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
+                    $(this).addClass('btn-info').removeClass('btn-default').blur();
+
+                    var step = $(this).data("step");
+                    if (step == "access") {
+                        ShowAssignAccessTab();
+                    }
+                });
+                $('.next-step, .prev-step').on('click', function (e) {
+                    var $activeTab = $('.tab-pane.active');
+                    $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
+                    if ($(e.target).hasClass('next-step')) {
+                        var nextTab = $activeTab.next('.tab-pane').attr('id');
+                        $('[href="#' + nextTab + '"]').addClass('btn-info').removeClass('btn-default');
+                        $('[href="#' + nextTab + '"]').tab('show');
+                    }
+                    else {
+                        var prevTab = $activeTab.prev('.tab-pane').attr('id');
+                        $('[href="#' + prevTab + '"]').addClass('btn-info').removeClass('btn-default');
+                        $('[href="#' + prevTab + '"]').tab('show');
+                    }
+                });
+            });
+            $(document).ready(function () {
+                $("#showAddRole").click(function () {
+                    $("#role").show();
+
+
+                    // $(this).removeClass(' glyphicon-plus').addClass(' glyphicon-minus');
+                    // $(this).removeClass(' glyphicon-plus').addClass(' glyphicon-minus');
+                    // $("#showAddRole").toggleClass('class-name', ' glyphicon-plus');
+                    // $("#showAddRole").toggleClass('class-name', ' glyphicon-minus');
+                    // $(this).toggleClass('class-name', 'glyphicon-plus glyphicon-minus');
+                });
+
+
+                $("#showAddUser").click(function () {
+                    $("#user").show();
+
+
+                });
+            });
+
+
+
+
+            //  Model style for role select
+            $(function () {
+
+                $('body').on('click', '.list-group .list-group-item', function () {
+                    //
+                    $(this).toggleClass('active').siblings().removeClass('active');;
+                });
+                $('.list-arrows button').click(function () {
+                   
+                   var $button = $(this), actives = '';
+                    if ($button.hasClass('move-left')) {
+                        actives = $('.list-right ul li.active');
+                        actives.clone().appendTo('.list-left ul');
+                        $('.list-left ul li.active').removeClass('active');
+                        actives.remove();
+                    }// else if ($button.hasClass('move-right')) {
+                    //    actives = $('.list-left ul li.active');
+                    //    actives.clone().appendTo('.list-right ul');
+                    //    actives.remove();
+                    else if ($button.hasClass('move-right')) {
+                        actives = $('.list-left ul li.active');
+                        activesright = '';
+                        activesright = $('.list-right ul li.active');
+                        activesright.clone().appendTo('.list-left ul');
+                        activesright.remove();
+
+                            actives.clone().appendTo('.list-right ul');
+                            actives.remove();
+                    }
+                });
+                $('.dual-list .selector').click(function () {
+                    var $checkBox = $(this);
+                    if (!$checkBox.hasClass('selected')) {
+                        $checkBox.addClass('selected').closest('.well').find('ul li:not(.active)').addClass('active');
+                        $checkBox.children('i').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+                    } else {
+                        $checkBox.removeClass('selected').closest('.well').find('ul li.active').removeClass('active');
+                        $checkBox.children('i').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+                    }
+                });
+                $('[name="SearchDualList"]').keyup(function (e) {
+                    var code = e.keyCode || e.which;
+                    if (code == '9') return;
+                    if (code == '27') $(this).val(null);
+                    var $rows = $(this).closest('.dual-list').find('.list-group li');
+                    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+                    $rows.show().filter(function () {
+                        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                        return !~text.indexOf(val);
+                    }).hide();
+                });
+
+            });
+
+            $('#btn_NewMOC').remove();
+            $('#reportlink').remove();
+            $('#securitylink').remove();
+
+            $('#downloadAllFileFormat').remove();
+            $("#stepimage").html('');
+            $("#stepimage").append('<div class="col-xs-3"><div class="row"><center><img src="/img/Icons/security.png" alt="" style="width:50px; margin-right: 5px;"></center></div></div>');
+
+
+            $.ajax({
+                url: "/Dashboard/LoadHeader",
+                type: "get",
+                data: "currentReportMOC=" + $("#currentReportMOC").val(),
+                success: function (result) {
+                    $('.titleMonth').html(result.titleMonth);
+                    $('.currentdatetime').html(result.currentdatetime);
+                }
+            })
+        </script>
+    </body>
+
+

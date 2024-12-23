@@ -1,0 +1,174 @@
+.dual-list .list-group {
+    margin-top: 8px;
+}
+
+li.list-group-item {
+    text-align: left;
+}
+
+.list-left li, .list-right li {
+    cursor: pointer;
+}
+
+.list-arrows {
+    padding-top: 100px;
+}
+
+    .list-arrows button {
+        margin-bottom: 20px;
+    }
+
+
+.process-step .btn:focus {
+    outline: none;
+}
+
+/*.process {
+    display: table;
+    width: 100%;
+    position: relative;
+}*/
+
+.process-row {
+    display: table-row;
+}
+
+.process-step button[disabled] {
+    opacity: 1 !important;
+    filter: alpha(opacity=100) !important;
+}
+
+.process-row:before {
+    top: 40px;
+    bottom: 0;
+    position: absolute;
+    content: " ";
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+    z-order: 0;
+}
+
+.process-step {
+    display: table-cell;
+    text-align: center;
+    position: relative;
+}
+
+    .process-step p {
+        margin-top: 4px;
+    }
+
+.btn-circle {
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    font-size: 12px;
+    border-radius: 50%;
+}
+
+
+div#role {
+    display: none;
+}
+
+div#user {
+    display: none;
+}
+
+
+table#usersTable td {
+    border-top: 0px solid #fff !important;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    margin: 8px 0 0;
+    margin-top: 1px \9;
+    line-height: normal;
+}
+
+
+
+.titlenamesecurity {
+    margin-top: 1%;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.icon-plus-style {
+    width: 23px;
+}
+
+
+
+
+
+table#access thead tr th:nth-child(1) {
+    border-right: 1px solid #EEE;
+}
+
+table#access tbody tr td:nth-child(1) {
+    border-right: 1px solid #EEE;
+}
+
+
+table#access thead tr th {
+    text-align: center;
+}
+
+table#access tbody tr td {
+    text-align: center;
+}
+
+/* Modal styling*/
+
+
+#mdSelectRole .modal-header, #mdSelectRole .modal-footer {
+    border-bottom: 1px solid transparent;
+    border-top: 1px solid transparent;
+}
+
+
+#mdSelectRole .modal-header, #mdSelectRole .modal-footer {
+    border-bottom: 1px solid transparent;
+    border-top: 1px solid transparent;
+}
+
+#mdSelectRole .modal-footer {
+    padding: 0px;
+}
+
+#mdSelectRole .modal-body .list-wrapper {
+    height: 200px;
+    overflow-y: auto;
+}
+
+
+#mdSelectRole .list-group-item {
+    position: relative;
+    display: block;
+    padding: 1px 15px;
+    margin-bottom: -1px;
+    border: 1px solid rgba(221, 221, 221, 0.44);
+    border-radius: 0px;
+}
+
+#mdSelectRole .selector {
+    display: inline-block;
+    margin-top: 7px;
+}
+
+#mdSelectRole .dual-list {
+    margin-left: 25px;
+}
+security-step .btn:focus{outline:none}
+                .security{display:table;width:100%;position:relative}
+                .security-row{display:table-row}
+                .security-step button[disabled]{opacity:1 !important;filter: alpha(opacity=100) !important}
+                .security-row:before{top:40px;bottom:0;position:absolute;content:" ";width:100%;height:1px;background-color:#ccc;z-order:0}
+                .security-step{display:table-cell;text-align:center;position:relative}
+                .security-step p{margin-top:4px}
+                .btn-circle{width:100px;height:100px;text-align:center;font-size:12px;border-radius:50%}
+
+
+   

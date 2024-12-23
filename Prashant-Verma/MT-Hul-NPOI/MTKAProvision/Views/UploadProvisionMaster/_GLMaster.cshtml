@@ -1,0 +1,342 @@
+﻿@using MT.Model;
+@{
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isUploadRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "GL").FirstOrDefault().Write;
+}
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="row mbottom10">
+            <div class="col-sm-12">
+                <!-- Data Table -->
+                <section id="tableinfo" class="mtop20">
+                    <div class="">
+                       
+                        <table id="GLMasterData" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%" data-isuploadright="@isUploadRight">
+                            <thead>
+                                <tr>
+                                    <th>Debit / Credit</th>
+                                    <th>GL Account</th>
+                                    <th>Edit</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                </section>
+            </div>
+        </div>
+        <div class="mbottom10"></div>
+    </div>
+    <!--  Right Column -->
+</div>
+
+
+<script>
+    var uploadMasters1_dtObj;
+    $(document).ready(function () {
+
+
+        GetGLMasterTableData();
+    });
+
+   
+
+
+    $('#dropDownGLMaster').change(function () {
+        debugger;
+        ChangeDropdown();
+
+    });
+    //function ChangeDropdown() {
+    //    debugger;
+    //    var dbcr = $('#dropDownGLMaster').val();
+    //    if (dbcr == "Dr") {
+    //        $('.Cr').closest('tr').hide();
+    //        $('.Dr').closest('tr').show();
+           
+    //    }
+
+    //    else {
+    //        $('.Dr').closest('tr').hide();
+    //        $('.Cr').closest('tr').show();            
+    //    }
+
+
+    //}
+
+    function GetGLMasterTableData()
+    {
+        if (uploadMasters1_dtObj != undefined) {
+            uploadMasters1_dtObj.destroy();
+        }
+
+        uploadMasters1_dtObj=$('#GLMasterData').DataTable({
+
+
+            createdRow: function (row, data, dataIndex) {
+               
+                $(row).find('td:eq(2) a')
+                .addClass(data.DbCr)
+               //.addClass("glAccount")
+
+
+
+            },
+
+
+
+            "ajax": {
+                "url": "/GLMaster/AjaxGetGLData",
+                "type": "GET",
+                "datatype": "json",
+
+                "error": function (xhr, textStatus, errorThrown) {
+                    callOnError(xhr, textStatus, errorThrown);
+                    
+                },
+                //"complete": function () {
+                //    debugger;
+                //    $('.Cr').closest('tr').hide();
+
+                //},
+
+            },
+
+            //"columnDefs": [{
+            //    "targets": -1,
+            //    "data": null,
+            //    "defaultContent": "<button>Click!</button>"
+            //}],
+            "columns": [
+                    { "data": "DbCr", "orderable": false},
+                    { "data": "GLAccount", "orderable": false},
+
+            { "defaultContent": '<a class="edit" href=#>Edit </a>&nbsp<a class="hide cancel" href=#>cancel</a>&nbsp&nbsp<a class="hide save"  href=#>save</a>' },
+            ],
+            
+
+            "scrollX": true,
+            "scrollY": 65,
+            "scroller": {
+                loadingIndicator: true
+            }
+
+        });
+
+
+    }
+
+
+
+    // });
+   
+    //$(document).off('click', '.glAccount').on('click', '.glAccount', function () {
+    //    var val= $(this).closest('td').prev('td').text();
+                
+    //    if ($(this).find('#editGLAccount').length == 0) {
+    //        var innerHtml = '<input type="text" id="editGLAccount" data-value='+val+' value=' + val + '>';
+    //        $(this).closest('td').prev('td').html(innerHtml);           
+    //        $('#editGLAccount').focus();
+    //        $(this).text('Save');
+    //        $(this).addClass('save');
+    //        $(this).removeClass('glAccount');
+    //    }
+       
+
+    //});
+    //var edittextvalue = "";
+    //$(document).off('blur', '#editGLAccount').on('blur', '#editGLAccount', function () {
+    //    var val = $('#editGLAccount').data('value');       
+    //    var dbcr = $('#dropDownGLMaster').val();  
+    //    alert('blur');
+
+    //    debugger;
+    //    $('.glAccount').text('Edit');
+        
+    //    if (edittextvalue != "")
+    //    {
+    //        $('#editGLAccount').replaceWith(edittextvalue);
+    //    }
+    //    else
+    //    {
+    //        $('#editGLAccount').replaceWith(val);
+
+    //    }
+    //    $('.save').text('Edit');
+    //    $('.save').addClass('glAccount');
+    //    $('.save').removeClass('save');
+       
+    //});
+
+    //$(document).off('mousedown', '.save').on('mousedown', '.save', function (event) {
+    //    event.preventDefault();
+    //}).off('click','.save').on('click', '.save', function (event) {
+    //    event.preventDefault();
+    //    $('.glAccount').text('Edit');     
+    //    debugger;
+    //    $('.save').text('Edit');
+    //    $('.save').addClass('glAccount');
+    //    $('.save').removeClass('save');
+    //    edittextvalue = $('#editGLAccount').val();
+    //    var val = $('#editGLAccount').data('value'); //$('#editGLAccount').data('value');
+    //    var dbcr = $('#dropDownGLMaster').val();
+       
+
+    //    bootbox.confirm("Are you sure u want to save the changes", function (result) {
+            
+    //        if (result == true) {
+    //            debugger;
+    //            $('#editGLAccount').data('value', edittextvalue);
+    //            $.ajax({
+    //                type: 'GET',
+    //                url: '/GLMaster/EditGLMaster',
+    //                data: {
+    //                    final: edittextvalue,
+    //                    intial: val,
+    //                },
+    //                success: function () {
+
+    //                    $('#editGLAccount').replaceWith(edittextvalue);
+    //                    $('.editGLAccount').data('value', edittextvalue);
+
+    //                }
+    //            });
+
+
+    //        }
+    //        else {
+    //            debugger;
+    //            $('.glAccount').closest('td').prev('td').html(val);
+    //            edittextvalue = val;
+    //            $('#editGLAccount').replaceWith(val);
+
+
+    //        }
+
+
+    //    })
+       
+        
+        
+
+    //})
+       
+
+    $(document).off('click', '.edit').on('click', '.edit', function () {
+        
+        var isUploadUserRight = $('#GLMasterData').data('isuploadright');
+        if (isUploadUserRight.toLowerCase() == "true")
+        {
+            if ($('#editGLAccount').length == 0) {
+                $(this).next('a.cancel').removeClass('hide');
+                $(this).next('a').next('a.save').removeClass('hide');
+                $(this).addClass('hide');
+
+                var val = $(this).closest('td').prev('td').text();
+
+                var innerHtml = '<input type="text" id="editGLAccount" data-value=' + val + ' value=' + val + '>';
+                $(this).closest('td').prev('td').html(innerHtml);
+                $('#editGLAccount').focus();
+
+            }
+
+        }
+        else
+        {
+            bootbox.alert("You don't have permission to delete the records");
+        }
+       
+
+    });
+
+
+    $(document).off('click', '.cancel').on('click', '.cancel', function () {
+        
+        $(this).next('a.save').addClass('hide');
+        $(this).prev('a.edit').removeClass('hide');
+        $(this).addClass('hide');
+        var val = $('#editGLAccount').data('value');       
+
+        $('#editGLAccount').replaceWith(val);
+
+    });
+
+
+    $(document).off('click', '.save').on('click', '.save', function () {
+
+      
+           edittextvalue = $('#editGLAccount').val();
+           var val = $('#editGLAccount').data('value'); //$('#editGLAccount').data('value');
+           var dbcr = $('#dropDownGLMaster').val();
+
+           $(this).prev('a.cancel').addClass('hide');
+           $(this).prev('a').prev('a.edit').removeClass('hide');
+           $(this).addClass('hide');
+
+           if (edittextvalue!="")
+           {
+              var box= bootbox.confirm("Are you sure u want to save the changes", function (result) {
+
+                   if (result == true) {
+                      
+                       $('#editGLAccount').data('value', edittextvalue);
+                       $.ajax({
+                           type: 'GET',
+                           url: '/GLMaster/EditGLMaster',
+                           data: {
+                               final: edittextvalue,
+                               intial: val,
+                           },
+                           success: function () {
+                               $('#editGLAccount').replaceWith(edittextvalue);
+                               GetGLMasterTableData();
+
+
+                           }
+                       });
+
+
+                   }
+                   else {
+
+                       $('#editGLAccount').replaceWith(val);
+
+
+                   }
+
+               });
+
+           }
+           else {
+               bootbox.alert("Can not edit null value");
+               $('#editGLAccount').replaceWith(val);
+               
+           }
+
+
+    });
+
+  
+    
+    //called when key is pressed in textbox
+
+    $(document).on('keypress', '#editGLAccount', function (e) {
+      
+        var totaldigit=$('#editGLAccount').val() /100000000
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)||totaldigit>=1) {
+            //display error message
+         
+            
+            //$(this).html("Digits Only").show().fadeOut("slow");
+           
+            return false;
+        }
+    })
+
+    
+   
+</script>

@@ -1,0 +1,161 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MT.Utility
+{
+    public class MTConstants
+    {
+
+    }
+    public class MasterConstants
+    {
+        public static string[] Cutomer_Group_Excel_Column = { "Customer code", "Region" };
+        public static string[] Cutomer_Group_DB_Column = { "CustomerCode", "StateCode" };
+        public static string Customer_Group_Master_Table_Name = "mtCustomerGroupMaster";
+        public static string Customer_Group_Master_UpdateSP_Name = "Update_mtCustomerGroupMaster";
+        public static string[] Customer_Group_Unique_Column = { "Customer code" };
+
+
+        public static string Customer_Group_Master_UpdateSP_Param_Name = "@tblCustomerGroup";
+
+        public static string[] BrandWise_SubCategory_Excel_Column = { "PMH Brand", "PMH Brand Name", "Sales Sub-Category", "Price List", "TOT% Sub Category Name" };
+        public static string[] BrandWise_SubCategory_DB_Column = { "PMHBrandCode", "PMHBrandName", "SalesSubCat", "PriceList", "TOTSubCategory" };
+        public static string BrandWise_SubCategory_Master_Table_Name = "mtBrandWiseTOTSubCategoryMapping";
+        public static string BrandWise_SubCategory_Master_UpdateSP_Name = "Update_mtBrandWiseTOTSubCategoryMapping";
+        public static string BrandWise_SubCategory_Master_UpdateSP_Param_Name = "@tblBrandWiseTOTSubCategory";
+        public static string[] BrandWise_SubCategory_Unique_Column = { "PMH Brand", "Sales Sub-Category", "Price List"};
+
+        public static string[] ServiceTax_Excel_Column = { "Chain Name", "Group Name", "Rate" };
+        public static string[] ServiceTax_DB_Column = { "ChainName", "GroupName", "Rate" };
+        public static string ServiceTax_Master_Table_Name = "mtServiceTaxRateMaster";
+        public static string ServiceTax_Master_UpdateSP_Name = "Update_mtServiceTaxRateMaster";
+        public static string ServiceTax_Master_UpdateSP_Param_Name = "@tblServiceTaxRateMaster";
+
+        public static string[] Sku_Excel_Column = { "Base Pack", "Tax code" };
+        public static string[] Sku_Db_Column = { "BasepackCode", "TaxCode" };
+        public static string Sku_Master_Table_Name = "mtSkuMaster";
+        public static string Sku_Master_UpdateSP_Name = "Update_mtSkuMaster";
+        public static string Sku_Master_UpdateSP_Param_Name = "@tblSku";
+
+
+        public static string[] Outlet_Excel_Column = { "HUL Outlet Code", "Group Name", "Chain Name", "Color/Non color" };
+        public static string[] Outlet_Db_Column = { "HulOutletCode", "GroupName", "ChainName", "ColorNonColor" };
+        public static string Outlet_Master_Table_Name = "mtOutletMaster";
+        public static string Oulet_Master_UpdateSP_Name = "Update_mtOutletMaster";
+        public static string Oulet_Master_UpdateSP_Param_Name = "@tblOutlet";
+
+        public static string[] HuggiesBasepack_Excel_Column = { "Huggies Basepack Code", "SKUs Description", "Percentage" };
+        public static string[] HuggiesBasepack_Db_Column = { "BasepackCode", "SKUDescription", "Percentage" };
+        public static string HuggiesBasepack_Master_Table_Name = "mtHuggiesPercentageMaster";
+        public static string HuggiesBasepack_Master_UpdateSP_Name = "Update_mtHuggiesBasepackMaster";
+        public static string HuggiesBasepack_Master_UpdateSP_Param_Name = "@tblHuggiesBasepack";
+
+        public static string[] ClusterRSCodeMapping_Excel_Column = { "Cluster Code", "RS Code" };
+        public static string[] ClusterRSCodeMapping_Db_Column = { "ClusterCode", "RSCode" };
+        public static string ClusterRSCodeMapping_Master_Table_Name = "mtClusterRSCodeMappingMaster";
+        public static string ClusterRSCodeMapping_Master_UpdateSP_Name = "Update_mtClusterRSCodeMappingMaster";
+        public static string ClusterRSCodeMapping_Master_UpdateSP_Param_Name = "@tblClusterRSCodeMapping";
+
+        public static string[] Sales_Tax_Excel_Column = { "TaxCode", "StateCode", "SalesTaxRate" };
+        public static string[] Sales_Tax_DB_Column = { "TaxCode", "StateCode", "SalesTaxRate" };
+        public static string Sales_Tax_Master_Table_Name = "mtSalesTaxMaster";
+        public static string Sales_Tax_Master_Master_UpdateSP_Name = "Update_mtSalesTaxMaster";
+        public static string Sales_Tax_Master_Master_UpdateSP_Param_Name = "@tblSalesTaxMaster";
+
+        //public static string[] SubCategory_TOT_Excel_Column = { "Chain Name", "Group name (as per the base file)", "BRANCH", "Eye", "Face", "Lakme Skin ", "Lip", "Nail", "Ponds Top End ", "Nail Polish Remover ", "Other Items", "LIP & LOVE", "T&G" };
+        public static string[] SubCategory_TOT_Excel_Column = { "Chain Name", "Group name (as per the base file)", "BRANCH" };
+        public static string SubCategory_TOT_Table_Name = "mtSubCategoryTOTMaster";
+        public static string[] SubCategory_TOT_DB_Column = { "ChainName", "GroupName", "Branch", "TOTSubCategory", "OnInvoiceRate", "OffInvoiceMthlyRate", "OffInvoiceQtrlyRate" };
+        public static string SubCategory_TOT_Master_UpdateSP_Name = "Update_mtSubCategoryTOTMaster";
+        public static string SubCategory_TOT_Master_UpdateSP_Param_Name = "@tblParam";
+	    public static string[] SubCategory_TOT_Unique_Column = { "ChainName", "GroupName", "Branch", "TOTSubCategory" };	
+
+        public static string[] AdditionalMargin_Excel_Column = { "RS Code", "RS Name", "Chain name", "Group name", "Price List", "% to be applied" };
+	    public static string[] AdditionalMargin_DB_Column = { "RSCode", "RSName", "ChainName", "GroupName", "PriceList", "Percentage" };	
+        public static string AdditionalMargin_Master_Table_Name = "mtAdditionalMarginMaster";
+        public static string AdditionalMargin_Master_UpdateSP_Name = "Update_mtAdditionalMarginMaster";
+        public static string AdditionalMargin_Master_UpdateSP_Param_Name = "@tblAdditionalMarginMaster";
+
+        //public static string[] UploadSecondarySales_Excel_Column = { "Customer Code", "Customer Name", "Outlet Category Master", "Basepack Id", "Basepack Name", "PMH Brand Code", "PMH Brand Name", "Sales SubCategory", "Price List", "HUL Outlet Code", "Branch Code", "MOC", "Cluster Code", "Outlet Tier", "Total Sales Value (INR)", "Sales Return Value (INR)", "Net Sales Value (INR)", "Net Sales Qty (KGs)" };
+        //public static string[] UploadSecondarySales_DB_Column = { "CustomerCode", "CustomerName", "OutletCategoryMaster", "BasepackCode", "BasepackName", "PMHBrandCode", "PMHBrandName", "SalesSubCat", "PriceList", "HulOutletCode", "BranchCode", "MOC", "ClusterCode", "OutletTier", "TotalSalesValue", "SalesReturnValue", "NetSalesValue", "NetSalesQty" };
+        public static string[] UploadSecondarySales_Excel_Column = { "Customer Code", "Customer Name", "Outlet Category Master", "Basepack Id", "Basepack Name", "PMH Brand Code", "PMH Brand Name", "Sales SubCategory", "Price List", "HUL Outlet Code", "HUL Outlet Code Name", "Branch Code", "Branch - Master", "MOC", "Outlet Secondary Channel", "Cluster Code", "Cluster Name", "Outlet Tier", "Total Sales Value (INR)", "Sales Return Value (INR)", "Net Sales Value (INR)", "Net Sales Qty (KGs)" };
+        public static string[] UploadSecondarySales_DB_Column = { "CustomerCode", "CustomerName", "OutletCategoryMaster", "BasepackCode", "BasepackName", "PMHBrandCode", "PMHBrandName", "SalesSubCat", "PriceList", "HulOutletCode", "HulOutletCodeName", "BranchCode", "BranchName", "MOC", "OutletSecChannel", "ClusterCode", "ClusterName", "OutletTier", "TotalSalesValue", "SalesReturnValue", "NetSalesValue", "NetSalesQty" };
+        //public static string[] UploadSecondarySales_Excel_Column = { "Customer Code", "Customer Name"};
+        //public static string[] UploadSecondarySales_DB_Column = { "CustomerCode", "CustomerName"};
+
+        public static string UploadSecondarySales_Master_Table_Name = "mtSecSalesReport";
+        public static string UploadSecondarySales_Master_UpdateSP_Name = "Update_mtSecSalesReport";
+
+        public static string UploadSecondarySales_Master_UpdateSP_Param_Name = "@tblSecSalesReport";
+
+        public static string[] MTTierBasedTOT_Excel_Column = { "Chain Name", "Group Name", "Tier", "Color / Non Color", "Price List", "On Invoice %", "Monthly Off Invoice %", "Qtrly Off Invoice %" };
+        public static string[] MTTierBasedTOT_DB_Column = { "ChainName", "GroupName", "OutletTier", "ColorNonColor", "PriceList", "OnInvoiceRate", "OffInvoiceMthlyRate", "OffInvoiceQtrlyRate" };
+        public static string MTTierBasedTOT_Master_Table_Name = "MTTierBasedTOTRate";
+        public static string MTTierBasedTOT_Master_UpdateSP_Name = "Update_MTTierBasedTOTRate";
+        public static string MTTierBasedTOT_Master_UpdateSP_Param_Name = "@tblTierBasedTOTRate";
+
+
+        public static string[] DownloadAllFileFormatFileName = { "Annexure 1- Outlet Master file.rar", "Annexure 2- Tax masters.rar", "Annexure 3-Customer Group Dump.rar", "Annexure 4- SKU dump.rar", "BrandwiseSubcategorymapping.rar", "ClusterRSCodeMaping.rar", "HuggiesBasepack.rar" };
+
+
+
+    }
+    public class DashBoardConstants
+    {
+        public static string Step_Master_Table_Name = "mtStepMaster";
+        public static string MOC_Status_Table_Name = "mtMOCStatus";
+        public static string MOC_Wise_StepDetails_Table_Name = "mtMOCWiseStepDetails";
+        public static string UploadMaster_StepId = "UPM";
+        public static string UploadProvisionMaster_StepId = "UPPM";
+        public static string UploadSecSales_StepId = "UPSEC";
+        public static string CalculateGSV_StepId = "GSV";
+        public static string CalculateProvision_StepId = "PVSION";
+        public static string GenerateJV_StepId = "JV";
+        public static string ExportJV_StepId = "ExportJV";
+        public static string CloseMOC_StepId = "CLSMOC";
+    }
+
+    public class UploadMasterConstants
+    {
+        public static string CUSTGRP_DetailedStep = "CUSTGRP";
+        public static string SKU_DetailedStep = "SKU";
+        public static string SALESTAXRATE_DetailedStep = "SALESTAXRATE";
+    }
+
+    public class UploadProvisionalMasterConstants
+    {
+        public static string OUTLETMASTER_DetailedStep = "OUTLETMASTER";
+        public static string ADDMARGIN_DetailedStep = "ADDMARGIN";
+        public static string SERVICETAX_DetailedStep = "SERVICETAX";
+        public static string HUGGIESBAEPACK_DetailedStep = "HUGGIESBAEPACK";
+        public static string CLUSTERRSCODE_DetailedStep = "CLUSTERRSCODE";
+        public static string TIERBASEDTOT_DetailedStep = "TIERBASEDTOT";
+        public static string SUBCATMAPPING_DetailedStep = "SUBCATMAPPING";
+        public static string SUBCATBASEDTOT_DetailedStep = "SUBCATBASEDTOT";
+    }
+
+<<<<<<< HEAD
+    public class ExportJVMasterConstants
+    {
+
+       public static string[] ColumnsToDisplay = { "GL Account", "Document Amount", "Cross Company Code", "Value Date", "GL Tax Code", "Cost Center", "Business Area", "Internal Order", "Transaction Type", "GL Assignment", "GL Item Text", "Trading Partner", "Material", "PO NUMBER", "Brand Code", "Distr Channel", "Plant", "Product", "Profit Center", "WBS Element", "Business Place", "COPA Customer" };
+       
+       public static string OnInVoiceExcelNameToDisplay = "OnInvoice-MOC";
+       public static string OnInVoiceViewName = "vwExportOnInvoice";
+
+       public static string OffInVoiceExcelNameToDisplay = "OFF Invoice MthlyJV-MOC";
+       public static string OffInvoiceViewName = "vwExportOffInvoice";
+       
+       public static string OffInVoiceQtrlyExcelNameToDisplay = "OFF Invoice QtrlyJV-moc";
+       public static string OffInVoiceQtrlyViewName = "vwExportOffInvoiceQtrly";
+=======
+    public class SecurityPageConstants
+    {
+        public static string PageRightMaster_TableName = "mtPageRightMaster";
+        public static string UpdateRights_SpName = "UpdateRoleWisePageRights";
+>>>>>>> f2d3d9318cde1959b2036442996a2884168ba4ac
+    }
+}

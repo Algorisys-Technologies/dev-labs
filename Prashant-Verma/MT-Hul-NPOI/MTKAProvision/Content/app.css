@@ -1,0 +1,91 @@
+﻿/*@import url("//fonts.googleapis.com/css?family=Lobster");*/
+
+
+.section-title, .navbar-brand {
+	/*font-family: 'Lobster', cursive;*/
+	font-weight: bold;
+	line-height: 1.1;
+	font-size: 26px;
+	margin-top: 0px;
+}
+
+.post-container {
+	
+}
+
+.post-thumb {
+	text-align: center;
+	color: black;
+}
+
+.post-thumb h5 {
+	font-weight: bold;
+	margin-top: 0px;
+}
+
+.post-thumb:hover {
+	text-decoration: none;
+	color: grey;
+}
+
+img.thumbnail {
+    margin-bottom: 10px;
+	max-height: 200px !important;
+}
+
+.pagination {
+	float: right;
+	margin-right: 20px;
+}
+
+.postdetails {
+}
+
+.postdetails .poster {
+	float: left;
+	margin-right: 20px;
+    max-height:300px;
+}
+
+.postdetails .post-title {
+	font-family: 'Lobster', cursive;
+	font-size: 35px;
+	margin-top: 0px;
+}
+
+.postdetails .btn-info {
+	margin-right: 5px;
+}
+
+.postdetails .overview {
+	font-size: 17px;
+	margin: 15px 5% 15px 0px;
+} 
+
+.postdetails .return-link {
+	float: right;
+}
+
+.tag {
+    margin: 5px;
+}
+.tag-title {
+	text-align: right;
+	margin-bottom: 10px;
+}
+
+kbd {
+    padding: 2px 4px;
+    font-size: 90%;
+    color: #fff;
+    background-color: #333;
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .25);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .25);
+    margin:5px;
+}
+
+
+
+/* notification css*/
+

@@ -1,0 +1,351 @@
+﻿
+@{
+    ViewBag.Title = "UploadMaster";
+}
+<div class="container-fluid">
+    <input type="hidden" id="currentReportMOC" value="@ViewBag.currentMOC" />
+    <input type="hidden" name="activeTab" id="activeTab" value="tab1" />
+    <div class="row ">
+        <!--  Left Column -->
+        <div class="col-sm-12">
+            <div class="col-sm-12">
+
+                <div class="col-sm-12 uploadMaster-tab-container">
+                    <div class="col-md-2 uploadMaster-tab-menu">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item active text-center" data-id="tab1">
+                                Introduction
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="CustomerGroupMaster">
+                                <img src="/img/Icons/Customer_Group.png" alt="" class="side-menu-icon">Customer Group
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="SkuMaster">
+                                <img src="/img/Icons/SKUDump1.png" alt="" class="side-menu-icon">SKU Dump
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="SalesTaxMaster">
+                                <img src="/img/Icons/tax.png" alt="" class="side-menu-icon" style="height:13px;">Sales Tax Rate
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="GstMaster">
+                                <img src="/img/Icons/tax.png" alt="" class="side-menu-icon" style="height:13px;">GST
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-10 uploadMaster-tab" id="partialViewWrapper">
+                        <!-- Introduction Section -->
+                        @Html.Partial("_IntroductionTab")
+                        <!-- Customer Group Section -->
+                        
+                        <!-- SKU Dump Section -->
+                        
+                        <!-- Sales Tax Rate Section -->
+                    </div>
+                    <!-- setting to make room for the datatable footer show records -->
+                    <p class="mbottom10">&nbsp;</p>
+                    <p class="mbottom10">&nbsp;</p>
+                    <!--  to make room for the datatable footer show records -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">File Upload</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure.you want to upload file </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnUpload">Yes, Upload</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    var uploadMasters1_dtObj;
+    $(document).ready(function () {
+
+        $("div.uploadMaster-tab-menu>div.list-group>a").click(function (e) {
+
+            e.preventDefault();
+            $(this).siblings('a.active').removeClass("active");
+            $(this).addClass("active");
+            var index = $(this).index();
+            $("div.uploadMaster-tab>div.uploadMaster-tab-content").removeClass("active");
+            $("div.uploadMaster-tab>div.uploadMaster-tab-content").eq(index).addClass("active");
+
+            var tabid = $(this).data("id");
+            $("#activeTab").val(tabid);
+            LoadPartialView(tabid);
+            //InitializeDataTable(tabid);
+        });
+    });
+
+    @*function FillCustomerGroupDataTable() {
+        uploadMasters1_dtObj.destroy();
+
+        uploadMasters1_dtObj = $('#uploadMasters1').DataTable({
+            "processing": true,
+            "serverSide": true,
+            //"pageLength": 50,
+            "info": true,
+            //"stateSave": true,
+            "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+            "ajax": {
+                "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/UploadMaster/AjaxGetCustomerGroupData",
+                "type": "POST",
+                "error": function (xhr, textStatus, errorThrown) {
+                    callOnError(xhr, textStatus, errorThrown);
+                }
+            },
+            "columns": [
+                    { "data": "CustomerCode", "orderable": true },
+                    { "data": "StateCode", "orderable": true }
+            ],
+            "order": [[0, "asc"]],
+            "scrollX": true,
+            "scrollY": 400,
+            "scroller": {
+                loadingIndicator: true
+            }
+        });
+    }*@
+
+    function LoadPartialView(tab) {
+
+        $.ajax({
+            url: '/UploadMaster/GetView',
+            type: "POST",
+            data: { tab: tab },
+            datatype: "text/plain",
+            cache: false,
+            async: false,
+            success: function (data) {
+
+                $('#partialViewWrapper').html(data);
+            }
+        });
+    }
+
+    @*function InitializeDataTable(tab) {
+        if (tab == "tab2") {
+            if (uploadMasters1_dtObj != undefined) {
+                uploadMasters1_dtObj.destroy();
+            }
+
+            uploadMasters1_dtObj = $('#uploadMasters1').DataTable({
+                "processing": true,
+                "serverSide": true,
+                //"pageLength": 50,
+                "info": true,
+                //"stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/UploadMaster/AjaxGetCustomerGroupData",
+                    "type": "POST"
+                },
+                "columns": [
+                        { "data": "CustomerCode", "orderable": true },
+                        { "data": "StateCode", "orderable": true }
+                ],
+                "order": [[0, "asc"]],
+                "scrollX": true,
+                "scrollY": 400,
+                "scroller": {
+                    loadingIndicator: true
+                }
+            });
+        }
+        else if (tab == "tab3") {
+
+            if (uploadMasters1_dtObj != undefined) {
+                uploadMasters1_dtObj.destroy();
+            }
+
+            uploadMasters1_dtObj = $('#uploadMasters1').DataTable({
+                "processing": true,
+                "serverSide": true,
+                //"pageLength": 50,
+                "info": true,
+                //"stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/UploadMaster/AjaxGetBrandWiseSubCategoryData",
+                    "type": "POST"
+                },
+                "columns": [
+                        { "data": "PMHBrandCode", "orderable": true },
+                        { "data": "PMHBrandName", "orderable": true },
+                        { "data": "SalesSubCat", "orderable": true },
+                        { "data": "PriceList", "orderable": true },
+                        { "data": "TOTSubCategory", "orderable": true }
+                ],
+                "order": [[0, "asc"]],
+                "scrollX": true,
+                "scrollY": 400,
+                "scroller": {
+                    loadingIndicator: true
+                }
+            });
+        }
+        else if (tab == "tab4") {
+            if (uploadMasters1_dtObj != undefined) {
+                uploadMasters1_dtObj.destroy();
+            }
+            uploadMasters1_dtObj = $('#uploadMasters1').DataTable({
+                "ajax": {
+                    "url": "/UploadMaster/LoadSubCategoryTOTData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                         { "data": "ChainName", "orderable": true },
+                            { "data": "GroupName", "orderable": true },
+                            { "data": "Branch", "orderable": true },
+                            { "data": "FaceNEye", "orderable": true },
+                            { "data": "LakmeSkin", "orderable": true },
+                            { "data": "LipNNail", "orderable": true },
+                            { "data": "PondsTopEnd", "orderable": true },
+                            { "data": "NailPolishRemover", "orderable": true },
+                            { "data": "LipNLove", "orderable": true },
+                            { "data": "TNG", "orderable": true },
+                            { "data": "OtherItems", "orderable": true },
+                            { "data": "HaikoFaceNEye", "orderable": true },
+                            { "data": "HaikoLakmeSkin", "orderable": true },
+                            { "data": "HaikoLipNNail", "orderable": true },
+                            { "data": "HaikoNailPolishRemover", "orderable": true }
+                ],
+                "scrollX": true,
+                "scrollY": 400,
+                "scroller": {
+                    loadingIndicator: true
+                }
+            });*@
+    @*uploadMasters1_dtObj = $('#uploadMasters1').DataTable({
+                "processing": true,
+                "serverSide": true,
+                //"pageLength": 50,
+                "info": true,
+                //"stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax":{
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/UploadMaster/AjaxGetSubCategoryTOTData",
+            "type": "POST"
+        },
+                    "columns": [
+                            { "data": "ChainName", "orderable": true },
+                            { "data": "GroupName", "orderable": true },
+                            { "data": "Branch", "orderable": true },
+                            { "data": "FaceNEye", "orderable": true },
+                            { "data": "LakmeSkin", "orderable": true },
+                            { "data": "LipNNail", "orderable": true },
+                            { "data": "PondsTopEnd", "orderable": true },
+                            { "data": "NailPolishRemover", "orderable": true },
+                            { "data": "LipNLove", "orderable": true },
+                            { "data": "TNG", "orderable": true },
+                            { "data": "OtherItems", "orderable": true },
+                            { "data": "HaikoFaceNEye", "orderable": true },
+                            { "data": "HaikoLakmeSkin", "orderable": true },
+                            { "data": "HaikoLipNNail", "orderable": true },
+                            { "data": "HaikoNailPolishRemover", "orderable": true }
+                    ],
+                    "order": [[0, "asc"]],
+                    "scrollX":  true,
+                    "scrollY": 400,
+                    "scroller": {
+        loadingIndicator: true
+                    }
+});*@
+    //    }
+    //}
+
+
+    @*function FillBrandWiseSubCategoryDataTable() {
+        uploadMasters1_dtObj.destroy();
+
+        uploadMasters1_dtObj = $('#uploadMasters1').DataTable({
+            "processing": true,
+            "serverSide": true,
+            //"pageLength": 50,
+            "info": true,
+            //"stateSave": true,
+            "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+            "ajax": {
+                "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/UploadMaster/AjaxGetBrandWiseSubCategoryData",
+                "type": "POST"
+            },
+            "columns": [
+                    { "data": "PMHBrandCode", "orderable": true },
+                    { "data": "PMHBrandName", "orderable": true },
+                    { "data": "SalesSubCat", "orderable": true },
+                    { "data": "PriceList", "orderable": true },
+                    { "data": "TOTSubCategory", "orderable": true }
+            ],
+            "order": [[0, "asc"]],
+            "scrollX": true,
+            "scrollY": 400,
+            "scroller": {
+                loadingIndicator: true
+            }
+        });
+    }*@
+
+    //function FillSubCategoryTOTDataTable() {
+    //    uploadMasters1_dtObj.destroy();
+
+    //    uploadMasters1_dtObj = $('#uploadMasters1').DataTable({
+    //        "ajax": {
+    //            "url": "/UploadMaster/LoadSubCategoryTOTData",
+    //            "type": "GET",
+    //            "datatype": "json"
+    //        },
+    //        "columns": [
+    //                 { "data": "ChainName", "orderable": true },
+    //                    { "data": "GroupName", "orderable": true },
+    //                    { "data": "Branch", "orderable": true },
+    //                    { "data": "FaceNEye", "orderable": true },
+    //                    { "data": "LakmeSkin", "orderable": true },
+    //                    { "data": "LipNNail", "orderable": true },
+    //                    { "data": "PondsTopEnd", "orderable": true },
+    //                    { "data": "NailPolishRemover", "orderable": true },
+    //                    { "data": "LipNLove", "orderable": true },
+    //                    { "data": "TNG", "orderable": true },
+    //                    { "data": "OtherItems", "orderable": true },
+    //                    { "data": "HaikoFaceNEye", "orderable": true },
+    //                    { "data": "HaikoLakmeSkin", "orderable": true },
+    //                    { "data": "HaikoLipNNail", "orderable": true },
+    //                    { "data": "HaikoNailPolishRemover", "orderable": true }
+    //        ],
+    //        "scrollX": true,
+    //        "scrollY": 400,
+    //        "scroller": {
+    //            loadingIndicator: true
+    //        }
+    //    });
+    //}
+    $('#btn_NewMOC').remove();
+    $('#reportlink').remove();
+    $('#securitylink').remove();
+    $('.downloadAllFileFormat').remove();
+    $("#stepimage").html('');
+    $("#stepimage").append('<div class="col-xs-3"><div class="row"><center><span class="stepno">1</span><img src="/img/Icons/2Upload_Masters_Active.png" alt="" style="width: 40px; margin-top:5px;"></center></div></div>');
+
+    $.ajax({
+        url: "/Dashboard/LoadHeader",
+        type: "get",
+        data: "currentReportMOC=" + $("#currentReportMOC").val(),
+        success: function (result) {
+            $('.titleMonth').html(result.titleMonth);
+            $('.currentdatetime').html(result.currentdatetime);
+        }
+    })
+
+</script>
+
+<script src="~/Scripts/custom/drag-and-dropping.js"></script>

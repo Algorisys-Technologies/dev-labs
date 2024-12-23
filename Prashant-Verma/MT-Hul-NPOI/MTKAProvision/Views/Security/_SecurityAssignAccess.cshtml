@@ -1,0 +1,67 @@
+﻿@using MT.Model;
+@model List<SecurityAssignAccess>
+    <div class="col-sm-6 col-sm-offset-3">
+        @*<div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                    Dropdown Example
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">HTML</a></li>
+                    <li><a href="#">CSS</a></li>
+                    <li><a href="#">JavaScript</a></li>
+                </ul>
+            </div>*@
+        <div>
+            <select id="dd_role"></select>
+            <button id="btnUpdate" style="float:right;">Update</button>
+        </div>
+        <table class="table  table-striped mtop20 " id="access">
+            <thead>
+                <tr>
+                    <th>Page Name</th>
+                    <th><input type="checkbox" id="selecctall_Read" data-name="read" /> Read</th>
+                    <th><input type="checkbox" id="selecctall_Write" data-name="write" /> Write</th>
+                    <th><input type="checkbox" id="selecctall_Extract" data-name="extract" /> Extract</th>
+                    <th><input type="checkbox" id="selecctall_Execute" data-name="execute" /> Execute</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var page in Model)
+                {
+                    <tr id="tr_@page.PageId" data-pageid="@page.PageId">
+                        <td>@page.PageName</td>
+                        <td>
+                            @if (page.IsReadAvailable)
+                            {
+                                var checkBoxId = "tr_" + page.PageId + "_readChk";
+                                <input id="@checkBoxId" type="checkbox" name="read" value="" />
+                            }
+                        </td>
+                        <td>
+                            @if (page.IsWriteAvailable)
+                            {
+                                var checkBoxId = "tr_" + page.PageId + "_writeChk";
+                                <input id="@checkBoxId" type="checkbox" name="write" value="" />
+                            }
+                        </td>
+                        <td>
+                            @if (page.IsExtractAvailable)
+                            {
+                                var checkBoxId = "tr_" + page.PageId + "_extractChk";
+                                <input id="@checkBoxId" type="checkbox" name="extract" value="" />
+                            }
+                        </td>
+                        <td>
+                            @if (page.IsExecuteAvailable)
+                            {
+                                var checkBoxId = "tr_" + page.PageId + "_executeChk";
+                                <input id="@checkBoxId" type="checkbox" name="execute" value="" />
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>

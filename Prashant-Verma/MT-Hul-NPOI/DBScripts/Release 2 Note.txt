@@ -1,0 +1,5 @@
+Release Note--------------------------------
+
+
+1. Run Script 'ReleaseScript 1' after deploy New Release.
+2. update [Assign Access] to user from Security option give Read/write to Selected Roles.

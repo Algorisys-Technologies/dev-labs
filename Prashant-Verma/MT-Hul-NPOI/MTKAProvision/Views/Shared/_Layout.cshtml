@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+
+    <link href="@Url.Content("~/Content/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/bootstrap-datepicker.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/font-awesome.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/Functional/inner_hf.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/Functional/stickyNote.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/Functional/dashboard.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/Functional/common.css?v=2")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/DataTables/jquery.dataTables.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/DataTables/scroller.dataTables.min.css")" rel="stylesheet" />
+    <link href="~/Content/Functional/uploadProvMasters.css" rel="stylesheet" />
+    <link href="~/Content/Functional/security.css" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Functional/thermometer.css")" rel="stylesheet">
+    <link href="~/Content/Functional/secondarySales.css" rel="stylesheet" />
+    <link href="~/Content/Functional/uploadMasters.css" rel="stylesheet" />
+    <link href="~/Content/d3/css1.css" rel="stylesheet" />
+    <script src="@Url.Content("~/Scripts/jquery-1.10.2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/custom/Site.js?v=1")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/DataTables/jquery.dataTables.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/DataTables/dataTables.bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/DataTables/dataTables.scroller.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/custom/drag-and-dropping.js")"></script>
+
+    <script src="~/Scripts/moment.min.js"></script>
+    <script src="@Url.Content("~/Scripts/Bootbox/bootbox.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datepicker.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/DataTables/tableHeadFixer.js")"></script>
+    <script src="@Url.Content("~/Scripts/d3/d3js.js")"></script>
+    <script src="@Url.Content("~/Scripts/d3/c3.js")"></script>
+</head>
+<body>
+
+    @Html.Partial("_Header")
+    <div class="bodyarea">
+        @RenderBody()
+    </div>
+    <div>
+        @Html.Partial("_Footer")
+    </div>
+
+    <div id="loading" style="z-index:2000;">
+        <img id="loading-image" src="~/img/loading/blue-spinner.gif" alt="Loading..." />
+    </div>
+    <div>
+        @Html.Partial("_AuditPartial")
+    </div>
+</body>
+</html>
+<script>
+
+    $('#loading').hide();
+
+</script>
+<style>
+    #loading {
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+        position: fixed;
+        opacity: 0.7;
+        background-color: #fff;
+        z-index: 99;
+        text-align: center;
+    }
+
+    #loading-image {
+        position: absolute;
+        top: 200px;
+        left: 500px;
+        z-index: 777;
+    }
+
+    .bodyarea {
+        padding-bottom: 50px;
+    }
+</style>

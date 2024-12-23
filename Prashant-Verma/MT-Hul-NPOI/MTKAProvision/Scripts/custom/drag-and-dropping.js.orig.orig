@@ -1,0 +1,345 @@
+
+var dropArea = $("#dropAreaDiv");
+var newFile;
+// Providing handlers three events to the drop area
+dropArea.on({
+    "drop": makeDrop,
+    "dragenter": ignoreDrag,
+    "dragover": ignoreDrag
+});
+
+//Stop default behavior 
+function ignoreDrag(e) {
+    e.stopPropagation();
+    e.preventDefault();
+}
+
+//Handling drop event
+function makeDrop(e) {
+    //debugger;
+    var fileList = e.originalEvent.dataTransfer.files, fileReader;
+    e.stopPropagation();
+    e.preventDefault();
+    if (fileList.length > 0) {
+        newFile = fileList[0];
+        //$("#validateDroppedImage").hide();
+        fileReader = new FileReader();
+        fileReader.onloadend = handleReaderOnLoadEnd();
+        fileReader.readAsDataURL(fileList[0]);
+    }
+}
+
+//Setting the image source
+function handleReaderOnLoadEnd() {
+    return function (event) {
+        var p = "<p>Are you sure.you want to upload:</p><p style='color:darkorange;'>" + newFile.name + "</p>";
+
+        $("#confirmModal div.modal-body").html(p);
+
+        $('#confirmModal').modal('show');
+    };
+}
+
+$(document).off("click", "#btnUpload").on("click", "#btnUpload", function () {
+<<<<<<< HEAD
+    debugger;
+    var currentTab = $("#activeTabMaster");
+    
+    var url = $(currentTab).data("uploadurl");
+=======
+    //debugger;
+    var currentTab = $("#activeTabMaster");
+
+    var url = $(currentTab).data("uploadurl");
+<<<<<<< HEAD
+   
+=======
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+    //var actionName = "";
+    //if (currentTab == "tab2") {
+    //    actionName = "UploadCustomerGroupFile";
+    //}
+    //else if (currentTab == "tab3") {
+    //    actionName = "UploadBrandwiseSubCategoryFile";
+    //}
+    //else if (currentTab == "tab4") {
+    //    actionName = "UploadSubCategoryTOTFile";
+    //}
+
+   // $('#loading').show();
+<<<<<<< HEAD
+=======
+>>>>>>> 1e8eb07056602bfdf3d548a4e2d09fc19af01cdc
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+    debugger;
+    if (newFile != undefined) {
+        var formData = new FormData();
+        var totalFiles = 1;
+        var dropedFile = newFile;
+        formData.append("FileUpload", dropedFile);
+        formData.append("FileName", newFile.name);
+        $.ajax({
+            type: "POST",
+            url: url, //'/UploadMaster/' + actionName + '',
+            data: formData,
+            dataType: "json",
+            contentType: false,
+            processData: false,
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (result) {
+                $('#confirmModal').modal('hide');
+                bootbox.alert(result.msg);
+                if (result.isSuccess) {
+<<<<<<< HEAD
+                    //if (currentTab.val() == "tab2") {
+                    //    FillCustomerGroupDataTable();
+                 
+                    //}else if (currentTab.val() == "tab3") {
+                    //    FillBrandWiseSubCategoryDataTable();
+                    //}else if (currentTab.val() == "tab4") {
+                    //    FillSubCategoryTOTDataTable();
+                     if (currentTab.val() == "SecSalesReport") {
+=======
+                    if (currentTab.val() == "SecSalesReport") {
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+                        FillUploadSecondarySalesDataTable();
+                    } else if (currentTab.val() == "ServiceTaxRateMaster") {
+                        FillServiceTaxDataTable();
+                    } else if (currentTab.val() == "SalesTaxRateMaster") {
+                        FillSalesTaxRateDataTable();
+                    }
+                    else if (currentTab.val() == "ClusterRSCodeMapingMaster") {
+                        FillClusterDataTable();
+                    }
+                    else if (currentTab.val() == "HuggiesBasepackMaster") {
+                        FillHuggiesDataTable();
+                    }
+                    else if (currentTab.val() == "OutletMaster") {
+<<<<<<< HEAD
+                        
+=======
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+                        FillOutletDataTable();
+                    }
+                    else if (currentTab.val() == "SkuMaster") {
+                        FillSkuDataTable();
+                    }
+<<<<<<< HEAD
+                   else if (currentTab.val() == "CustomerGroupMaster") {
+=======
+                    else if (currentTab.val() == "CustomerGroupMaster") {
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+                        FillCustomerGroupDataTable();
+  
+                    }
+<<<<<<< HEAD
+		 else if (currentTab.val() == "MTTierBasedTOTMaster") {
+                        FillMTTierBasedTOTDataTable();
+                    }
+                   else if (currentTab.val() == "AddtionalMarginMaster") {
+                             FillAdditonalMarginMasterDataTable();
+                    }
+                   else if (currentTab.val() == "BrandWiseSubCategoryMaster") {
+
+                    FillBrandWiseSubCategoryDataTable();
+
+=======
+                    else if (currentTab.val() == "MTTierBasedTOTMaster") {
+                        FillMTTierBasedTOTDataTable();
+                    }
+                    else if (currentTab.val() == "AddtionalMarginMaster") {
+                        FillAdditonalMarginMasterDataTable();
+                    }
+                    else if (currentTab.val() == "BrandWiseSubCategoryMaster") {
+                        FillBrandWiseSubCategoryDataTable();
+                    }
+                    else if (currentTab.val() == "SubCategoryTOTMaster") {
+                        FillSubCategoryTOTDataTable();
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+                    }
+
+                }
+               // $('#loading').hide();
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        });
+    }
+    else if (document.getElementById("fileInput").files.length > 0) {
+        var browsedFile = document.getElementById("fileInput").files[0];
+        var imageName = browsedFile.name;
+        debugger;
+
+        var formData = new FormData();
+        formData.append("FileUpload", browsedFile);
+        formData.append("ImageName", imageName);
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            dataType: "json",
+            contentType: false,
+            processData: false,
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (result) {
+                $('#confirmModal').modal('hide');
+                bootbox.alert(result.msg);
+                if (result.isSuccess) {
+<<<<<<< HEAD
+                    //if (currentTab == "tab2") {
+                    //    FillCustomerGroupDataTable();
+                    //}
+                    //else if (currentTab == "tab3") {
+                    //    FillBrandWiseSubCategoryDataTable();
+                    //}
+                    //else if (currentTab == "tab4") {
+                    //    FillSubCategoryTOTDataTable();
+                    //}
+                     if (currentTab == "SecSalesReport") {
+=======
+                    if (currentTab == "SecSalesReport") {
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+                        FillUploadSecondarySalesDataTable();
+                    }
+                    else if (currentTab.val() == "ServiceTaxRateMaster") {
+                        FillServiceTaxDataTable();
+                    }
+                    else if (currentTab.val() == "SalesTaxRateMaster") {
+                        FillSalesTaxRateDataTable();
+                    }
+                    else if (currentTab.val() == "ClusterRSCodeMapingMaster") {
+                        FillClusterDataTable();
+                    }
+                    else if (currentTab.val() == "SkuMaster") {
+                        FillSkuDataTable();
+<<<<<<< HEAD
+                        
+=======
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+                    }
+                    else if (currentTab.val() == "OutletMaster") {
+                        FillOutletDataTable();
+                    }
+                    else if (currentTab.val() == "HuggiesBasepackMaster") {
+                        FillHuggiesDataTable();
+                    }
+<<<<<<< HEAD
+                    else if (currentTab.val() == "OutletMaster") {
+                        console.log("data uploaded");
+                        FillOutletDataTable();
+                    }
+                    else if (currentTab.val() == "SkuMaster") {
+                        FillSkuDataTable();
+                    }
+		 else if (currentTab.val() == "CustomerGroupMaster") {
+                        FillCustomerGroupDataTable();
+                    }
+                    else if (currentTab.val() == "BrandWiseSubCategoryMaster") {
+
+                        FillBrandWiseSubCategoryDataTable();
+
+                    }
+ 		else if (currentTab.val() == "MTTierBasedTOTMaster") {
+                        FillMTTierBasedTOTDataTable();
+                    }
+                    else if (currentTab.val() == "AddtionalMarginMaster") {
+                        FillAdditonalMarginMasterDataTable();
+                    }
+
+<<<<<<< HEAD
+                  //  $('#loading').hide();
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+=======
+
+		}
+>>>>>>> bd3aaa9c0b39d92b87a30380a4a21efba7c6a916
+=======
+                    else if (currentTab.val() == "CustomerGroupMaster") {
+                        FillCustomerGroupDataTable();
+                    }
+                    else if (currentTab.val() == "BrandWiseSubCategoryMaster") {
+                        FillBrandWiseSubCategoryDataTable();
+                    }
+                    else if (currentTab.val() == "MTTierBasedTOTMaster") {
+                        FillMTTierBasedTOTDataTable();
+                    }
+                    else if (currentTab.val() == "AddtionalMarginMaster") {
+                        FillAdditonalMarginMasterDataTable();
+                    }
+                    else if (currentTab.val() == "SubCategoryTOTMaster") {
+                        FillSubCategoryTOTDataTable();
+                    }
+
+<<<<<<< HEAD
+                }
+=======
+
+		}
+            },
+            complete: function () {
+                $('#loading').hide();
+>>>>>>> 1e8eb07056602bfdf3d548a4e2d09fc19af01cdc
+>>>>>>> 91e3bddb4665a12c28c67a68f272eedbbfa31d29
+            }
+
+        });
+    }
+    else {
+        //$("#validateDroppedImage").show();
+
+        $('#loading').hide();
+    }
+});
+
+
+$('#dropAreaDiv').on('click', function () {
+    $('#fileInput').trigger('click');
+});
+
+$("#fileInput").change(function (e) {
+    // debugger;
+    var browsedFile = document.getElementById("fileInput").files[0];
+    var p = "<p>Are you sure.you want to upload:</p><p style='color:darkorange;'>" + browsedFile.name + "</p>";
+
+    $("#confirmModal div.modal-body").html(p);
+
+    $('#confirmModal').modal('show');
+
+});
+
+$('#confirmModal').on('hidden.bs.modal', function () {
+    //debugger;
+    var ele = document.getElementById("fileInput");
+    clearInputFile(ele);
+})
+
+function clearInputFile(f) {
+    if (f.value) {
+        try {
+            f.value = ''; //for IE11, latest Chrome/Firefox/Opera...
+        } catch (err) {
+        }
+        if (f.value) { //for IE5 ~ IE10
+            var form = document.createElement('form'), ref = f.nextSibling;
+            form.appendChild(f);
+            form.reset();
+            ref.parentNode.insertBefore(f, ref);
+        }
+    }
+}
+
+
+
+
+
+
+
+

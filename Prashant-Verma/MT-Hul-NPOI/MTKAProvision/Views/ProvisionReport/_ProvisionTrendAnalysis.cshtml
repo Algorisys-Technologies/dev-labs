@@ -1,0 +1,178 @@
+﻿@using MT.Model;
+@using System.Globalization;
+@{
+    List<MonthlyToTProvisionTrend> MonthlyToTProvisionTrendList = ViewData["MonthlyToTProvisionTrendList"] as List<MonthlyToTProvisionTrend>;
+}
+<style>
+    .leftAlign {
+        text-align: left;
+    }
+
+    .listheads {
+    }
+
+</style>
+<div class="">
+    @*<center> <label>@ViewBag.ReportName</label></center>*@
+    <input type="hidden" id="hdnReportName" value="@ViewBag.ReportName" />
+
+    @if (MonthlyToTProvisionTrendList.Count() > 0)
+    {   <div class="row mbottom10">
+        <div class="col-sm-12">
+            <!-- Data Table -->
+            <section id="tableinfo">
+                <a href="#" id="download"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a>
+                <label class="pull-right"> Values in Rs Crores</label>
+
+                
+                <div class="mbottom10"></div>
+                <div class="" id="tbltrend">
+                    <table id="tblprovisiontrend" class="table table-striped table-bordered table-condensed dataTable no-footer" cellspacing="0" style="width:100%; height:100px">
+                        <thead>
+                            <tr>
+                                <th style="vertical-align:middle;" class="listheads"> </th>
+                                @foreach (var columnitem in MonthlyToTProvisionTrendList)
+                                {
+                                    <th>@columnitem.UniqueMonthName</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr>
+                                <td class="leftAlign ">Sales ( TUR)</td>
+                                @foreach (var columnitem in MonthlyToTProvisionTrendList)
+                                {
+
+                                    <td class="rightaligncell">@(columnitem.SalesTUR)</td>
+                                }
+
+                            </tr>
+                            <tr>
+                                <td class="leftAlign ">ToT Value </td>
+                                @foreach (var columnitem in MonthlyToTProvisionTrendList)
+                                {
+
+                                    <td class="rightaligncell">@(columnitem.ToTProvision) </td>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="leftAlign ">ToT % </td>
+                                @foreach (var columnitem in MonthlyToTProvisionTrendList)
+                                {
+
+                                    <td class="rightaligncell">@columnitem.ToTPercentage %</td>
+                                }
+
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="row mtop20" id="chart"></div>
+            </section>
+
+        </div>
+    </div>
+    }
+    else
+    {
+        <div class="row col-md-12">
+            <center>No data available!</center>
+        </div>
+    }
+
+</div>
+<script>
+    $("#tblprovisiontrend").tableHeadFixer({ 'left': 1 });
+
+    $("#tblprovisiontrend th").css("background-color", "#66ccff");
+    //oTable = $('#tblAuditTrail').DataTable({
+    //    //  "scrollX": true,
+    //    //   "scrollY": '500px'
+    //});
+    //$('#tblAuditTrailInputTextField').keyup(function () {
+    //    oTable.search($(this).val()).draw();
+    //})
+    $("#spnReportName").html($("#hdnReportName").val());
+
+    $(document).on("click", "#download", function () {
+        window.location = "/ProvisionReport/Download_ToTProvisionTrendExcel?moc=" + $("#selectedMOC").val();
+    });
+    function renderchart() {
+        $.ajax({
+            url: '/ProvisionReport/RenderChartData',
+            type: "GET",
+            data: "currentReportMOC=" + $("#selectedMOC").val(),
+            success: function (data) {
+                console.log(data.SalesTUR);
+                resultData = (data);
+                console.log(data.UniqueMonthName);
+
+                var UniqueMonthName = data.UniqueMonthName;
+                var data = {
+
+                    'Sales (TUR)': data.SalesTUR,
+                    'ToT Value': data.TotProvision,
+
+
+                    'ToT % ': data.ToTPercentage,
+                };
+                var chart = c3.generate({
+                    data: {
+                        json: data,
+                        types: {
+
+
+                            'Sales ( TUR)': 'line',
+
+                            'ToT Value': 'line',
+                            'ToT %': 'line',
+
+                        },
+                        groups: [
+                         UniqueMonthName
+                        ]
+                    },
+                    axis: {
+                        x: {
+                            type: 'category',
+                            categories: UniqueMonthName
+                        },
+
+                        y: {
+                            label: {
+                                text: 'Y-Axis',
+                                position: 'outer-top'
+
+                            }
+                        },
+
+                    }
+
+
+
+                });
+            }
+        })
+    }
+    var resultData = null;
+    $(document).ready(function () {
+
+        $("#btnShowTable").show();
+        $("#tbltrend").hide();
+        $("#btnHideTable").hide();
+        renderchart();
+    });
+    $("#btnShowTable").click(function () {
+        $("#tbltrend").show();
+        $(this).hide();
+        $("#btnHideTable").show();
+    })
+    $("#btnHideTable").click(function () {
+        $("#tbltrend").hide();
+        $(this).hide();
+        $("#btnShowTable").show();
+    })
+</script>

@@ -1,0 +1,262 @@
+﻿
+@using MT.Model;
+@{
+    UserRoleRights userRights = ViewBag.LoggedInUserRights as UserRoleRights;
+    bool isUploadRight = userRights.UserRole.RoleName == "Admin" ? true : userRights.UserRights.Where(u => u.PageId == "MailConfig").FirstOrDefault().Write;
+}
+
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="row mbottom10">
+            <div class="col-sm-12">
+                <!-- Data Table -->
+                <section id="tableinfo" class="mtop20">
+                    <div class="">
+                        @*@if (isUploadRight == true)
+                            {
+                                <img src="/img/dashboard/newmoc.jpg" id="addNewMailConfig" alt="" class="icon-plus-style" title="Add new Mail Configuration">
+
+                            }*@
+
+                        <table id="mailConfigMaster" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%" data-isuploadright="@isUploadRight">
+                            <thead>
+                                <tr>
+                                    @*<th>Master Id</th>*@
+                                    <th>Master Name</th>
+                                    <th>Enable</th>
+                                    <th>Edit</th>
+                                    @*<th>Delete</th>*@
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                </section>
+            </div>
+        </div>
+        <div class="mbottom10"></div>
+    </div>
+    <!--  Right Column -->
+</div>
+<script>
+
+    var uploadMasters1_dtObj;
+
+    $(document).ready(function () {
+
+        GetMailConfigListMasterTableData();
+    });
+
+    function GetMailConfigListMasterTableData() {
+
+
+        if (uploadMasters1_dtObj != undefined) {
+            uploadMasters1_dtObj.destroy();
+        }
+
+        uploadMasters1_dtObj = $('#mailConfigMaster').DataTable({
+
+
+            createdRow: function (row, data, dataIndex) {
+
+                $(row).find('td:eq(2) a')
+          .attr('data-mailConfigList', data.PriceList)
+
+
+            },
+
+
+
+            "ajax": {
+                "url": "/MailConfigMaster/GetMailConfigList",
+                "type": "GET",
+                "datatype": "json",
+
+
+            },
+
+            "columns": [
+                //{ "data": "ConfigId", "orderable": false },
+                    { "data": "Description", "orderable": false, "class": "leftaligncell" },
+                    { "data": "Enable", "orderable": false },
+
+                    //{ "defaultContent": '<input type="checkbox" class="checkbox1"/>' },
+                    //{ "defaultContent": '<a class="edit" href=#>Edit </a>' },
+                    //{ "defaultContent": '<a class="deletePriceList" href=#><span class="glyphicon glyphicon-trash text-danger"></span> </a>' },
+            ],
+
+            'columnDefs': [{
+                'targets': 2,
+                'searchable': false,
+                'orderable': false,
+                'className': 'dt-body-center',
+                'sWidth': '5%',
+                'render': function (data, type, full, meta) {
+                    return '<a class="edit" href=# data-ConfigId="' + full.ConfigId + $('<div/>').text(data).html() + '"> Edit </a>';
+                }
+            }],
+
+            "scrollX": true,
+            "scrollY": 260,
+            "scroller": {
+                loadingIndicator: true
+            }
+
+        });
+
+
+    }
+    function validate() {
+        if ($("#passwrd").val() == "") {
+            return false;
+        }
+        else if ($("#toMailId").val() == "") {
+            return false;
+        }
+        else if ($("#fromMailId").val() == "") {
+            return false;
+        }
+        else if ($("#description").val() == "") {
+            return false;
+        }
+        else {
+            return true
+        }
+    }
+    function validateForm(emaillist) {
+        var email = emaillist.split(',');
+        for (i = 0; i < email.length; i++) {
+            debugger;
+            var x = email[i];
+            var atpos = x.indexOf("@@");
+            var dotpos = x.lastIndexOf(".");
+            if (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= x.length) {
+                bootbox.alert(x + " is not a valid e-mail address");
+                return false;
+            }
+        }
+    }
+    $(document).off('click', '#btnSaveMailConfig').on('click', '#btnSaveMailConfig', function () {
+
+        var form = $('#frmMailConfig');
+        var config = $("#masterId").val();
+        var isEnable = $('#enable').prop('checked');
+        if (isEnable == true) {
+            if (validate() == false) {
+                bootbox.alert("Fill required Field!");
+                return;
+            }
+            if (validateForm($("#fromMailId").val()) == false) {
+                return;
+            }
+            if (validateForm($("#toMailId").val()) == false) {
+                return;
+            }
+            if (!($("#ccMailId").val() == "")) {
+                if (validateForm($("#ccMailId").val()) == false) {
+                    return;
+                }
+            }
+        }
+
+        $.ajax({
+            type: 'post',
+            url: '/MailConfigMaster/EditMailConfiguration',
+            data: form.serialize() + "&Enable=" + isEnable,
+            success: function (data) {
+                debugger;
+                bootbox.alert(config + " Mail configuration change successfully!");
+                GetMailConfigListMasterTableData();
+                $('#mailConfigModal').modal('hide');
+
+            },
+            error: function (xhr, err) {
+                alert("readyState: " + xhr.readyState + "\nstatus: " + xhr.status);
+                alert("responseText: " + xhr.responseText);
+
+            }
+
+
+        })
+
+
+    });
+
+    //$(document).off('click', '.deletemailConfig').on('click', '.deletemailConfig', function () {
+    //    var isUploadUserRight = $('#mailConfigMaster').data('isuploadright');
+    //    if (isUploadUserRight.toLowerCase() == "true")
+    //    {
+    //        var pricelist = $(this).data('pricelist');
+
+    //        var box = bootbox.confirm("Are you sure you want to delete mail Configuration ", function (result) {
+
+    //            if (result == true) {
+    //                $.ajax({
+    //                    type: 'GET',
+    //                    url: '/MailConfigMaster/DeletePriceList',
+    //                    data: {
+    //                        priceListTODelete: pricelist,
+
+    //                    },
+    //                    success: function (data) {
+
+    //                        bootbox.alert(data.msg);
+
+    //                        GetMailConfigListMasterTableData();
+
+    //                    },
+    //                    error: function (xhr, err) {
+    //                        //bootbox.alert("readyState: " + xhr.readyState + "\nstatus: " + xhr.status);
+    //                        //  bootbox.alert("responseText: " + xhr.responseText);
+
+    //                    }
+
+    //                });
+    //            }
+
+    //            else {
+    //                box.modal('hide');
+    //            }
+
+    //        });
+
+
+
+    //    }
+    //    else
+    //    {
+    //        bootbox.alert("You don't have permission to delete the records");
+
+    //    }
+
+
+    //});
+
+    $(document).off('click', '.edit').on('click', '.edit', function () {
+        $('.form-control').val('');
+        var config = $(this).attr("data-ConfigId");
+        $.ajax({
+            url: "/MailConfigMaster/GetMailConfigById",
+            data: { configID: config },
+            success: function (result) {
+                console.log(result.data);
+                $('#enable').prop('checked', result.data.Enable);
+                $('#masterId').val(result.data.ConfigId);
+                $('#description').val(result.data.Description);
+                $('#fromMailId').val(result.data.From);
+                $('#toMailId').val(result.data.MailTo);
+                $('#ccMailId').val(result.data.MailCC);
+                $('#passwrd').val(result.data.Password);
+            }
+        });
+        $('#mailConfigModal').modal('show');
+
+
+    });
+
+
+</script>

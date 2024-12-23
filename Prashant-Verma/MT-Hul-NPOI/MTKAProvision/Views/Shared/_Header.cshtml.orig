@@ -1,0 +1,104 @@
+﻿<header>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-2 pull-right">
+                <h4 class="pull-right user-details">
+<<<<<<< HEAD
+                    Welcome <span class="user-name">@ViewBag.UserName</span><div><small class="currentdatetime"></small></div>@*11-May-2016 6.30pm*@
+                    <div><small><a href="@Url.Action("Logout", "Login") " class="logout">Log Out</a></small></div>
+=======
+                    Welcome <span class="user-name">Deepti Nair</span><div><small class="currentdatetime"></small></div>@*11-May-2016 6.30pm*@
+                    <div><small><a href="/Home/Index" class="logout">Log Out</a></small></div>
+>>>>>>> 525ccd191fc38c5ff33505912f67682c0a201cc7
+                </h4>
+            </div>
+            <div class="col-sm-5 pull-right">
+                <ul class="list-unstyled list-inline options-list">
+                    <li>
+                        <a href="javascript:void(0);" class="option-link" id="btn_NewMOC">
+                            <figure>
+                                <figcaption>New MOC</figcaption>
+                                <img src="/img/dashboard/newmoc.jpg" alt="" class="icon-plus-style">
+                            </figure>
+                        </a>
+                    </li>
+                    <li>
+                        <a id="downloadAllFileFormat" href="#" class="option-link">
+                            <figure>
+                                <figcaption>Download all file formats</figcaption>
+                                <img src="/img/dashboard/Download_Excel.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                    <li id="reportlink">
+                        <a href="/Reports/Index" class="option-link">
+                            <figure>
+                                <figcaption>Reports</figcaption>
+                                <img src="/img/dashboard/Reports.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                    <li id="securitylink">
+                        <a href="/Security/Index" class="option-link">
+                            <figure>
+                                <figcaption>Security</figcaption>
+                                <img src="/img/dashboard/security.svg" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                    <!-- <li> <a href="#" class="option-link"><figure>
+                        <figcaption>Setting</figcaption>
+                        <img src="/img/dashboard/Settings.png" alt="">
+                    </figure> </a></li> -->
+                    <li>
+                        <a href="#" class="option-link">
+                            <figure>
+                                <figcaption>Help</figcaption>
+                                <img src="/img/dashboard/Help.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Dashboard/Index" class="option-link" id="homelink">
+                            <figure>
+                                <figcaption>Home</figcaption>
+                                <img src="/img/icons/home.png" alt="">
+                            </figure>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-5">
+                <div class="row">
+                    <div id="stepimage"></div> @*<div class="col-xs-3">
+                            <div class="row">
+                                <center >
+                                    <span class="stepno"></span>
+                                    <img src="" alt="" style="width: 40px; margin-top:5px;">
+                                </center>
+                            </div>
+                        </div>*@
+                    <div class="col-xs-9">
+                        <div class="row">
+                            <h3 class='titlename mbottom5'>Steps to make provision</h3>
+                            <h5 class="sub-title mtop5 titleMonth"></h5>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</header>
+<script>
+
+    $.ajax({
+        url: "/Dashboard/LoadHeader",
+        type: "get",
+        success: function (result) {
+            $('.titleMonth').html(result.titleMonth);
+            $('.currentdatetime').html(result.currentdatetime);
+        }
+    })
+</script>

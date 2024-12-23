@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search & Generate</title>
+    <link rel="stylesheet" href="../static/style/styles.css"> <!-- Sidebar CSS -->
+    <link rel="stylesheet" href="../static/style/style_gen.css"> <!-- Main content CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- <div class="sidebar-container">
+       
+        <div class="sidebar">
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/search">Image Search</a></li>
+                <li><a href="/generate">Image Generate</a></li>
+                <li><a href="/resume">Resume summary</a></li>
+                <li><a href="/Research">Resume Search</a></li>
+
+            </ul>
+        </div>
+    </div> -->
+    <div class="navigation">
+        <ul>
+            {% if 'Dashboard' in features %}
+            <li>
+                <a href="/">
+                    <span class="icon"><i class="fa-solid fa-house"></i></span>
+                    <span class="title">Dashboard</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Image Search' in features %}
+            <li>
+                <a href="/search">
+                    <span class="icon"><i class="fa-solid fa-image"></i></span>
+                    <span class="title">Image Search</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Image Generate' in features %}
+            <li>
+                <a href="/generate">
+                    <span class="icon"><i class="fa-solid fa-image"></i></span>
+                    <span class="title">Image Generate</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Resume Search' in features %}
+            <li>
+                <a href="/Research">
+                    <span class="icon"><i class="fa-solid fa-search"></i></span>
+                    <span class="title">Resume Search</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Resume summary' in features %}
+            <li>
+                <a href="/resume">
+                    <span class="icon"><i class="fa-solid fa-file-alt"></i></span>
+                    <span class="title">Resume summary</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="toggle" onclick="toggleMenu()"></div>
+    <script type="text/javascript">
+        function toggleMenu() {
+            let navigation = document.querySelector('.navigation');
+            let toggle = document.querySelector('.toggle');
+            navigation.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+    </script>
+    <!-- Main content area -->
+
+
+    <div class="main-container">
+        <div class="form-section">
+            <h2>Resume Search</h2>
+            {% if message %}
+            <h1 class="welcome-heading">{{ message }}</h1>
+            {% else %}
+
+            <form action="/askbot" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="resume">Upload Resume (PDF only)</label>
+                    <input type="file" name="resume" id="resume" class="form-control" accept=".pdf" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="question">Ask a Question</label>
+                    <input type="text" name="question" id="question" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Check</button>
+            </form>
+            {% endif %}
+
+        </div>
+
+       
+
+    </div>
+
+    <div class="flex justify-center items-center min-h-screen">
+        <div class='min-w-full max-w-md border-collapse border border-gray-300'>
+            {% if question %}
+            <table class='min-w-full border-collapse border border-gray-300'>
+                <thead>
+                    <tr>
+                        <th>Question: {{ question }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Answer: {{ answer }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+    
+    
+    
+</body>
+
+</html>

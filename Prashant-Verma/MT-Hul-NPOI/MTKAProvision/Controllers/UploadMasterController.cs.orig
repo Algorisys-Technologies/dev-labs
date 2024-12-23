@@ -1,0 +1,396 @@
+﻿using MT.DataAccessLayer;
+using MT.Model;
+using MT.Utility;
+using MTKAProvision.Models;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MTKAProvision.Controllers
+{
+    public class UploadMasterController : AppController
+    {
+        private int TOTAL_ROWS = 0;
+        public string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+        SmartData smartDataObj = new SmartData();
+        // GET: UploadMaster
+        public ActionResult Index()
+        {
+            return View("UploadMaster");
+        }
+
+        [HttpPost]
+        public ActionResult UploadCustomerGroupFile()
+        {
+            if (Request.Files.Count > 0)
+            {
+                try
+                {
+                    bool success = false;
+                    foreach (string upload in Request.Files)
+                    {
+                        string path = AppDomain.CurrentDomain.BaseDirectory + "FilesUploaded/";
+                        string filename = Path.GetFileName(Request.Files[upload].FileName);
+                        Request.Files[upload].SaveAs(Path.Combine(path, filename));
+
+                        ReadExcel read = new ReadExcel();
+                        MasterResponse excelResult = read.ValidateAndReadExcel(Path.Combine(path, filename), MasterConstants.Cutomer_Group_Excel_Column);
+                        if (excelResult.IsSuccess)
+                        {
+                            ExcelToDbColumnMapping obj = new ExcelToDbColumnMapping();
+                            excelResult.Data = obj.MapCustomerGroupMaster(excelResult.Data, MasterConstants.Cutomer_Group_Excel_Column, MasterConstants.Cutomer_Group_DB_Column);
+                            DataTable table = new DataTable();
+                            table = excelResult.Data;
+                            table.TableName = MasterConstants.Customer_Group_Master_Table_Name;
+                            //dataService dataservices = new dataService();
+                            //dataservices.Insert(table);
+                            smartDataObj.Bulk_Update(table, MasterConstants.Customer_Group_Master_UpdateSP_Name, MasterConstants.Customer_Group_Master_UpdateSP_Param_Name);
+                            success = true;
+                            return Json(
+                                new
+                                {
+                                    isSuccess = success,
+                                    msg = "File Uploaded Successfully!"
+                                }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(
+                                new
+                                {
+                                    isSuccess = success,
+                                    msg = "File does not contains valid data!"
+                                }, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    return Json(
+                               new
+                               {
+                                   isSuccess = success,
+                                   msg = "File not selected!"
+                               }, JsonRequestBehavior.AllowGet);
+                }
+                catch (Exception ex)
+                {
+                    return Json(
+                              new
+                              {
+                                  isSuccess = false,
+                                  msg = "Error occurred. Error details: " + ex.Message
+                              }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            else
+            {
+                return Json(
+                             new
+                             {
+                                 isSuccess = false,
+                                 msg = "No files selected."
+                             }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult AjaxGetCustomerGroupData(int draw, int start, int length)
+        {
+            string search = Request["search[value]"];
+            int sortColumn = -1;
+            string sortColumnName = "CustomerCode";
+            string sortDirection = "asc";
+
+            // note: we only sort one column at a time
+            if (Request["order[0][column]"] != null)
+            {
+                sortColumn = int.Parse(Request["order[0][column]"]);
+                sortColumnName = Request["columns[" + sortColumn + "][data]"];
+            }
+            if (Request["order[0][dir]"] != null)
+            {
+                sortDirection = Request["order[0][dir]"];
+            }
+            CustomerGroupMasterDataTable dataTableData = new CustomerGroupMasterDataTable();
+            dataTableData.draw = draw;
+            TOTAL_ROWS = GetTotalRowsCount(search, MasterConstants.Customer_Group_Master_Table_Name);
+            if (length == -1)
+            {
+                length = TOTAL_ROWS;
+            }
+            dataTableData.recordsTotal = TOTAL_ROWS;
+            int recordsFiltered = 0;
+            dataTableData.data = FilterCustomerGroupData(ref recordsFiltered, start, length, search, sortColumnName, sortDirection);
+            dataTableData.recordsFiltered = TOTAL_ROWS;
+
+            return Json(dataTableData, JsonRequestBehavior.AllowGet);
+        }
+
+        private List<MtCustomerGroupMaster> FilterCustomerGroupData(ref int recordFiltered, int start, int length, string search, string sortColumnName, string sortDirection)
+        {
+            var pageNo = (start / length) + 1;
+            List<MtCustomerGroupMaster> list = new List<MtCustomerGroupMaster>();
+            string orderByTxt = "";
+            var columnNames = String.Join(",", MasterConstants.Cutomer_Group_DB_Column);
+
+            if (sortDirection == "asc")
+            {
+                orderByTxt = "ORDER BY " + sortColumnName + " " + sortDirection;
+            }
+            else
+            {
+                orderByTxt = "ORDER BY " + sortColumnName + " " + sortDirection;
+            }
+
+            SqlConnection connection = new SqlConnection(connectionString);
+            DataTable dt = new DataTable();
+            DbRequest request = new DbRequest();
+
+            int recordupto = start + length;
+            if (string.IsNullOrEmpty(search))
+            {
+<<<<<<< HEAD
+                //dt = Ado.GetDataTable("SELECT * FROM mtCustomerGroupMaster " + orderByTxt + " OFFSET " + start + " ROWS FETCH NEXT " + length + " ROWS ONLY;", connection);
+                //request.SqlQuery = "SELECT * FROM mtCustomerGroupMaster " + orderByTxt + " OFFSET " + start + " ROWS FETCH NEXT " + length + " ROWS ONLY;";
+                //dt=smartDataObj.GetData(request);
+                request.SqlQuery = "SELECT * FROM (select ROW_NUMBER()OVER (ORDER BY id)  AS RowNumber,  * from mtCustomerGroupMaster ) a WHERE RowNumber BETWEEN " + start + " AND " + recordupto;
+=======
+                //request.SqlQuery = "SELECT * FROM mtCustomerGroupMaster " + orderByTxt + " OFFSET " + start + " ROWS FETCH NEXT " + length + " ROWS ONLY;";
+                request.SqlQuery = "SELECT " + columnNames + " FROM ( SELECT " + columnNames + " , ROW_NUMBER() OVER (" + orderByTxt + ") AS RowNum FROM mtCustomerGroupMaster ) AS SOD WHERE SOD.RowNum BETWEEN " + (start + 1) + " AND " + (start + length) + "";
+
+>>>>>>> 99f9f9f59c32e0b3562b9ff6cbb4d8f5ab0d4094
+                dt = smartDataObj.GetData(request);
+            }
+            else
+            {
+                //request.SqlQuery = "SELECT * FROM mtCustomerGroupMaster WHERE FREETEXT (*, '" + search + "') " + orderByTxt + " OFFSET " + start + " ROWS FETCH NEXT " + length + " ROWS ONLY;";
+                request.SqlQuery = "SELECT " + columnNames + " FROM ( SELECT " + columnNames + " , ROW_NUMBER() OVER (" + orderByTxt + ") AS RowNum FROM mtCustomerGroupMaster WHERE FREETEXT(*, '" + search + "')) AS SOD WHERE SOD.RowNum BETWEEN " + (start + 1) + " AND " + (start + length) + "";
+                dt = smartDataObj.GetData(request);
+            }
+
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                MtCustomerGroupMaster obj = new MtCustomerGroupMaster();
+
+                obj.CustomerCode = dr["CustomerCode"].ToString();
+                obj.StateCode = dr["StateCode"].ToString();
+
+                list.Add(obj);
+
+            }
+            return list;
+        }
+
+        [HttpPost]
+        public ActionResult UploadBrandwiseSubCategoryFile()
+        {
+            if (Request.Files.Count > 0)
+            {
+                try
+                {
+                    bool success = false;
+                    foreach (string upload in Request.Files)
+                    {
+                        string path = AppDomain.CurrentDomain.BaseDirectory + "FilesUploaded/";
+                        string filename = Path.GetFileName(Request.Files[upload].FileName);
+                        Request.Files[upload].SaveAs(Path.Combine(path, filename));
+
+                        ReadExcel read = new ReadExcel();
+                        MasterResponse excelResult = read.ValidateAndReadExcel(Path.Combine(path, filename), MasterConstants.BrandWise_SubCategory_Excel_Column);
+                        if (excelResult.IsSuccess)
+                        {
+                            ExcelToDbColumnMapping obj = new ExcelToDbColumnMapping();
+                            excelResult.Data = obj.MapBrandwiseSubcategoryMappingMaster(excelResult.Data, MasterConstants.BrandWise_SubCategory_Excel_Column, MasterConstants.BrandWise_SubCategory_DB_Column);
+                            DataTable table = new DataTable();
+                            table = excelResult.Data;
+                            table.TableName = MasterConstants.BrandWise_SubCategory_Master_Table_Name;
+                            smartDataObj.Bulk_Update(table, MasterConstants.BrandWise_SubCategory_Master_UpdateSP_Name, MasterConstants.BrandWise_SubCategory_Master_UpdateSP_Param_Name);
+                            success = true;
+                            return Json(
+                                new
+                                {
+                                    isSuccess = success,
+                                    msg = "File Uploaded Successfully!"
+                                }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(
+                                new
+                                {
+                                    isSuccess = success,
+                                    msg = "File does not contains valid data!"
+                                }, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    return Json(
+                               new
+                               {
+                                   isSuccess = success,
+                                   msg = "File not selected!"
+                               }, JsonRequestBehavior.AllowGet);
+                }
+                catch (Exception ex)
+                {
+                    return Json(
+                              new
+                              {
+                                  isSuccess = false,
+                                  msg = "Error occurred. Error details: " + ex.Message
+                              }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            else
+            {
+                return Json(
+                             new
+                             {
+                                 isSuccess = false,
+                                 msg = "No files selected."
+                             }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult AjaxGetBrandWiseSubCategoryData(int draw, int start, int length)
+        {
+            string search = Request["search[value]"];
+            int sortColumn = -1;
+            string sortColumnName = "PMHBrandCode";
+            string sortDirection = "asc";
+
+            // note: we only sort one column at a time
+            if (Request["order[0][column]"] != null)
+            {
+                sortColumn = int.Parse(Request["order[0][column]"]);
+                sortColumnName = Request["columns[" + sortColumn + "][data]"];
+            }
+            if (Request["order[0][dir]"] != null)
+            {
+                sortDirection = Request["order[0][dir]"];
+            }
+            BrandwiseSubCategoryMasterDataTable dataTableData = new BrandwiseSubCategoryMasterDataTable();
+            dataTableData.draw = draw;
+            TOTAL_ROWS = GetTotalRowsCount(search, MasterConstants.BrandWise_SubCategory_Master_Table_Name);
+            if (length == -1)
+            {
+                length = TOTAL_ROWS;
+            }
+            dataTableData.recordsTotal = TOTAL_ROWS;
+            int recordsFiltered = 0;
+            dataTableData.data = FilterBrandwiseSubCategoryData(ref recordsFiltered, start, length, search, sortColumnName, sortDirection);
+            dataTableData.recordsFiltered = TOTAL_ROWS;
+
+            return Json(dataTableData, JsonRequestBehavior.AllowGet);
+        }
+
+        private List<MtBrandwiseSubCategoryMaster> FilterBrandwiseSubCategoryData(ref int recordFiltered, int start, int length, string search, string sortColumnName, string sortDirection)
+        {
+            var pageNo = (start / length) + 1;
+            List<MtBrandwiseSubCategoryMaster> list = new List<MtBrandwiseSubCategoryMaster>();
+            string orderByTxt = "";
+            var columnNames = String.Join(",", MasterConstants.BrandWise_SubCategory_DB_Column);
+
+            if (sortDirection == "asc")
+            {
+                orderByTxt = "ORDER BY " + sortColumnName + " " + sortDirection;
+            }
+            else
+            {
+                orderByTxt = "ORDER BY " + sortColumnName + " " + sortDirection;
+            }
+
+            SqlConnection connection = new SqlConnection(connectionString);
+            DataTable dt = new DataTable();
+            DbRequest request = new DbRequest();
+            if (string.IsNullOrEmpty(search))
+            {
+                //request.SqlQuery = "SELECT * FROM mtCustomerGroupMaster " + orderByTxt + " OFFSET " + start + " ROWS FETCH NEXT " + length + " ROWS ONLY;";
+                request.SqlQuery = "SELECT " + columnNames + " FROM ( SELECT " + columnNames + " , ROW_NUMBER() OVER (" + orderByTxt + ") AS RowNum FROM " + MasterConstants.BrandWise_SubCategory_Master_Table_Name + " ) AS SOD WHERE SOD.RowNum BETWEEN " + (start + 1) + " AND " + (start + length) + "";
+
+                dt = smartDataObj.GetData(request);
+            }
+            else
+            {
+                //request.SqlQuery = "SELECT * FROM mtCustomerGroupMaster WHERE FREETEXT (*, '" + search + "') " + orderByTxt + " OFFSET " + start + " ROWS FETCH NEXT " + length + " ROWS ONLY;";
+                request.SqlQuery = "SELECT " + columnNames + " FROM ( SELECT " + columnNames + " , ROW_NUMBER() OVER (" + orderByTxt + ") AS RowNum FROM " + MasterConstants.BrandWise_SubCategory_Master_Table_Name + " WHERE FREETEXT(*, '" + search + "')) AS SOD WHERE SOD.RowNum BETWEEN " + (start + 1) + " AND " + (start + length) + "";
+                dt = smartDataObj.GetData(request);
+            }
+
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                MtBrandwiseSubCategoryMaster obj = new MtBrandwiseSubCategoryMaster();
+
+                obj.PMHBrandCode = dr["PMHBrandCode"].ToString();
+                obj.PMHBrandName = dr["PMHBrandName"].ToString();
+                obj.SalesSubCat = dr["SalesSubCat"].ToString();
+                obj.PriceList = dr["PriceList"].ToString();
+                obj.TOTSubCategory = dr["TOTSubCategory"].ToString();
+
+                list.Add(obj);
+
+            }
+            return list;
+        }
+
+        private int GetTotalRowsCount(string search, string tableName)
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            DataTable dt = new DataTable();
+            DbRequest request = new DbRequest();
+            if (string.IsNullOrEmpty(search))
+            {
+                //dt = Ado.GetDataTable("Select Count(*) from mtCustomerGroupMaster", connection);
+                request.SqlQuery = "Select Count(*) from " + tableName + "";
+                dt = smartDataObj.GetData(request);
+
+            }
+            else
+            {
+                //dt = Ado.GetDataTable("Select Count(*) from mtCustomerGroupMaster WHERE FREETEXT (*, '" + search + "')", connection);
+                request.SqlQuery = "Select Count(*) from " + tableName + " WHERE FREETEXT (*, '" + search + "')";
+                dt = smartDataObj.GetData(request);
+            }
+            int recordsCount = 0;
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                recordsCount = Convert.ToInt32(dr[0]);
+            }
+
+            return recordsCount;
+        }
+
+
+        public ActionResult GetView(string tab)
+        {
+            string partialView = "";
+            switch (tab)
+            {
+                case "tab1":
+                    partialView = "_IntroductionTab";
+                    break;
+                case "tab2":
+                    partialView = "_CustomerGroupTab";
+                    break;
+                case "tab3":
+                    partialView = "_SKUDumpTab";
+                    break;
+                case "tab4":
+                    partialView = "_SalesTaxRateTab";
+                    break;
+                default:
+                    partialView = "_IntroductionTab";
+                    break;
+            }
+
+            return PartialView(partialView);
+        }
+    }
+}

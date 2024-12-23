@@ -1,0 +1,129 @@
+﻿<h2>{{title}}</h2>
+<div class="post-editor">
+    <form name="newBook" role="form">
+        <div class="form-group">
+            <label for="title">Parent:</label>
+            <select class="form-control" 
+                    ng-model="post.parentId" 
+                    ng-options="p.id as p.title for p in menus">
+               </select>
+
+        </div>
+        <div class="form-group">
+            <label for="sortOrder">SortOrder:</label>
+            <input type="text" class="form-control" id="sortOrder" ng-model="post.sortOrder">
+        </div>
+
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" class="form-control" id="title" ng-model="post.title">
+        </div>
+        <div class="form-group">
+            <label for="author">Body:</label>
+            <textarea class="form-control" rows="15" ng-model="post.description"
+                      ui-tinymce="tinymceOptions"></textarea>
+        </div>
+
+        <div class="row" style="padding-top:10px;">
+            <div class="col-xs-2">
+                <button id="uploadBtn" class="btn btn-large btn-primary">Choose File</button>
+            </div>
+            <div class="col-xs-10">
+                <div id="progressOuter" class="progress progress-striped active" style="display:none;">
+                    <div id="progressBar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-top:10px;">
+                <div class="col-xs-10">
+                    <div id="msgBox">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="author">Tag:</label>
+            <input type="text" class="form-control" id="tag" ng-model="post.tag">
+        </div>
+
+
+        <input type="hidden" class="form-control" id="publishedOn" ng-model="post.publishedOn"
+               date-keys date-picker>
+
+
+        <button type="submit" class="btn btn-default" data-ng-click="update()">Submit</button>
+
+    </form>
+
+
+</div>
+
+<script type="text/javascript">
+    function escapeTags(str) {
+        return String(str)
+                 .replace(/&/g, '&amp;')
+                 .replace(/"/g, '&quot;')
+                 .replace(/'/g, '&#39;')
+                 .replace(/</g, '&lt;')
+                 .replace(/>/g, '&gt;');
+    }
+
+    //TODO:https://github.com/LPology/Simple-Ajax-Uploader
+
+    $(function () {
+        var btn = document.getElementById('uploadBtn'),
+            progressBar = document.getElementById('progressBar'),
+            progressOuter = document.getElementById('progressOuter'),
+            msgBox = document.getElementById('msgBox');
+        var uploader = new ss.SimpleUpload({
+            button: btn,
+            url: '/api/post/uploadimage',
+            name: 'uploadfile',
+            multipart: true,
+            hoverClass: 'hover',
+            focusClass: 'focus',
+            responseType: 'json',
+            startXHR: function () {
+                progressOuter.style.display = 'block'; // make progress bar visible
+                this.setProgressBar(progressBar);
+            },
+            onSubmit: function () {
+                msgBox.innerHTML = ''; // empty the message box
+                btn.innerHTML = 'Uploading...'; // change button text to "Uploading..."
+            },
+            onComplete: function (filename, response) {
+                btn.innerHTML = 'Choose Another File';
+
+                window.uploadfilename = response;
+                console.log("error: ", JSON.stringify(response));
+
+                var img = "<img  src = '" + response.file + "' />"; // todo: RP
+                
+                tinyMCE.activeEditor.execCommand("mceInsertContent", true, img);
+
+                progressOuter.style.display = 'none'; // hide progress bar when upload is completed
+                if (!response) {
+                    msgBox.innerHTML = 'UNABLE to upload file';
+                    return;
+                }
+
+                if (response.success == "true") {
+                    alert('Successfully uploaded..');
+                    msgBox.innerHTML = '<strong>' + escapeTags(filename) + '</strong>' + ' successfully uploaded.';
+                } else {
+                    if (response.msg) {
+                        msgBox.innerHTML = escapeTags(response.msg);
+                    } else {
+                        msgBox.innerHTML = 'An error occurred and the upload failed.';
+                    }
+                }
+            },
+            onError: function () {
+                console.log("error: ", JSON.stringify(window.uploadfilename));
+                progressOuter.style.display = 'none';
+                msgBox.innerHTML = 'Unable to upload file';
+            }
+        });
+    });
+</script>

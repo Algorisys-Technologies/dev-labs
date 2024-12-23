@@ -1,0 +1,189 @@
+﻿using MT.DataAccessLayer;
+using MT.Utility;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MT.Business
+{
+    public class DownloadExcelFile : BaseService
+    {
+
+        SmartData smartDataObj = new SmartData();
+<<<<<<< HEAD
+       
+       
+        public void Download_ToExcel(string[] columnsInDb,string[] columnsToDisplay,string tableName)
+=======
+
+        public void Download_SkuMasterExcel()
+        {
+
+            string[] columnsInExcel = MasterConstants.Sku_Db_Column;
+            string tableName = MasterConstants.Sku_Master_Table_Name;
+            DbRequest request = new DbRequest();
+            var columnString = "";
+            var lastColumn = columnsInExcel.Last();
+            foreach (var col in columnsInExcel)
+            {
+                if (col != lastColumn)
+                {
+                    columnString += "[" + col + "],";
+                }
+                else
+                {
+                    columnString += "[" + col + "]";
+                }
+            }
+
+
+            request.SqlQuery = "SELECT " + columnString + "FROM " + tableName + "";
+            DataTable dt1 = new DataTable();
+            dt1 = smartDataObj.GetData(request);
+            if (dt1 != null)
+            {
+                ExportDataTableToExcel(dt1, tableName);
+
+
+            }
+            else
+            {
+
+            }
+
+
+
+        }
+
+
+        public void Download_OutletMasterExcel()
+        {
+
+            string[] columnsInExcel = MasterConstants.Outlet_Db_Column;
+            string tableName = MasterConstants.Outlet_Master_Table_Name;
+            DbRequest request = new DbRequest();
+            var columnString = "";
+            var lastColumn = columnsInExcel.Last();
+            foreach (var col in columnsInExcel)
+            {
+                if (col != lastColumn)
+                {
+                    columnString += "[" + col + "],";
+                }
+                else
+                {
+                    columnString += "[" + col + "]";
+                }
+            }
+
+
+            request.SqlQuery = "SELECT " + columnString + "FROM " + tableName + "";
+            DataTable dt1 = new DataTable();
+            dt1 = smartDataObj.GetData(request);
+            if (dt1 != null)
+            {
+                ExportDataTableToExcel(dt1, tableName);
+
+
+            }
+            else
+            {
+
+            }
+
+
+
+        }
+
+
+        public void Download_ClusterRSCodeMapingMasterExcel()
+>>>>>>> 7575d8e7a1b52b619a2ea18dd4a7692a8ec589d3
+        {
+
+            DbRequest request = new DbRequest();
+            var columnString = "";
+            var lastColumn = columnsInDb.Last();
+            foreach (var col in columnsInDb)
+            {
+                if (col != lastColumn)
+                {
+                    columnString += "[" + col + "],";
+                }
+                else
+                {
+                    columnString += "[" + col + "]";
+                }
+            }
+
+
+            request.SqlQuery = "SELECT " + columnString + "FROM " + tableName + "";
+            DataTable dt1 = new DataTable();
+            dt1 = smartDataObj.GetData(request);
+            int i = 0;
+            foreach (var col in columnsToDisplay)
+            {
+                dt1.Columns[i].ColumnName = col;
+                i++;
+
+            }
+
+            if (dt1 != null)
+            {
+                ExportDataTableToExcel(dt1, tableName);
+
+
+            }
+            else
+            {
+
+            }
+
+
+
+        }
+<<<<<<< HEAD
+=======
+
+        public void Download_ExcelMethod(string[] columnsInExcel, string tableName)
+        {
+
+            DbRequest request = new DbRequest();
+            var columnString = "";
+            var lastColumn = columnsInExcel.Last();
+            foreach (var col in columnsInExcel)
+            {
+                if (col != lastColumn)
+                {
+                    columnString += "[" + col + "],";
+                }
+                else
+                {
+                    columnString += "[" + col + "]";
+                }
+            }
+
+
+            request.SqlQuery = "SELECT " + columnString + "FROM " + tableName + "";
+            DataTable dt1 = new DataTable();
+            dt1 = smartDataObj.GetData(request);
+            if (dt1 != null)
+            {
+                ExportDataTableToExcel(dt1, tableName);
+
+
+            }
+            else
+            {
+
+            }
+
+
+
+        }
+
+>>>>>>> 7575d8e7a1b52b619a2ea18dd4a7692a8ec589d3
+    }
+}

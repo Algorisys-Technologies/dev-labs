@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search & Generate</title>
+    <link rel="stylesheet" href="../static/style/styles.css"> <!-- Sidebar CSS -->
+    <link rel="stylesheet" href="../static/style/style_ser.css"> <!-- Main content CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+<body>
+    <!-- <div class="sidebar-container">
+        
+        <div class="sidebar">
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/search">Image Search</a></li>
+                <li><a href="/generate">Image Generate</a></li>
+                <li><a href="/resume">Resume summary</a></li>
+                <li><a href="/Research">Resume Search</a></li>
+
+            </ul>
+        </div>
+    </div> -->
+    <div class="navigation">
+        <ul>
+            {% if 'Dashboard' in features %}
+            <li>
+                <a href="/">
+                    <span class="icon"><i class="fa-solid fa-house"></i></span>
+                    <span class="title">Dashboard</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Image Search' in features %}
+            <li>
+                <a href="/search">
+                    <span class="icon"><i class="fa-solid fa-image"></i></span>
+                    <span class="title">Image Search</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Image Generate' in features %}
+            <li>
+                <a href="/generate">
+                    <span class="icon"><i class="fa-solid fa-image"></i></span>
+                    <span class="title">Image Generate</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Resume Search' in features %}
+            <li>
+                <a href="/Research">
+                    <span class="icon"><i class="fa-solid fa-search"></i></span>
+                    <span class="title">Resume Search</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'Resume summary' in features %}
+            <li>
+                <a href="/resume">
+                    <span class="icon"><i class="fa-solid fa-file-alt"></i></span>
+                    <span class="title">Resume summary</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="toggle" onclick="toggleMenu()"></div>
+    <script type="text/javascript">
+        function toggleMenu() {
+            let navigation = document.querySelector('.navigation');
+            let toggle = document.querySelector('.toggle');
+            navigation.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+    </script>
+
+    <!-- Main content area -->
+    <div class="main-container">
+        <h1>SIMILARITY SEARCH</h1>
+        {% if message %}
+        <h1 class="welcome-heading">{{ message }}</h1>
+        {% else %}
+        <div class="form-section">
+            <form method="POST" enctype="multipart/form-data" class="form" action="/search">
+                <label class="file-label">
+                    <input type="file" name="query_img" class="file-input" accept="image/*" onchange="updateFileName(this)" required>
+                    <span class="file-label-text">Choose an image...</span>
+                </label>
+                <input type="submit" value="Search" class="btn">
+            </form>
+
+            <!-- Display Query and Similar Images only if query_path or scores exist -->
+            {% if query_path %}
+            <h2>Query:</h2>
+            <img src="data:image/png;base64, {{ query_path }}" alt="Query Image" width="300px">
+            {% endif %}
+
+            {% if scores %}
+            <h2>Showing Similar Images</h2>
+            <div class="image-grid">
+                {% for score in scores %}
+                <div class="image-item">
+                    <figure>
+                        <img src="{{ score[1] }}" alt="Similar Image">
+                        <figcaption>{{ score[0] }}</figcaption>
+                    </figure>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function updateFileName(input) {
+            const fileName = input.files[0]?.name || 'Choose an image...';
+            const label = input.nextElementSibling;
+            label.textContent = fileName;
+        }
+    </script>
+</body>
+</html>

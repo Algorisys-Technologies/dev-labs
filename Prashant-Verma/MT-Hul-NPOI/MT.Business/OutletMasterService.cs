@@ -1,0 +1,136 @@
+﻿using MT.DataAccessLayer;
+using MT.Model;
+using MT.Utility;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MT.Business
+{
+   public class OutletMasterService:BaseService
+    {
+       public UploadFileResponse UploadOutletFile(string path, string userId)
+       {
+           var response = new UploadFileResponse();
+
+           ReadExcel read = new ReadExcel();
+
+           MasterResponse excelResult = read.ValidateAndReadExcel(path, MasterConstants.Outlet_Excel_Column);
+           if (excelResult.IsSuccess)
+           {
+               ExcelToDbColumnMapping obj = new ExcelToDbColumnMapping();
+               string columnName = MasterConstants.Outlet_Excel_Column.First();
+
+               excelResult.Data = read.RemoveDuplicates(excelResult.Data, new string[1] { columnName }.ToList());
+
+               // DataTable uniqueCols = excelResult.Data.DefaultView.ToTable(true, "BasepackCode", "TaxCode");
+               // excelResult.Data = uniqueCols;
+               // excelResult.Data = obj.MapCustomerGroupMaster(excelResult.Data, MasterConstants.Sku_Excel_Column, MasterConstants.Sku_Db_Column);
+               excelResult.Data = obj.MapMaster(excelResult.Data, MasterConstants.Outlet_Excel_Column, MasterConstants.Outlet_Db_Column);
+
+               DataTable table = new DataTable();
+               table = excelResult.Data;
+
+               table.TableName = MasterConstants.Outlet_Master_Table_Name;
+               //smartDataObj.BulkInsert(table);
+               SmartData smartDataObj = new SmartData();
+               DbRequest request = new DbRequest();
+               request.StoredProcedureName = MasterConstants.Oulet_Master_UpdateSP_Name;
+
+               request.Parameters = new List<Parameter>();
+               Parameter dtParam = new Parameter(MasterConstants.Oulet_Master_UpdateSP_Param_Name, table);
+               Parameter userParam = new Parameter("@user", userId);
+               request.Parameters.Add(dtParam);
+               request.Parameters.Add(userParam);
+               smartDataObj.ExecuteStoredProcedure(request);
+           
+             
+               
+               //smartDataObj.Bulk_Update(table, MasterConstants.Oulet_Master_UpdateSP_Name, MasterConstants.Oulet_Master_UpdateSP_Param_Name);
+               response.IsSuccess = true;
+               response.MessageText = "File Uploaded Successfully!";
+           }
+           else
+           {
+               response.IsSuccess = excelResult.IsSuccess;
+               //response.MessageText = "File does not contains valid data";
+               response.MessageText = excelResult.MessageText;
+           }
+
+           return response;
+       }
+
+
+       public OutletMasterDataTable AjaxGetOutletData(int draw, int start, int length, string search, string sortColumnName, string sortDirection)
+       {
+           int totalRows = 0;
+           OutletMasterDataTable dataTableData = new OutletMasterDataTable();
+           dataTableData.draw = draw;
+           totalRows = GetTotalRowsCountWithoutFreeText(search, MasterConstants.Outlet_Master_Table_Name,"");
+           if (length == -1)
+           {
+               length = totalRows;
+           }
+           dataTableData.recordsTotal = totalRows;
+           int recordsFiltered = 0;
+           dataTableData.data = FilterData(ref recordsFiltered, start, length, search, sortColumnName, sortDirection);
+           dataTableData.recordsFiltered = totalRows;
+
+           return dataTableData;
+       }
+
+       private List<MtOutletMaster> FilterData(ref int recordFiltered, int start, int length, string search, string sortColumnName, string sortDirection)
+       {
+           List<MtOutletMaster> list = new List<MtOutletMaster>();
+           string orderByTxt = "";
+           var columnNames = String.Join(",", MasterConstants.Outlet_Db_Column);
+
+           if (sortDirection == "asc")
+           {
+               orderByTxt = "ORDER BY " + sortColumnName + " " + sortDirection;
+           }
+           else
+           {
+               orderByTxt = "ORDER BY " + sortColumnName + " " + sortDirection;
+           }
+
+           SmartData smartDataObj = new SmartData();
+           DataTable dt = new DataTable();
+           DbRequest request = new DbRequest();
+           int recordupto = start + length;
+           if (string.IsNullOrEmpty(search))
+           {
+               request.SqlQuery = "SELECT * FROM (select ROW_NUMBER()OVER (ORDER BY Id)  AS RowNumber,  * from mtOutletMaster ) a WHERE RowNumber BETWEEN " + start + " AND " + recordupto;
+               dt = smartDataObj.GetData(request);
+           }
+           else
+           {
+              // request.SqlQuery = "SELECT " + columnNames + " FROM ( SELECT " + columnNames + " , ROW_NUMBER() OVER (" + orderByTxt + ") AS RowNum FROM mtOutletMaster WHERE " + search + ") AS SOD WHERE SOD.RowNum BETWEEN " + (start + 1) + " AND " + (start + length) + "";
+               request.SqlQuery = "SELECT * FROM ( SELECT * , ROW_NUMBER() OVER (" + orderByTxt + ") AS RowNum FROM mtOutletMaster WHERE  " + search + ") AS SOD WHERE SOD.RowNum BETWEEN " + (start + 1) + " AND " + (start + length) + "";
+               dt = smartDataObj.GetData(request);
+           }
+
+
+           foreach (DataRow dr in dt.Rows)
+           {
+               MtOutletMaster obj = new MtOutletMaster();
+
+               obj.Id = Convert.ToInt32(dr["Id"]);
+               obj.HulOutletCode = dr["HulOutletCode"].ToString();
+               obj.GroupName = dr["GroupName"].ToString();
+               obj.ChainName = dr["ChainName"].ToString();
+               obj.ColorNonColor = dr["ColorNonColor"].ToString();
+
+               list.Add(obj);
+
+           }
+           return list;
+       }
+
+
+    }
+}

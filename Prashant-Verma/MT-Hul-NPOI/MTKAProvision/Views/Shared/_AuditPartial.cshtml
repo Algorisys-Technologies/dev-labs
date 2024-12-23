@@ -1,0 +1,70 @@
+﻿<!-- Audit trail Report Modal -->
+<style>
+    .audittrlmodel {
+        top: 0% !important;
+    }
+  #mdcustgrpAuditTrail  .modal-large {
+        width: 95% !important;
+        height: 100% !important;
+    }
+  #mdcustgrpAuditTrail  .modal-body-large {
+        overflow-y: scroll;
+        overflow-x: scroll;
+        height: 500px;
+    }
+
+   #mdcustgrpAuditTrail  .modal-header
+{
+    padding: 0px !important;
+    margin-right:10px  !important;
+}
+</style>
+<div class="modal fade audittrlmodel" id="mdcustgrpAuditTrail" tabindex="-1" role="dialog" aria-labelledby="mdcalculategsvLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4><center>Audit Trail Report : <label id="spnReportName"></label></center> </h4>
+            </div>
+            <div class="modal-body-large">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div id="audittrailview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <p>
+                &nbsp;
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).on("click", "#btnviewAuditTrail", function () {
+        $("#audittrailview").html('');
+        $("#mdcustgrpAuditTrail").modal({
+            backdrop: 'static',
+            keyboard: false
+
+        });
+        $.ajax({
+            url: '/AuditTrailReport/GenerateAuditTrailReport',
+            type: "Get",
+            data: { reportName: $("#auditTrailReportName").val(), entityName: $("#auditTrailEntity").val() },
+            datatype: "text/plain",
+            cache: false,
+            async: false,
+            success: function (data) {
+                $('#audittrailview').html(data);
+            }
+        });
+    })
+</script>

@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{26AC3F5A-DA02-4BB2-BB52-020BEDF335CD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MT.Model</RootNamespace>
+    <AssemblyName>MT.Model</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseResponse.cs" />
+    <Compile Include="BrandwiseSubCategoryMasterDataTable.cs" />
+    <Compile Include="ClusterRSCodeMappingMasterDataTable.cs" />
+    <Compile Include="CustomerGroupMasterDataTable.cs" />
+    <Compile Include="DashboardModels.cs" />
+    <Compile Include="DataTableBaseMaster.cs" />
+<<<<<<< HEAD
+    <Compile Include="MtUserRole.cs" />
+=======
+    <Compile Include="MOCStatusModel.cs" />
+>>>>>>> cefa5dbf2a63005302ea93b96e32471024416909
+    <Compile Include="OnInvoiceJVDataTable.cs" />
+    <Compile Include="HuggiesBasepackMasterDataTable.cs" />
+    <Compile Include="MasterResponse.cs" />
+    <Compile Include="MOCCalculationDataTable.cs" />
+    <Compile Include="MtAdditionalMarginMaster.cs" />
+    <Compile Include="MtBrandwiseSubCategoryMaster.cs" />
+    <Compile Include="MtClusterRSCodeMappingMaster.cs" />
+    <Compile Include="MtCustomerGroupMaster.cs" />
+    <Compile Include="MtHuggiesBasepackMaster.cs" />
+    <Compile Include="OnInvoiceJV.cs" />
+    <Compile Include="MtMOCCalculation.cs" />
+    <Compile Include="MtOutletMaster.cs" />
+    <Compile Include="MtSalesTaxMaster.cs" />
+    <Compile Include="MtSecSalesReport.cs" />
+    <Compile Include="MtServiceTaxMaster.cs" />
+    <Compile Include="MtSkuMaster.cs" />
+    <Compile Include="MtSubCategoryTOTMaster.cs" />
+    <Compile Include="MTTierBasedTOTMaster.cs" />
+    <Compile Include="MTTierBasedTOTMasterDataTable.cs" />
+    <Compile Include="MtUploadSecondarySalesMaster.cs" />
+    <Compile Include="OutletMasterDataTable.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Role.cs" />
+    <Compile Include="SalesTaxMasterDataTable.cs" />
+    <Compile Include="ServiceTaxDataTable.cs" />
+    <Compile Include="SkuMasterDataTable.cs" />
+    <Compile Include="SubCategoryTOTMasterDataTable.cs" />
+    <Compile Include="ThermometerViewModel.cs" />
+    <Compile Include="UploadFileResponse.cs" />
+    <Compile Include="UploadSecondarySalesMasterDataTable.cs" />
+    <Compile Include="User.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

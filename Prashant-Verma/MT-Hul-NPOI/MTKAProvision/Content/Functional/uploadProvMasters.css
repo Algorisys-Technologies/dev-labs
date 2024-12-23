@@ -1,0 +1,403 @@
+figure {
+    text-align: center;
+}
+
+figure#upload img {
+width: 30%;
+}
+
+figcaption {
+  font-size: 12px;
+    color: #645959;
+}
+
+.mtop20 {
+  margin-top: 20px;
+}
+.mtop70 {
+  margin-top: 70px;
+}
+.info-icon {
+  font-size: 12px;
+    background-color: yellow;
+    padding: 3px;
+    border-radius: 50px;
+}
+
+.text-info {
+   color:  #185E9C ;
+}
+.glyphicon.text-info {
+   color: #1C97A4;
+}
+
+
+thead {
+    background : #52CFD5;
+}
+
+th, tr, td {
+    text-align: center;
+}
+
+.info-details p {
+    text-align: justify;
+}
+
+.options-list {
+    text-align: center;
+    margin-left: 40%;
+    margin-top: 2%;
+}
+
+ #secondarySales_filter    {
+    float: right;
+   }
+
+     #secondarySales_filter input {
+        margin-left: 18px;
+   }
+   #secondarySales_paginate {
+    float:right;
+   }
+
+   #secondarySales {
+    font-size: 12px;
+    font-family: sans-serif;
+   }
+
+   #secondarySales  th{
+    font-style: italic;
+   }
+ #secondarySales_wrapper label {
+      font-weight: normal;
+    }
+
+
+
+ @media  (max-width : 768px)  {
+
+/*body {
+  background: green;
+}*/
+figure#upload img {
+    width: 20%;
+}
+
+
+#secondarySales_filter {
+    /*float: none;*/
+}
+
+
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ul.list li {
+              display: block;
+              margin-bottom: 10px;
+            }
+            .list img{
+              width: 25px;
+              margin-right: 5px;
+            }
+            .list .list-name {
+              font-family: 'Arial Unicode MS';
+              font-size: 14px;
+            }
+            .mtop40 {
+              margin-top: 40px;
+            }
+            /*  uploadProvMaster tab */
+            div.uploadProvMaster-tab-container{
+              z-index: 10;
+              background-color: #ffffff;
+              padding: 0 !important;
+              border-radius: 4px;
+              -moz-border-radius: 4px;
+              /*border:1px solid #ddd;*/
+              margin-top: 30px;
+              /*margin-left: 50px;*/
+              /*-webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);*/
+              /*box-shadow: 0 6px 12px rgba(0,0,0,.175);*/
+              /*-moz-box-shadow: 0 6px 12px rgba(0,0,0,.175);*/
+              background-clip: padding-box;
+              opacity: 0.97;
+              filter: alpha(opacity=97);
+              min-height:80vh;
+            }
+            div.uploadProvMaster-tab-menu{
+              padding-right: 0;
+              padding-left: 0;
+              padding-bottom: 0;
+            }
+            div.uploadProvMaster-tab-menu div.list-group{
+              margin-bottom: 0;
+            }
+            div.uploadProvMaster-tab-menu div.list-group>a{
+              text-align: left;
+              margin-bottom: 0;
+            }
+            div.uploadProvMaster-tab-menu div.list-group>a .glyphicon,
+            div.uploadProvMaster-tab-menu div.list-group>a .fa {
+              color: #000;
+              padding-right: 20px;
+            }
+            div.uploadProvMaster-tab-menu div.list-group>a:first-child{
+              border-top-right-radius: 0;
+              -moz-border-top-right-radius: 0;
+            }
+            div.uploadProvMaster-tab-menu div.list-group>a:last-child{
+              border-bottom-right-radius: 0;
+              -moz-border-bottom-right-radius: 0;
+            }
+
+
+
+
+                       div.uploadProvMaster-tab-menu div.list-group>a.active,
+            div.uploadProvMaster-tab-menu div.list-group>a.active .glyphicon,
+            div.uploadProvMaster-tab-menu div.list-group>a.active .fa{
+                  /*background-color: #013E6B !important;*/
+               background-color: #139CC5 !important;
+    color: #ffffff;
+    text-align: right;
+    font-size: 14px;
+    font-weight: normal;
+            }
+
+
+
+
+            div.uploadProvMaster-tab-menu div.list-group>a.active:after{
+              content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    margin-top: -28px;
+    border-left: 0;
+    border-bottom: 29px solid transparent;
+    border-top: 29px solid transparent;
+    border-left: 19px solid #1A9FC6;
+    border-radius: 8px 8px 8px 8px;
+
+            }
+            div.uploadProvMaster-tab-content{
+              background-color: #ffffff;
+              /* border: 1px solid #eeeeee; */
+              padding-left: 20px;
+              padding-top: 10px;
+            }
+            div.uploadProvMaster-tab div.uploadProvMaster-tab-content:not(.active){
+              display: none;
+            }
+
+
+
+
+
+
+            .mtop60 {
+                margin-top: 60px;
+            }
+
+            /*   div.uploadProvMaster-tab-container div.list-group > a:nth-child(odd) {
+                   background: #0168B3;
+                   color: #FFF;
+               }*/
+
+            .fa-arrow-circle-right {
+                color: #1A9FC6;
+            }
+
+            .uploadProvMaster-tab-container .list-group a  {
+                border-radius: 0px;
+                /*border: none;*/
+            }
+
+
+            /*Data table style*/
+            #outlet_mst_filter input {
+                margin-left: 18px;
+            }
+            #outlet_mst_filter {
+                float: right;
+            }
+            #outlet_mst_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #additonalMarginMst_filter input {
+                margin-left: 18px;
+            }
+            #additonalMarginMst_filter {
+                float: right;
+            }
+            #additonalMarginMst_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #servicetax_master_filter input {
+                margin-left: 18px;
+            }
+            #servicetax_master_filter {
+                float: right;
+            }
+            #servicetax_master_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #huggiesbasepack_filter input {
+                margin-left: 18px;
+            }
+            #huggiesbasepack_filter {
+                float: right;
+            }
+            #huggiesbasepack_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #cluster_rs_filter input {
+                margin-left: 18px;
+            }
+            #cluster_rs_filter {
+                float: right;
+            }
+            #cluster_rs_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #mt_tot_filter input {
+                margin-left: 18px;
+            }
+            #mt_tot_filter {
+                float: right;
+            }
+            #mt_tot_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #mt_tier_filter input {
+                margin-left: 18px;
+            }
+            #mt_tier_filter {
+                float: right;
+            }
+            #mt_tier_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #mt_subcategory_filter input {
+                margin-left: 18px;
+            }
+            #mt_subcategory_filter {
+                float: right;
+            }
+            #mt_subcategory_paginate ul.pagination {
+                float: right;
+            }
+
+
+            /*Data table style*/
+            #mt_subcat_tot_filter input {
+                margin-left: 18px;
+            }
+            #mt_subcat_tot_filter {
+                float: right;
+            }
+            #mt_subcat_tot_paginate ul.pagination {
+                float: right;
+            }
+
+
+            .mtop70 {
+                margin-top: 70px;
+            }
+
+            .mtop40 {
+                margin-top: 40px;
+            }
+
+
+            .mtop20 {
+                margin-top: 20px;
+            }
+
+            /* styling for datatable*/
+            #uploadProvMasters1_filter, #uploadProvMasters2_filter, #uploadProvMasters3_filter {
+
+                float: right;
+            }
+            #uploadProvMasters1_filter input, #uploadProvMasters2_filter input, #uploadProvMasters3_filter input {
+
+                margin-left: 18px;
+            }
+
+            #uploadProvMasters1_paginate ul.pagination, #uploadProvMasters2_paginate ul.pagination, #uploadProvMasters3_paginate ul.pagination {
+
+                float: right;
+            }
+
+
+
+
+            .glass {
+                margin: -53px 35px 10px;
+            }
+
+            .stepno {
+                font-size: 10px;
+                margin-top: 5px;
+                display: inline-block;
+                background: #0F0E9A;
+                border-radius: 50px;
+                padding: 1px 6px;
+                color: #FFF;
+                text-align: center;
+            }
+            .dotted {
+                border: 1px #C5B2B2 dotted;
+                padding: 10px;
+            }
+            .info-details {
+                font-size: 12px;
+            }

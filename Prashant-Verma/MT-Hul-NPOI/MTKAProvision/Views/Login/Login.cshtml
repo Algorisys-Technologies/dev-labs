@@ -1,0 +1,233 @@
+﻿@using MT.Model;
+@model UserLogin
+@{
+    ViewBag.Title = "Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://localhost:45214/favicon.ico">
+
+    <title>MT-KA Provision</title>
+    @Styles.Render("~/Content/css")
+    <link href="/Content/Functional/login.css" rel="stylesheet">
+
+    <script src="@Url.Content("~/Scripts/jquery-1.10.2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")"></script>
+
+    <style>
+        .copyright {
+            color: #000 !important;
+            font-size: 12px !important;
+        }
+
+        .hulName {
+            font-size: 11px !important;
+        }
+
+        .navbar-default span a {
+            cursor: pointer;
+            color: #000;
+            font-weight: normal;
+        }
+
+        .developedBy {
+            color: #0168B3 !important;
+            font-size: 12px !important;
+            text-decoration: underline;
+        }
+
+        footer .text-info {
+            color: #00A9E0 !important;
+        }
+
+        .navbar-default span {
+            color: #000;
+            font-weight: normal;
+        }
+
+        .mtop5 {
+            margin-top: 5px;
+        }
+
+        .rpad15 {
+            padding-right: 15px;
+        }
+
+
+
+        .logo {
+            width: 125px;
+            display: inline-block;
+            text-align: center;
+        }
+
+
+        .mtop10 {
+            margin-top: 10px;
+        }
+
+        .mtop20 {
+            margin-top: 20px !important;
+        }
+
+        .mtop50 {
+            margin-top: 50px !important;
+        }
+
+        .mtop80 {
+            margin-top: 80px !important;
+        }
+
+        .bottomtext {
+            height: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login">
+
+
+
+        <div class="container-fluid">
+            <div class="row">
+                <div>
+
+
+
+
+
+                    <div class="container-fluid ">
+
+
+                        <div class="row">
+
+
+                            <div class="col-xs-4 col-sm-6 allpad0" id="leftcol">
+
+                                <img src="/img/flower.jpg" alt="Alternate Text" class="img-responsive">
+                            </div>
+
+
+
+                            <div id="loginbox" class="mainbox col-xs-7 col-sm-6 mtop50 ">
+
+
+                                <div class="col-sm-10">
+
+                                    <div class="row">
+                                        <div class="col-sm-12 text-center">
+                                            <div class="col-sm-4"></div>
+                                            <div class="col-sm-4">  <img src="/img/logo.png" alt="" class="logo "></div>
+                                            <div class="col-sm-4"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h2 class="text-center txtblack main-title  mbottom20">Welcome To   <div>MT-KA Provision</div></h2>
+                                        </div>
+                                    </div>
+
+
+                                    <hr class="style17">
+                                    <div class="panel panel-info box effect2">
+                                        <div class="panel-title text-center">LOGIN</div>
+
+                                        <div class="panel-body">
+
+                                            @using (Html.BeginForm("Login", "Login", FormMethod.Post,
+                                      new { enctype = "multipart/form-data", @id = "login-form" }))
+                                            {
+                                                @*<form id="login-form" action="/Login/Login" method="post" role="form" style="display: block;">*@
+                                                @*@Html.ValidationSummary(true)*@
+                                                @Html.ValidationSummary(true, "", new { @class = "text-danager" })
+                                                <div class=" col-md-10 col-md-offset-1 panel panel-login  ">
+
+                                                    <div class="row">
+                                                        
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                                                    @*<input autofocus="true" class="form-control " id="inputUserId" name="UserId" placeholder="Username" required="true" tabindex="1" value="" type="text">*@
+                                                                    @Html.TextBoxFor(model => model.UserName, new { @class = "form-control" })
+
+                                                                </div>
+                                                                @Html.ValidationMessageFor(model => model.UserName)
+                                                                
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                                                    @*<input class="form-control " id="inputPassword" name="password" placeholder="Password" required="true" tabindex="2" value="" type="password">*@
+                                                                    @Html.PasswordFor(model => model.Password, new { @class = "form-control" })
+                                                                </div>
+                                                                @Html.ValidationMessageFor(model => model.Password)
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <!-- Button -->
+                                                                <div class="col-sm-12 controls lpad0 rpad0">
+                                                                    <input class="" name="remember" id="remember" type="checkbox">
+                                                                    <label for="remember">Remember Me</label>
+
+
+                                                                    <button type="submit" class="btn btn-md btn-info  pull-right" style="background: rgb(19, 166, 200);color: #fff;"><i class="glyphicon glyphicon-log-in"></i> Log in</button>
+
+
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @*</form>*@
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+
+                        @Html.Partial("_Footer")
+
+
+                    </div>
+
+
+
+
+
+
+
+                </div>
+                <!-- Main col-12 end -->
+            </div>
+            <!-- Main row end -->
+        </div>
+
+
+
+    </div>
+
+
+</body>
+</html>

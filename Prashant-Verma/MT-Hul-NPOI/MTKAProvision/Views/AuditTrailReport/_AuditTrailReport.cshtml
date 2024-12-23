@@ -1,0 +1,108 @@
+﻿@using MT.Model;
+@using System.Globalization;
+@{
+    List<AuditTrailModel> auditTrailModelList = ViewData["AuditTrailList"] as List<AuditTrailModel>;
+}
+<style>
+    .leftAlign {
+        text-align: left;
+    }
+</style>
+<div class="">
+    @*<center> <label>@ViewBag.ReportName</label></center>*@
+    <input type="hidden" id="hdnReportName" value="@ViewBag.ReportName" />
+    <input type="hidden" id="rowcount" value="@ViewBag.RowCount" />
+
+    @if (auditTrailModelList.Count() > 0)
+    {   <div class="row mbottom10">
+        <div class="col-sm-12">
+            <!-- Data Table -->
+
+            <section id="tableinfo">
+                <div class="">
+                    
+
+                    <table id="tblAuditTrail" class="table table-striped table-bordered table-condensed dataTable no-footer" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                @*<th style="vertical-align:middle;">Sr No</th>*@
+                                @foreach (var columnitem in auditTrailModelList[0].ListColumnDetails)
+                                {
+                                    <th>@columnitem.ColumnName</th>
+                                }
+                                <th>Operation</th>
+                                <th>Updated By</th>
+                                <th>Updated Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var rowitem in auditTrailModelList)
+                            {
+                                <tr>
+                                    @*<td>@srNo</td>*@
+                                    @foreach (var columnitem in rowitem.ListColumnDetails)
+                                    {
+                                        if (columnitem.IsUnique == true)
+                                        {
+                                            <td class="leftAlign">@columnitem.OldValue</td>
+                                        }
+                                        else
+                                        {
+                                            if (columnitem.OldValue.Trim() == columnitem.NewValue.Trim())
+                                            {
+                                                <td class="leftAlign">Old Value : @columnitem.OldValue <br> New Value : @columnitem.NewValue</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="leftAlign" style="background-color:lightgreen">Old Value : @columnitem.OldValue <br> New Value : @columnitem.NewValue</td>
+                                            }
+                                        }
+                                    }
+                                    <td>@rowitem.Operation</td>
+                                    <td class="leftAlign">@rowitem.UpdatedBy</td>
+                                    <td class="leftAlign">@rowitem.UpdatedDate.ToString("dd/MM/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture)</td>
+
+                                </tr>
+                                //srNo++;
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="clearfix"></div>
+            </section>
+
+        </div>
+    </div>
+    }
+    else
+    {
+        <div class="row col-md-12">
+            <center>No data available!</center>
+        </div>
+    }
+
+</div>
+<script>
+    oTable = $('#tblAuditTrail').DataTable({
+        //  "scrollX": true,
+        //   "scrollY": '500px'
+        "iDisplayLength": 50,
+        "scrollX": true,
+        "scrollY": 200,
+        "scroller": {
+            loadingIndicator: true
+        }
+    });
+    //$('#tblAuditTrailInputTextField').keyup(function () {
+    //    oTable.search($(this).val()).draw();
+    //})
+    $("#spnReportName").html($("#hdnReportName").val());
+
+    $(document).on("click", "#downloadAuditTrail", function () {
+        window.location = "/AuditTrailReport/Download_AuditTrailExcel?reportName=" + $("#auditTrailReportName").val() + "&entityName=" + $("#auditTrailEntity").val() + "&frmDate=" + $("#dtFrmDate").val() + "&toDate=" + $("#dtToDate").val();
+    });
+
+
+</script>

@@ -1,0 +1,183 @@
+﻿using MT.Business;
+using MT.DataAccessLayer;
+using MT.Logging;
+using MT.Model;
+using MT.Utility;
+using MTKAProvision.Models;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MTKAProvision.Controllers
+{
+    public class CalculateProvisionController : AppController
+    {
+        CalculateProvisionService calculateProvisionService = new CalculateProvisionService();
+        //
+        DashboardService dashboardService = new DashboardService();
+        ReportService reportService = new ReportService();
+        AssignAccessService assignAccessService = new AssignAccessService();
+        private int TOTAL_ROWS = 0;
+        // GET: /CalculateGSV/
+        public ActionResult Index()
+        {
+            ViewBag.IsProcessComplete = true;
+            ViewBag.currentMOC = CurrentMOC;
+            ViewBag.PageTitle = "Calculate Provision";
+            return View();
+        }
+        public ActionResult Report(string currentReportMOC)
+        {
+            var stepdetails = dashboardService.GetStepStatus(DashBoardConstants.CalculateProvision_StepId, currentReportMOC);
+            if (stepdetails.Status != "Done")
+            {
+                ViewBag.IsProcessComplete = false;
+            }
+            else
+            {
+                ViewBag.IsProcessComplete = true;
+            }
+<<<<<<< HEAD
+            //return PartialView("Index");
+            return Json(
+              new
+              {
+                  PartialView = MvcHelper.PartialView(this, "Index", null),
+              }, JsonRequestBehavior.AllowGet);
+=======
+            ViewBag.currentMOC = currentReportMOC;
+            return PartialView("Index");
+>>>>>>> ca19967147d3c2928d01da4f174cbf1adb77a7d0
+        }
+        [HttpGet]
+        public ActionResult Calculate()
+        {
+            Logger.Log(LogLevel.INFO, "Calculate Provision Start Time: " + DateTime.Now);
+            string msg = "";
+            bool errorstatus;
+            if (assignAccessService.CheckForStepExecuteRight(SecurityPageConstants.CalculateProvision_PageId) == true)
+            {
+                DbRequest request = new DbRequest();
+                request.Parameters = new List<Parameter>();
+                request.StoredProcedureName = "mtspCalculateProvision";
+                Parameter param = new Parameter("MOC", CurrentMOC);
+                request.Parameters.Add(param);
+                try
+                {
+                    smartDataObj.ExecuteStoredProcedure(request);
+                    errorstatus = false;
+                    var stepdetails = dashboardService.GetStepStatus(DashBoardConstants.CalculateProvision_StepId, CurrentMOC);
+                    if (stepdetails.Status == "Done")
+                    {
+                        dashboardService.Update_SetNextStepsNotStarted(DashBoardConstants.CalculateProvision_StepId, CurrentMOC, loggedUser.UserId);
+                    }
+                    dashboardService.Update_SingleStepStatus(DashBoardConstants.CalculateProvision_StepId, CurrentMOC);
+                    msg = "Provision Calculation done Sucessfully!";
+                }
+                catch (Exception ex)
+                {
+                    msg = ex.Message;
+                    errorstatus = true;
+                }
+            }
+            else
+            {
+                errorstatus = true;
+                msg = MessageConstants.InsufficientPermission;
+            }
+            var data = new
+            {
+                error = errorstatus,
+                msg = msg
+            };
+            Logger.Log(LogLevel.INFO, "Calculate Provision End Time: " + DateTime.Now);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult AjaxGetMOCCalculationData(JQDTParams param, string currentReportMOC)
+        {
+            MOCCalculationDataTable dataTableData = new MOCCalculationDataTable();
+            var stepdetails = dashboardService.GetStepStatus(DashBoardConstants.CalculateProvision_StepId, CurrentMOC);
+            if (stepdetails.Status != "Done")
+            {
+                return Json(dataTableData, JsonRequestBehavior.AllowGet);
+            }
+            string search = Request["search[value]"];
+            int sortColumn = -1;
+            string sortColumnName = "CustomerCode";
+            string sortDirection = "asc";
+
+            // note: we only sort one column at a time
+            if (Request["order[0][column]"] != null)
+            {
+                sortColumn = int.Parse(Request["order[0][column]"]);
+                sortColumnName = Request["columns[" + sortColumn + "][data]"];
+            }
+            if (Request["order[0][dir]"] != null)
+            {
+                sortDirection = Request["order[0][dir]"];
+            }
+            dataTableData.draw = param.draw;
+            search = reportService.GetDataSearchText(param);
+            string tableView = "";
+            if (currentReportMOC == CurrentMOC)
+            {
+                tableView = "vwCalculatedProvision";
+            }
+            else
+            {
+                tableView = "mtPrevProvision";
+                if (search == "")
+                {
+                    search = " MOC=" + currentReportMOC;
+                }
+                else
+                {
+                    search += " AND MOC=" + currentReportMOC;
+                }
+            }
+            TOTAL_ROWS = calculateProvisionService.GetTotalRowsCount(search, tableView);
+            if (param.length == -1)
+            {
+                param.length = TOTAL_ROWS;
+            }
+            dataTableData.recordsTotal = TOTAL_ROWS;
+            int recordsFiltered = 0;
+
+            dataTableData.data = calculateProvisionService.FilterData(ref recordsFiltered, param.start, param.length, search, sortColumnName, sortDirection, currentReportMOC, tableView);
+
+            dataTableData.recordsFiltered = TOTAL_ROWS;
+
+            return Json(dataTableData, JsonRequestBehavior.AllowGet);
+        }
+
+        public FileResult DownloadExcel(string currentReportMOC)
+        {
+            //using (DataSet ds = calculateProvisionService.GetMOCCalculationData(CurrentMOC))
+            //{
+            //    if (ds != null && ds.Tables.Count > 0)
+            //    {
+
+            //        foreach (DataTable dt in ds.Tables)
+            //        {
+
+            //            ExportDataTableToExcel(dt, "Calculate Provision");
+            //        }
+
+            //    }
+            //}
+
+            // calculateProvisionService.ExportSqlDataReaderToCsv(CurrentMOC, "Provision Calculation MOC("+CurrentMOC+")");
+            string filePath = calculateProvisionService.ExportSqlDataReaderToCsv(currentReportMOC, "Provision Calculation MOC(" + CurrentMOC + ")");
+            //return new FilePathResult(filePath, "text/csv");
+            Response.BufferOutput = false;
+            return File(filePath, "text/csv", filePath.Split('/').LastOrDefault());
+        }
+    }
+}

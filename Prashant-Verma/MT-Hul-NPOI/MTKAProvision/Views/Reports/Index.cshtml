@@ -1,0 +1,176 @@
+﻿
+<input type="hidden" id="pageTitle" value="@ViewBag.PageTitle" />
+<input type="hidden" id="currentReportMOC" value="@ViewBag.ReportMOC" />
+<input type="hidden" id="currentMOC" value="@ViewBag.CurrentMOC" />
+<div class="container-fluid">
+    <div class="row ">
+        <!--  Left Column -->
+        <div class="col-sm-12">
+            <div class="col-sm-12">
+
+                <div class="col-sm-12 uploadMaster-tab-container">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 uploadMaster-tab-menu">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item text-center" data-form="/CalculateGSV/Report?currentReportMOC">
+                                Calculate GSV
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-form="/CalculateProvision/Report?currentReportMOC">
+                                Calculate Provision
+                            </a>
+
+                            <a href="#" class="list-group-item text-center" data-form="/Generatejv/OnInvoice?currentReportMOC">
+                                JV - OnInvoice
+                            </a>
+
+
+                            <a href="#" class="list-group-item text-center" data-form="/Generatejv/OffInvoiceMthly?currentReportMOC">
+                                JV - OffInvoice Monthly
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-form="/Generatejv/OffInvoiceQtrly?currentReportMOC">
+                                JV - OffInvoice Qtrly
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-form="/Reports/GetGroupWiseReport">
+                                Customer Wise Report
+                            </a>
+
+                            @*<a href="#" class="list-group-item text-center" data-form="/Reports/Commingsoon">
+                                    Report 2
+                                </a>*@
+                            <a href="#" class="list-group-item text-left" id="tabExceptionReport" data-form="/ExceptionReportGSV/Report">
+                                Exception Report
+                            </a>
+                            <a href="#" class="list-group-item text-left" data-form="/ProvisionReport/ZeroProvisionOutlet?currentReportMOC">
+                                Zero Provision Outlet Report
+                            </a>
+                            <a href="#" class="list-group-item text-left" data-form="/ProvisionReport/ProvisionTrendAnalysisIndex?currentReportMOC">
+                                Provision Trend Analysis
+                            </a>
+                            <a href="#" class="list-group-item text-left" data-form="/ProvisionReport/ProvisionTrendCategoryWiseIndex?currentReportMOC">
+                                Provision Trend Category Wise
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 uploadMaster-tab">
+                        <!-- Introduction Section -->
+                        <div class="uploadMaster-tab-content active">
+
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- Data Table -->
+                                    <section class="tableinfo">
+
+                                        <div id="reportviewarea">
+
+                                        </div>
+
+                                        <div class="clearfix"></div>
+                                    </section>
+                                </div>
+                            </div>
+                            <p class="mbottom10">&nbsp;</p>
+                            <p class="mbottom10">&nbsp;</p>
+
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+<script>
+
+    //$(document).ready(function () {
+    $(document).off("click", "div.uploadMaster-tab-menu>div.list-group>a").on("click", "div.uploadMaster-tab-menu>div.list-group>a", function (e) {
+        e.preventDefault();
+        $(this).siblings('a.active').removeClass("active");
+        $(this).addClass("active");
+        var index = $(this).index();
+        //$("div.uploadMaster-tab>div.uploadMaster-tab-content").removeClass("active");
+        //$("div.uploadMaster-tab>div.uploadMaster-tab-content").eq(index).addClass("active");
+        //$("div.uploadMaster-tab>div.uploadMaster-tab-content").addClass("active");
+        var reportName = $(this).data("form");
+        $("#reportviewarea").html('');
+        $.ajax({
+            url: reportName,
+            data: "currentReportMOC=" + $("#currentReportMOC").val(),
+            type: "get",
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (data) {
+                $('#loading').hide();
+                //$("#reportviewarea").html(data);
+                if (data.IsGroupNameNull) {
+                    bootbox.alert("There are some Outlet Codes are missing.Please correct them");
+                    $("#reportviewarea").html(data.PartialView);
+                }
+                else {
+                    $("#reportviewarea").html(data.PartialView);
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        })
+    });
+    //  });
+</script>
+
+<script>
+    $(document).ready(function () {
+        ///////-----------------------On load gsv report showing is disabled -----------Start-------------////////////
+        //$.ajax({
+        //    url: "/calculateGsv/Report",
+        //    type: "get",
+        //    success: function (data) {
+        //        $("#reportviewarea").html(data);
+        //    }
+        //})
+        ///////-----------------------On load gsv report showing is disabled -----------End-------------////////////
+
+        $('.titlename').html($("#pageTitle").val());
+        $('#btn_NewMOC').remove();
+        $('#reportlink').remove();
+        $('#downloadAllFileFormat').remove();
+        $('#securitylink').remove();
+        //$('#calculateGsv').DataTable();
+        //$('#calculateProvision').DataTable();
+        //$('#jvOnInvoice').DataTable();
+        //$('#jvOffInvoice').DataTable();
+
+        //$('#tablename').DataTable();
+        //$('#report1').DataTable();
+        //$('#report2').DataTable();
+        $("#stepimage").html('');
+        $("#stepimage").append('<div class="col-xs-3"><div class="row"><center><span class="stepno">3</span><img src="/img/Icons/1Secondary_Sales_Active.png" alt="" style="width: 40px; margin-top:5px;"></center></div></div>');
+
+    });
+</script>
+<script>
+
+    $.ajax({
+        url: "/Dashboard/LoadHeader",
+        type: "get",
+        data: "currentReportMOC=" + $("#currentReportMOC").val(),
+        success: function (result) {
+            $('.titleMonth').html(result.titleMonth);
+            $('.currentdatetime').html(result.currentdatetime);
+        }
+    })
+
+    $("#tabExceptionReport").show();
+    if ($("#currentReportMOC").val() != $("#currentMOC").val()) {
+        $("#tabExceptionReport").hide();
+    }
+</script>

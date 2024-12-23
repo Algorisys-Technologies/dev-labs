@@ -1,0 +1,135 @@
+figure {
+    text-align: center;
+}
+
+figure#upload img {
+width: 60%;
+}
+
+figcaption {
+  font-size: 12px;
+    color: #645959;
+}
+
+.allpad10 {
+  padding: 10px;
+}
+.mtop10{
+  margin-top: 10px;
+}
+
+.mtop60{
+  margin-top: 60px;
+}
+.mtop20 {
+  margin-top: 20px;
+}
+.mtop70 {
+  margin-top: 70px;
+}
+.info-icon {
+  font-size: 12px;
+    background-color: yellow;
+    padding: 3px;
+    border-radius: 50px;
+}
+
+.text-info {
+   color:  #185E9C ;
+}
+.glyphicon.text-info {
+   color: #1C97A4;
+}
+
+
+thead {
+    background : #52CFD5;
+}
+
+th, tr, td {
+    text-align: center;
+}
+
+.info-details p {
+    text-align: justify;
+}
+
+.options-list {
+    text-align: center;
+    margin-left: 40%;
+    margin-top: 2%;
+}
+
+ #secondarySales_filter    {
+    float: right;
+   }
+
+     #secondarySales_filter input {
+        margin-left: 18px;
+   }
+   #secondarySales_paginate {
+    float:right;
+   }
+
+   #secondarySales {
+    font-size: 12px;
+    font-family: sans-serif;
+   }
+
+   #secondarySales  th{
+    font-style: italic;
+   }
+ #secondarySales_wrapper label {
+      font-weight: normal;
+    }
+
+
+
+ @media  (max-width : 768px)  {
+
+/*body {
+  background: green;
+}*/
+figure#upload img {
+    width: 20%;
+}
+
+
+#secondarySales_filter {
+    /*float: none;*/
+}
+
+
+ }
+
+
+
+
+  table#secondarySales td, table#secondarySales th{
+    font-size: 10px;
+    text-align: left;
+  }
+table#secondarySales {
+  overflow-x: auto;
+}
+
+table#secondarySales th {
+  font-weight: normal !important;
+    vertical-align: middle !important;
+}
+
+  thead {
+    background: #52CFD5;
+}
+
+.mtop30 {
+  margin-top: 30px;
+}
+
+
+
+    table#secondarySales td, table#secondarySales th {
+    font-size: 10px;
+    text-align: left;
+    font-weight: normal !important;
+}

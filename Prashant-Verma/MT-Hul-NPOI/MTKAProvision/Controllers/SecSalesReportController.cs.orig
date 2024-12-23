@@ -1,0 +1,194 @@
+﻿using MT.Business;
+using MT.DataAccessLayer;
+using MT.Model;
+using MT.Utility;
+using MTKAProvision.Models;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MTKAProvision.Controllers
+{
+    public class SecSalesReportController : AppController
+    {
+        private int TOTAL_ROWS = 0;
+        SmartData smartDataObj = new SmartData();
+
+        DashboardService dashboardService = new DashboardService();
+        SecSalesReportService secSalesReportService = new SecSalesReportService();
+        AssignAccessService assignAccessService = new AssignAccessService();
+        public ActionResult Index()
+        {
+            ViewBag.PageTitle = "Upload Secondary Sales";
+            return View();
+        }
+        [HttpGet]
+        public ActionResult CheckExistingData()
+        {
+            DbRequest request = new DbRequest();
+            request.SqlQuery = "SELECT count(*) FROM  mtSecSalesReport WHERE MOC = '" + CurrentMOC + "'";
+
+            var existingData = smartDataObj.GetData(request);
+            var result = new
+            {
+                recordExists = false
+            };
+            if (Convert.ToInt32(existingData.Rows[0].ItemArray[0]) > 0)
+            {
+                result = new { recordExists = true };
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult UploadUploadSecondarySalesFile()
+        {
+            bool isSuccess = false;
+            string message = string.Empty;
+            if (assignAccessService.CheckForMasterUploadRight(SecurityPageConstants.SecSalesMaster_PageId) == true)
+            {
+                if (Request.Files.Count > 0)
+                {
+<<<<<<< HEAD
+                    DbRequest request = new DbRequest();
+                    request.SqlQuery = "Delete  FROM  mtSecSalesReport WHERE MOC = '" + CurrentMOC + "'";
+
+                    var deleteData = smartDataObj.ExecuteQuery(request);
+                    bool success = false;
+
+                    foreach (string upload in Request.Files)
+=======
+                    try
+>>>>>>> ef8b8d52cbdff862264eb036c591e1a315747445
+                    {
+                        DbRequest request = new DbRequest();
+                        request.SqlQuery = "Delete  FROM  mtSecSalesReport WHERE MOC = '" + CurrentMOC + "'";
+
+<<<<<<< HEAD
+                        string fullPath = Path.Combine(path, filename);
+                        //string fullPath = Server.MapPath("~/FilesUploaded/SampleSecSalesReport6.08LKH.xlsx");
+=======
+                        var deleteData = smartDataObj.ExecuteQuery(request);
+                        bool success = false;
+>>>>>>> ef8b8d52cbdff862264eb036c591e1a315747445
+
+                        foreach (string upload in Request.Files)
+                        {
+                            //string path = AppDomain.CurrentDomain.BaseDirectory + "App_Data/";
+                            string path = AppDomain.CurrentDomain.BaseDirectory + "FilesUploaded/";
+                            string filename = Path.GetFileName(Request.Files[upload].FileName);
+                            Request.Files[upload].SaveAs(Path.Combine(path, filename));
+
+                            string fullPath = Path.Combine(path, filename);
+
+                            var uploadResponse = secSalesReportService.UploadSecSalesReportFile(fullPath);
+                            if (uploadResponse.IsSuccess)
+                            {
+                                dashboardService.Update_SingleStepStatus(DashBoardConstants.UploadSecSales_StepId, CurrentMOC);
+                            }
+
+                            return Json(
+                                  new
+                                  {
+                                      isSuccess = uploadResponse.IsSuccess,
+                                      msg = uploadResponse.MessageText
+                                  }, JsonRequestBehavior.AllowGet);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex);
+                        isSuccess = false;
+                        message = MessageConstants.Error_Occured + ex.Message;
+                    }
+                }
+                else
+                {
+<<<<<<< HEAD
+                    Logger.LogError(ex);
+=======
+>>>>>>> ef8b8d52cbdff862264eb036c591e1a315747445
+                    isSuccess = false;
+                    message = MessageConstants.No_Files_Selected;
+
+                }
+            }
+            else
+            {
+                isSuccess = false;
+                message = MessageConstants.InsufficientPermission;
+            }
+            return Json(new
+            {
+                isSuccess = isSuccess,
+                msg = message
+            }, JsonRequestBehavior.AllowGet);
+<<<<<<< HEAD
+        }
+
+=======
+        } 
+>>>>>>> ef8b8d52cbdff862264eb036c591e1a315747445
+
+
+        [HttpPost]
+        public ActionResult AjaxGetUploadSecondarySalesData(int draw, int start, int length)
+        {
+            string search = Request["search[value]"];
+            int sortColumn = -1;
+            string sortColumnName = "CustomerCode";
+            string sortDirection = "asc";
+
+            // note: we only sort one column at a time
+            if (Request["order[0][column]"] != null)
+            {
+                sortColumn = int.Parse(Request["order[0][column]"]);
+                sortColumnName = Request["columns[" + sortColumn + "][data]"];
+            }
+            if (Request["order[0][dir]"] != null)
+            {
+                sortDirection = Request["order[0][dir]"];
+            }
+            SecSalesReportDataTable dataTableData = new SecSalesReportDataTable();
+            dataTableData.draw = draw;
+            TOTAL_ROWS = secSalesReportService.GetTotalRowsCountWithoutFreeText(search, "mtSecSalesReport", MasterConstants.Upload_SecSales_Search_Columns);
+            if (length == -1)
+            {
+                length = TOTAL_ROWS;
+            }
+            dataTableData.recordsTotal = TOTAL_ROWS;
+            int recordsFiltered = 0;
+            dataTableData.data = secSalesReportService.FilterData(ref recordsFiltered, start, length, search, sortColumnName, sortDirection);
+            dataTableData.recordsFiltered = TOTAL_ROWS;
+
+            return Json(dataTableData, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public void DownloadExcel()
+        {
+            //baseService.ExportToCSV(CurrentMOC);
+            //using (DataSet ds = calculateGSVService.GetDataToDownload(CurrentMOC))
+            //{
+            //    if (ds != null && ds.Tables.Count > 0)
+            //    {
+            //        foreach (DataTable dt in ds.Tables)
+            //        {
+            //            ExportDataTableToExcel(dt, "CalculateGSV");
+            //        }
+            //    }
+            //}
+
+            secSalesReportService.ExportSqlDataReaderToCsv("Secondary Sales MOC("+CurrentMOC.Replace('.','-')+")");
+        }
+    }
+
+
+
+}

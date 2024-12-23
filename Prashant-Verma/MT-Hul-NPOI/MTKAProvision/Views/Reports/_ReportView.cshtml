@@ -1,0 +1,268 @@
+﻿@using System.Data;
+@using MT.Model;
+@model ReportRequest
+@{    
+    DataTable data = (DataTable)ViewBag.DataForReport;
+    List<ReportColumn> displayColumns = new List<ReportColumn>();
+}
+
+<style>
+    .totalClass{
+            background-color: #bce8f1;
+    }
+</style>
+<a href="#" id="download"><img class="downloadimg" src="/img/dashboard/download_excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a>
+<table id="example" class="display nowrap table" border="1">
+    <thead>
+        @{
+            int totalColumnCount = Model.Columns.Count; //4
+            int columnGroupCount = Model.Columns.Where(c => !c.IsValueColumn).Count(); // 4; //3
+            string[] lastrow = new string[columnGroupCount];
+            List<ReportColumn> totalToBeshownColumns = Model.TotalToBeShownColumns;
+            int count = 0;
+            int columnCount = 0;
+            string currentCellCombination = "";
+            bool showTotal = false;
+
+           
+
+            int[] rowspanList = new int[columnGroupCount];
+
+            int[] currentRowspanList = new int[columnGroupCount];
+
+            for (int x = 0; x < columnGroupCount; x++)
+            {
+                currentRowspanList[x] = 1;
+                rowspanList[x] = 1;
+            }
+
+            int collapseColumn = Model.CollapseCol;
+
+            string[] lastTotalCombi = new string[columnGroupCount];
+
+
+        }
+        <tr>
+            
+            @foreach (var col in Model.Columns)
+            {
+                //var prevColumn = Model.Columns.Where(c=>c.Sequence == col.Sequence-1).FirstOrDefault();
+                if (col.Sequence == 1 || col.IsValueColumn || Model.ExpandedColumns.Where(c => Model.Columns.Where(o => o.Sequence == col.Sequence - 1).FirstOrDefault().ColumnName == c.ColumnName).Count() > 0)
+                {
+                    displayColumns.Add(col);
+                    //var thClass = "";
+                    //if (col.IsValueColumn) { thClass="rightaligncell"}
+                    <th>@col.DisplayName</th>
+                }
+            }
+
+
+            @*<th>CustomerID</th>
+            <th>PMHBrand</th>
+            @if (collapseColumn != 1) //Remove hardcoding
+            {
+                <th>BasepackID</th>
+            }
+
+            <th>Net Sales Value</th>*@
+
+            @*<th>Group Name</th>
+                <th>PMHBrand</th>
+                <th>Net Sales Value</th>*@
+        </tr>
+    </thead>
+    <tbody>
+
+
+        @foreach (DataRow row in data.Rows)
+        {
+
+            columnCount = 0;
+            
+            <tr>
+                @{var tdClass = "";}
+               
+                @for (int col = 0; col < displayColumns.Count; col++)
+                {
+                    @*get rowspan*@
+
+                    if (col < columnGroupCount)
+                    {                      
+                        if (rowspanList[columnCount] >= 1 && currentRowspanList[columnCount] >= 1 && rowspanList[columnCount] > currentRowspanList[columnCount])
+                        {
+                            showTotal = false;
+                            currentRowspanList[columnCount] += 1;
+                            
+                        }
+                        else
+                        {
+                           
+                            currentCellCombination = "";
+                            for (int i = 0; i <= columnCount; i++)
+                            {
+                                currentCellCombination += "#" + row[i].ToString();
+                            }
+
+                            currentCellCombination = currentCellCombination.Substring(currentCellCombination.IndexOf("#") + 1);
+
+                            var tobesearchArray = currentCellCombination.Split('#');
+                            string tobsearchCriteria = "";
+                            for (int j = 0; j < tobesearchArray.Length; j++)
+                            {
+                                tobsearchCriteria += " " + row.Table.Columns[j].ColumnName + " = '" + tobesearchArray[j] + "'  AND";
+                            }
+
+                            tobsearchCriteria = tobsearchCriteria.Substring(0, tobsearchCriteria.LastIndexOf("AND"));
+                            tobsearchCriteria = tobsearchCriteria.TrimStart(' ');
+
+                            var filteredRows = data.Select(tobsearchCriteria);
+
+                            var spanCount = data.Select(tobsearchCriteria).Count();
+
+                            spanCount = (spanCount == 0) ? 1 : spanCount;
+                            rowspanList[columnCount] = spanCount;
+                           
+
+                            currentRowspanList[columnCount] = 1;
+
+                            if (currentRowspanList[columnCount] <= rowspanList[columnCount])
+                            {
+
+                                int rowspan = 1;
+                                if (currentRowspanList[columnCount] == 1)
+                                {
+                                    rowspan = spanCount;
+                                }
+
+
+                                tdClass = "leftaligncell ";
+                                if(string.IsNullOrWhiteSpace(@row[columnCount].ToString()))
+                                {
+                                    tdClass = " totalClass";
+                                }
+                                <td rowspan="@rowspan" style="vertical-align: top;" class="@tdClass">
+                                    @if (currentRowspanList[columnCount] == 1)
+                                    {
+                                        if (string.IsNullOrWhiteSpace(@row[columnCount].ToString()))
+                                        {
+                                            <span>Total</span>
+                                        }
+                                        else
+                                        {
+                                            //if (@rowspan > 1 || columnCount == 0)
+                                            bool isExpaneded = Model.ExpandedColumns.Where(c => c.ColumnName == displayColumns[col].ColumnName).Count() > 0;
+                                            bool isCollapsed = Model.CollapsedColumns.Where(c => c.ColumnName == displayColumns[col].ColumnName).Count() > 0;
+                                            bool isLastColumnInGroup = (columnGroupCount == displayColumns[col].Sequence);
+                                            if (columnCount == 0 || (!isLastColumnInGroup && !displayColumns[col].IsValueColumn && (isExpaneded || isCollapsed)))
+                                            {
+                                                //If expanded show up arrow
+                                                if (Model.ExpandedColumns.Where(c => c.ColumnName == displayColumns[col].ColumnName).Count() > 0)
+                                                {
+                                                    <a href="#" class="expandcollapseicon" data-colseq="@displayColumns[col].Sequence" data-state="expand"><i class="glyphicon glyphicon-minus"></i> </a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="#" class="expandcollapseicon" data-colseq="@displayColumns[col].Sequence" data-state="collapse"><i class="glyphicon glyphicon-plus"></i> </a>
+                                                }
+
+                                            }
+                                            <span>@row[columnCount].ToString()</span>
+                                        }
+
+                                    }
+                                    @*@{currentRowspanList[columnCount]++;}*@
+
+                                </td>
+
+                            }
+                        }
+
+
+
+                        columnCount += 1;
+
+                    }
+                    else
+                    {
+                        if (displayColumns[col].IsValueColumn) { tdClass += " rightaligncell"; }
+                        <td class="@tdClass"><span>@row[columnCount].ToString()</span></td>
+                        columnCount += 1;
+                    }
+
+                   
+                }
+
+            </tr>
+
+
+                count++;
+        }
+
+
+
+    </tbody>
+</table>
+
+<script>
+
+   
+    //$(function () {
+    $(".expandcollapseicon").click(function () {
+        //
+            var colSeq = parseInt( $(this).attr("data-colseq"));
+            var currentState = $(this).attr("data-state");
+            var currentReportMOC = $("#currentReportMOC").val();
+
+            var reportAction = {
+                ColSeq : colSeq,
+                CurrentState: currentState
+            };
+
+            $.ajax({
+                type: "Post",
+                url: "/Reports/GetReportOnAction",
+                data: JSON.stringify({ "request": reportAction, "currentReportMOC": currentReportMOC }),
+                contentType: "application/json",
+                dataType: "html",
+                beforeSend: function () {
+                    $('#loading').show();
+                },
+                success: function (data) {
+                    //console.log("Data returned: " + data);
+                    $('#loading').hide();
+                    $("#reportviewarea").html(data);
+                },
+                complete: function () {
+                    $('#loading').hide();
+                }
+            })
+
+        })
+
+  
+    //})
+
+
+    //$("tr td.totalClass").each(function (index) {
+    //    $(this).attr("style", "background-color:yellow");
+    //    //$(this).parent("tr").attr("style", "background-color:pink");
+    //})
+
+    //$('#example').DataTable({
+    //    "scrollY": 700
+    //});
+    $(document).off("click", "#download").on("click", "#download", function () {
+        var currentReportMOC = $("#currentReportMOC").val();
+        window.location = "/Reports/Download_CustomerwiseReport?currentReportMOC=" + currentReportMOC + "";
+    });
+
+    $('#example').DataTable({
+        scrollY: '50vh',
+        scrollCollapse: true,
+        paging: false
+    });
+
+   
+</script>
+
+

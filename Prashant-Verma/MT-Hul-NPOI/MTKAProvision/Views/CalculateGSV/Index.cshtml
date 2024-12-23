@@ -1,0 +1,222 @@
+﻿@{
+    bool isProcessComplete = @ViewBag.IsProcessComplete;
+}
+<input type="hidden" id="currentReportMOC" value="@ViewBag.currentMOC" />
+<input type="hidden" id="pageTitle" value="@ViewBag.PageTitle" />
+<input type="hidden" id="isProcessComplete" value="@isProcessComplete" />
+<div class="container-fluid">
+    <div class="row">
+
+        <!--  Left Column -->
+
+
+        <div class="col-sm-12">
+
+
+
+
+            <div class="row mbottom10">
+                <div class="col-sm-12">
+                    <!-- Data Table -->
+                    @if (isProcessComplete == true)
+                    { 
+                    <section id="tableinfo" class="mtop20 ">
+                        <div class="">
+                            <table id="calculateGSVTable" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th class="searchtext tblHeaderCenter">Customer</th>
+                                        <th class="searchtext tblHeaderCenter">Customer</th>
+                                        <th class="searchtext tblHeaderCenter">Outlet Category - Master</th>
+                                        <th class="searchtext tblHeaderCenter">Basepack</th>
+                                        <th class="searchtext tblHeaderCenter">Basepack</th>
+                                        <th class="searchtext tblHeaderCenter">PMH Brand</th>
+                                        <th class="searchtext tblHeaderCenter">PMH Brand</th>
+                                        <th class="searchtext tblHeaderCenter">Sales SubCategory</th>
+                                        <th class="searchtext tblHeaderCenter">Price List</th>
+                                        <th class="searchtext tblHeaderCenter">HUL Outlet Code</th>
+                                        <th class="searchtext tblHeaderCenter">HUL Outlet Code</th>
+                                        <th class="searchtext tblHeaderCenter">Branch - Master</th>
+                                        <th class="searchtext tblHeaderCenter">Branch - Master</th>
+                                        <th class="searchtext tblHeaderCenter">MOC</th>
+                                        <th class="searchtext tblHeaderCenter">Outlet Secondary Channel</th>
+                                        <th class="searchtext tblHeaderCenter">Cluster Code</th>
+                                        <th class="searchtext tblHeaderCenter">Cluster Code</th>
+                                        <th class="searchtext tblHeaderCenter">Outlet Tier</th>
+                                        <th class="searchtext tblHeaderCenter">Total Sales Value (INR)</th>
+                                        <th class="searchtext tblHeaderCenter">Sales Return Value (INR)</th>
+                                        <th class="searchtext tblHeaderCenter">Net Sales Value (INR)</th>
+                                        <th class="searchtext tblHeaderCenter">Net Sales Qty (KGs)</th>
+                                        <th class="searchtext tblHeaderCenter">Tax Code</th>
+                                        <th class="searchtext tblHeaderCenter">State Code</th>
+                                        <th class="searchtext tblHeaderCenter">Sales Tax</th>
+                                        <th class="searchtext tblHeaderCenter">GSV</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                                @*<tfoot>
+                                    <tr>
+                                        <th class="searchtext">Customer Code</th>
+                                        <th class="searchtext">Customer Name</th>
+                                        <th class="searchtext">Outlet Category Master</th>
+                                        <th class="searchtext">Basepack Code</th>
+                                        <th class="searchtext">Basepack Name</th>
+                                        <th class="searchtext">PMH Brand Code</th>
+                                        <th class="searchtext">PMH Brand Name</th>
+                                        <th class="searchtext">Sales Sub Cat.</th>
+                                        <th class="searchtext">Price List</th>
+                                        <th class="searchtext">Hul Outlet Code</th>
+                                        <th class="searchtext">Hul Outlet Code Name</th>
+                                        <th class="searchtext">Branch Code</th>
+                                        <th class="searchtext">Branch Name</th>
+                                        <th class="searchtext">MOC</th>
+                                        <th class="searchtext">Outlet Secondary Channel</th>
+                                        <th class="searchtext">Cluster Code</th>
+                                        <th class="searchtext">Cluster Name</th>
+                                        <th class="searchtext">Outlet Tier</th>
+                                        <th class="searchtext">Total Sales Value</th>
+                                        <th class="searchtext">Sales Return Value</th>
+                                        <th class="searchtext">Net Sales Value</th>
+                                        <th class="searchtext">Net Sales Qty</th>
+                                        <th class="searchtext">Tax Code</th>
+                                        <th class="searchtext">State Code</th>
+                                        <th class="searchtext">Sales Tax Rate</th>
+                                        <th class="searchtext">GSV</th>
+                                    </tr>
+                                </tfoot>*@
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </section>
+                    }
+                </div>
+            </div>
+
+            <p class="mbottom10">&nbsp;</p>
+            <p class="mbottom10">&nbsp;</p>
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+
+    var calculateGSVTable_dtObj;
+    $(document).ready(function () {
+
+        $('.titlename').html($("#pageTitle").val());
+        if ($("#isProcessComplete").val() == false) {
+            bootbox.alert("Please Calculate GSV First!");
+        }
+        else {
+            FillMOCCalculationTable();
+        }
+    })
+
+    function FillMOCCalculationTable() {
+        if (calculateGSVTable_dtObj != undefined) {
+            calculateGSVTable_dtObj.destroy();
+        }
+        $('#calculateGSVTable thead th.searchtext').each(function () {
+            var title = $(this).text();
+            $(this).html(title + '<br/><br/><input type="text" placeholder="Search ' + title + '" />');
+        });
+        calculateGSVTable_dtObj = $('#calculateGSVTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            //"pageLength": 50,
+            //"bFilter": false,
+            "info": true,
+            //"stateSave": true,
+            "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+            "ajax": {
+                "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))/CalculateGSV/AjaxGetMOCCalculationData?currentReportMOC=" + $("#currentReportMOC").val(),
+                "type": "POST",
+                "error": function (xhr, textStatus, errorThrown) {
+                    callOnError(xhr, textStatus, errorThrown);
+                }
+            },
+            "columns": [
+                    { "data": "CustomerCode", "orderable": false },
+                    { "data": "CustomerName", "orderable": false, "class": "leftaligncell" },
+                    { "data": "OutletCategoryMaster", "orderable": false, "class": "leftaligncell" },
+                    { "data": "BasepackName", "orderable": false, "class": "leftaligncell" },
+                    { "data": "BasepackCode", "orderable": false },
+                    { "data": "PMHBrandCode", "orderable": false },
+                    { "data": "PMHBrandName", "orderable": false, "class": "leftaligncell" },
+                    { "data": "SalesSubCat", "orderable": false, "class": "leftaligncell" },
+                    { "data": "PriceList", "orderable": false, "class": "leftaligncell" },
+                    { "data": "HulOutletCode", "orderable": false, "class": "leftaligncell" },
+                    { "data": "HulOutletCodeName", "orderable": false, "class": "leftaligncell" },
+                    { "data": "BranchCode", "orderable": false },
+                    { "data": "BranchName", "orderable": false },
+                    { "data": "MOC", "orderable": false },
+                    { "data": "OutletSecChannel", "orderable": false },
+                    { "data": "ClusterCode", "orderable": false },
+                    { "data": "ClusterName", "orderable": false },
+                    { "data": "OutletTier", "orderable": false, "class": "leftaligncell" },
+                    { "data": "TotalSalesValue", "orderable": false, "class": "rightaligncell", render: $.fn.dataTable.render.number(',') },
+                    { "data": "SalesReturnValue", "orderable": false, "class": "rightaligncell", render: $.fn.dataTable.render.number(',') },
+                    { "data": "NetSalesValue", "orderable": false, "class": "rightaligncell", render: $.fn.dataTable.render.number(',') },
+                    { "data": "NetSalesQty", "orderable": false, "class": "rightaligncell", render: $.fn.dataTable.render.number(',') },
+                    { "data": "TaxCode", "orderable": false },
+                    { "data": "StateCode", "orderable": false },
+                    { "data": "SalesTaxRate", "orderable": false, "class": "rightaligncell" },
+                    { "data": "GSV", "orderable": false, "class": "rightaligncell", render: $.fn.dataTable.render.number(',') }
+
+            ],
+            "order": [[0, "asc"]],
+            "scrollX": true,
+            "scrollY": 350,
+            "scroller": {
+                loadingIndicator: true
+            }
+        });
+        $("#calculateGSVTable_filter").hide();
+        // Apply the search
+        calculateGSVTable_dtObj.columns().every(function () {
+            var that = this;
+
+            $('input', this.header()).on('keyup change', function () {
+                if (that.search() !== this.value) {
+                    that
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        setTimeout(function () {
+            $('<a href="#" id="calculateGSV"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span style="btn Color:blue;Padding:5px">Download</span></a>').insertBefore($("#calculateGSVTable_length"))
+
+        }, 10);
+    }
+
+    $(document).on("click", "#calculateGSV", function () {
+
+        window.location = "/CalculateGSV/DownloadExcel?currentReportMOC=" + $("#currentReportMOC").val();
+        //$.ajax({
+        //    url: '/CalculateGSV/DownloadExcel',
+        //    dataType: "json",
+        //    type: "GET",
+        //    contentType: 'application/json; charset=utf-8',
+        //    async: true,
+        //    cache: false,
+        //    success: function (data) {
+
+        //    }
+        //});
+    });
+
+    $('#downloadAllFileFormat').parent("li").remove();
+
+    $.ajax({
+        url: "/Dashboard/LoadHeader",
+        type: "get",
+        data: "currentReportMOC=" + $("#currentReportMOC").val(),
+        success: function (result) {
+            $('.titleMonth').html(result.titleMonth);
+            $('.currentdatetime').html(result.currentdatetime);
+        }
+    })
+</script>

@@ -1,0 +1,359 @@
+﻿@{
+    ViewBag.Title = "UploadMaster";
+}
+
+<style>
+    .required:after {
+        content: " *";
+        color: #EF5F5F;
+    }
+
+    .required {
+        padding-right: 2px !important;
+    }
+</style>
+<input type="hidden" id="pageTitle" value="@ViewBag.PageTitle" />
+
+<div class="container-fluid">
+    <div class="row ">
+        <!--  Left Column -->
+        <div class="col-sm-12">
+            <div class="col-sm-12">
+                <input type="hidden" id="currentReportMOC" value="@ViewBag.currentMOC" />
+
+                <div class="col-sm-12 uploadProvMaster-tab-container">
+                    <div class="col-md-2 uploadProvMaster-tab-menu">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item active text-center" data-id="Introduction">
+                                Introduction
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="OutletMaster">
+                                Outlet Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="AdditionalMarginMaster">
+                                Additional Margin Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="ServiceTaxRateMaster">
+                                Service Tax Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="HuggiesBasepackMaster">
+                                Huggies BasePack Percentage
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="ClusterRsCodeMappingMaster">
+                                Cluster RS Code Mapping
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="MTTierBasedTOTMaster">
+                                MT Tier Based TOT % Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="SubcategoryMappingMaster">
+                                MT Subcategory Mapping
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="SubcategoryTOTRatesMaster">
+                                MT Subcategory TOT % Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="PriceListMaster">
+                                PriceList Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="OnInVoiceConfigMaster">
+                                On InVoiceConfig Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="ChainNameMaster">
+                                Chain Name Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="GLMaster">
+                                GL Master
+                            </a>
+                            <a href="#" class="list-group-item text-center" data-id="MailConfigMaster">
+                                Mail Config Master
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-10 uploadProvMaster-tab">
+
+                        <div class="uploadProvMaster-tab-content active">
+                            <!-- SKU Dump Section -->
+                            <div id="uploadMasterView">
+                            </div>
+                            <!-- setting to make room for the datatable footer show records -->
+                            <p class="mbottom10">&nbsp;</p>
+                            <p class="mbottom10">&nbsp;</p>
+                            <!--  to make room for the datatable footer show records -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="onInVoiceConfigModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add New State Code</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <p>State Code</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type='text' id='stateCode'>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p>Is Net saleValueApplicable</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type='checkbox' id=netSaleAppl />
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveOnInVoiceConfig">Save</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div id="chainNameModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add New ChainName</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <p>Chain Name</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type='text' id='chainName'>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p>Is HuggiesApplicable</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type='checkbox' id=huggiesAppl />
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveChainName">Save</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div id="priceListModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add New PriceList</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <p>Price List</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type='text' id='priceList'>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSavePriceList">Save</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div id="mailConfigModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edit Mail Configuration</h4>
+            </div>
+            <form id="frmMailConfig">
+                <div class="modal-body">
+                    <div class="row">
+                        @*<div class="col-sm-12 mbottom10">
+                                <div class="col-sm-3 rightaligncell">
+                                    <label>Master Id</label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type='text' class="form-control" id='masterId' name="ConfigId" readonly>
+                                </div>
+                            </div>*@
+
+                        <input type='hidden' class="form-control" id='masterId' name="ConfigId">
+                        <div class="col-sm-12 mbottom10">
+                            <div class="col-sm-4 rightaligncell">
+                                <label>Enable</label>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type='checkbox' class="" id='enable' name="Enable">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 mbottom10">
+                            <div class="col-sm-4 rightaligncell required">
+                                <label>Description</label>
+                            </div>
+                            <div class="col-sm-7">
+                                <input type='text' class="form-control" id='description' name="Description">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 mbottom10">
+                            <div class="col-sm-4 rightaligncell required">
+                                <label>From Mail Id</label>
+                            </div>
+                            <div class="col-sm-7">
+                                <input type='email' class="form-control" id='fromMailId' name="From">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 mbottom10">
+                            <div class="col-sm-4 rightaligncell required">
+                                <label>From Mail Password</label>
+                            </div>
+                            <div class="col-sm-7">
+                                <input type='password' class="form-control" id='passwrd' name="Password">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 mbottom10">
+                            <div class="col-sm-4 rightaligncell required">
+                                <label>To Mail</label>
+                            </div>
+
+                                <div class="col-sm-7">
+                                    <input type='text' class="form-control" id='toMailId' name="MailTo" title="some text for tooltip">
+                              
+                                    <span class="small text-info ">Multiple 'To Mail Id' should be (,) comma separated</span>
+                                </div>
+                            
+
+                        </div>
+
+                        <div class="col-sm-12 mbottom10">
+                            <div class="col-sm-4 rightaligncell">
+                                <label>CC Mail</label>
+                            </div>
+                            <div class="col-sm-7">
+                                <input type='text' class="form-control" id='ccMailId' name="MailCC">
+                                <span class="small text-info">Multiple 'CC Mail Id' should be (,) comma separated</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveMailConfig">Save</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">File Upload</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure.you want to upload file </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnUpload">Yes, Upload</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<script>
+    $(document).ready(function () {
+        $('.titlename').html($("#pageTitle").val());
+        $.ajax({
+            url: "/UploadProvisionMaster/Introduction",
+            type: "get",
+            success: function (data) {
+                $("#uploadMasterView").html(data);
+            }
+        })
+
+        $("div.uploadProvMaster-tab-menu>div.list-group>a").click(function (e) {
+            //
+            e.preventDefault();
+            $(this).siblings('a.active').removeClass("active");
+            $(this).addClass("active");
+            var index = $(this).index();
+            //$("div.uploadMaster-tab>div.uploadMaster-tab-content").removeClass("active");
+            // $("div.uploadMaster-tab>div.uploadMaster-tab-content").eq(index).addClass("active");
+
+            var tabid = $(this).data("id");
+
+            $.ajax({
+                url: '/UploadProvisionMaster/GetView',
+                type: "POST",
+                data: { tabid: tabid },
+                datatype: "text/plain",
+                cache: false,
+                async: false,
+                success: function (data) {
+                    $('#uploadMasterView').html(data);
+                }
+            })
+        });
+
+
+        $.ajax({
+            url: "/Dashboard/LoadHeader",
+            type: "get",
+            data: "currentReportMOC=" + $("#currentReportMOC").val(),
+            success: function (result) {
+                $('.titleMonth').html(result.titleMonth);
+                $('.currentdatetime').html(result.currentdatetime);
+            }
+        })
+
+
+        $('#btn_NewMOC').remove();
+        $('#reportlink').remove();
+        $('.downloadAllFileFormat').remove();
+        $('#securitylink').remove();
+
+        $("#stepimage").html('');
+        $("#stepimage").append(' <div class="col-xs-3"><div class="row"><center><span class="stepno">2</span><img src="/img/Icons/4Upload_Provision_master_Active.png" alt="" style="width: 40px; margin-top:5px;"> </center></div>');
+
+
+    })
+
+</script>
+
+<script src="~/scripts/custom/drag-and-dropping.js"></script>

@@ -1,0 +1,39 @@
+﻿<div>
+    <h2>Section details</h2>
+    <span>
+        <button type="button" class="btn btn-primary"
+                ng-click="toggleAddSection()">
+            ADD SECTION
+        </button>
+    </span>
+
+    <hr />
+
+
+    <form ng-show="sectionform">
+        Enter title:<br /> <input type="text" ng-model="section.title" /><br />
+        Body: <br />
+        <textarea rows="5" ng-model="section.body"></textarea>
+        <br />
+        <input type="hidden" ng-model="section.postId" />
+        <button type="submit" ng-click="addSection()">UPDATE</button>
+        <br /><br />
+    </form>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+           Section: {{ sections[0].title}} 
+        </div>
+        <div style="margin-bottom:20px"  ng-repeat="section in sections track by $index" 
+             class="section-item panel-body">
+            <div class="panel-body">
+                {{id}}
+                {{ section.body}}
+            </div>
+            <div class="panel-footer">
+                sectioned by: {{ section.username}}
+            </div>
+        </div>
+    </div>
+
+</div>

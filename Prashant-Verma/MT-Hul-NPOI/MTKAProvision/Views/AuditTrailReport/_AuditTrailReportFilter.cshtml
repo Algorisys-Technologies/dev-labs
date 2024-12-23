@@ -1,0 +1,255 @@
+﻿<div class="">
+    @*<center>
+          <label>@ViewBag.ReportName</label>
+        </center>*@
+    <input type="hidden" id="hdnReportName" value="@ViewBag.ReportName" />
+    <input type="hidden" id="pageNo" value="1" />
+    <input type="hidden" id="isAllData" value="true" />
+    <form class='form-inline col-sm-12'>
+        <div class="col-sm-3">
+            <input type='button' class="form-control btn-info" id="btnViewAllReport" value="Show All" />
+
+            <input type='button' class="form-control btn-info" id="btnViewByDateReport" value="Filter By Date" />
+        </div>
+        <div class="col-sm-9">
+            <div id="grpfilterDate">
+                <label for="dtpickerFrmDate"> From</label>
+
+                <div class='input-group date' id='dtpickerFrmDate' data-date-format="dd-mm-yyyy">
+                    <input type='text' class="form-control" id='dtFrmDate' readonly="" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+
+                <label for="dtpickerToDate"> To</label>
+
+                <div class='input-group date' id='dtpickerToDate' data-date-format="dd-mm-yyyy">
+                    <input type='text' class="form-control" id='dtToDate' readonly="" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+
+                <input type='button' class="form-control btn-info" id="btnViewReport" value="Show" />
+
+                <input type='button' class="form-control btn-info" id="btncancelFilterbydate" value="Cancel" />
+            </div>
+        </div>
+    </form>
+
+
+    <div class="row col-sm-12 " id="tableviewarea">
+        <center>select option to view report !</center>
+    </div>
+    <ul class="pager">
+        <li><a href="#" id="btnprev">Previous</a></li>
+        <li><a href="#" id="btnnext">Next</a></li>
+    </ul>
+   
+</div>
+<script>
+    $("#grpfilterDate").hide();
+    $("#spnReportName").html($("#hdnReportName").val());
+    $(document).ready(function () {
+        
+        showNavigation(1, $("#rowcount").val());
+    });
+    function showNavigation(pageNo, recordcount) {
+        $("#pagestatus").remove();
+        var totalpage = (parseInt($("#rowcount").val())+9) / 50;
+        if (totalpage % 50 > 0)
+        {
+            var totalpage =   Math.trunc(totalpage)+1;
+        }
+        $("#tblAuditTrail_info").parent().removeClass();
+        $("#tblAuditTrail_info").parent().addClass("col-sm-12");
+        $("#tblAuditTrail_info").parent().append('<div id="pagestatus" style="padding-top: 0.755em; margin-left: 85%;"> Page ' + $('#pageNo').val() + ' of ' + totalpage + ' pages</div>');
+        if ((parseInt(pageNo) * 50) < parseInt(recordcount)) {
+            $("#btnnext").show();
+        }
+        else {
+            $("#btnnext").hide();
+        }
+
+        if (pageNo == 1) {
+            $("#btnprev").hide();
+        }
+        else {
+            $("#btnprev").show();
+
+        }
+    }
+    $(function () {
+        $('#dtpickerFrmDate').datepicker({
+        });
+        $('#dtpickerToDate').datepicker({
+            useCurrent: false //Important! See issue #1075
+        });
+        $("#dtpickerFrmDate").on("dp.change", function (e) {
+            $('#dtpickerToDate').data("DateTimePicker").minDate(e.date);
+        });
+        $("#dtpickerToDate").on("dp.change", function (e) {
+            $('#dtpickerFrmDate').data("DateTimePicker").maxDate(e.date);
+        });
+    });
+    function showallReportData() {
+
+        $("#tableviewarea").html('');
+        $.ajax({
+            url: '/AuditTrailReport/GenerateAuditTrailReportTableView',
+            type: "Get",
+            data: { reportName: $("#auditTrailReportName").val(), entityName: $("#auditTrailEntity").val(), pageNo: $("#pageNo").val() },
+            datatype: "text/plain",
+            cache: false,
+            async: false,
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (data) {
+                $('#tableviewarea').html(data);
+                $('#loading').hide();
+                setTimeout(function () {
+                    $("#tblaudittrailheader").remove();
+                    $('<div id="tblaudittrailheader" ><a href="#" id="downloadAuditTrail"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a></div>').insertBefore($("#tblAuditTrail_length"))
+                }, 10);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                $('#loading').hide();
+                callOnError(xhr, textStatus, errorThrown);
+            }
+        });
+
+        showNavigation($("#pageNo").val(), $("#rowcount").val());
+    }
+
+    function showfilterReportData() {
+
+        $("#tableviewarea").html('');
+        $.ajax({
+            url: '/AuditTrailReport/GenerateAuditTrailReportTableViewFilterByDate',
+            type: "Get",
+            data: { reportName: $("#auditTrailReportName").val(), entityName: $("#auditTrailEntity").val(), frmDate: $("#dtFrmDate").val(), toDate: $("#dtToDate").val(), pageNo: $("#pageNo").val() },
+            datatype: "text/plain",
+            cache: false,
+            async: false,
+            beforeSend: function () {
+                $('#loading').show();
+            },
+            success: function (data) {
+                $('#tableviewarea').html(data);
+                $('#loading').hide();
+                setTimeout(function () {
+                    $("#tblaudittrailheader").remove();
+                    $('<div id="tblaudittrailheader" ><a href="#" id="download"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a></div>').insertBefore($("#tblAuditTrail_length"))
+                }, 10);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                $('#loading').hide();
+                callOnError(xhr, textStatus, errorThrown);
+            }
+        });
+
+        showNavigation($("#pageNo").val(), $("#rowcount").val());
+    }
+    $(document).off("click", "#btnViewAllReport").on("click", "#btnViewAllReport", function () {
+       
+        $('#pageNo').val(1);
+        $("#btnprev").hide();
+        $("#btnnext").hide();
+        $("#isAllData").val('true');
+        showallReportData();
+    })
+    $(document).off("click", "#btnViewReport").on("click", "#btnViewReport", function () {
+
+        $('#pageNo').val(1);
+        $("#btnprev").hide();
+        $("#btnnext").hide();
+       // showNavigation(1, $("#rowcount").val());
+        $("#isAllData").val('false');
+        $("#tableviewarea").html('');
+        if ($("#dtFrmDate").val() == '' || $("#dtToDate").val() == '')
+        {
+            bootbox.dialog({
+                message: "Select From Date - To Date !",
+                title: "Warning!",
+                buttons: {
+                    danger: {
+                        label: "Close",
+                        className: "btn-danger",
+                        callback: function () {
+                            close();
+                        }
+                    }
+                }
+            });
+            return;
+        }
+        showfilterReportData();
+    })
+    $(document).off("click", "#btnViewByDateReport").on("click", "#btnViewByDateReport", function () {
+
+        $("#btnprev").hide();
+        $("#btnnext").hide();
+        $("#tableviewarea").html('');
+        $("#grpfilterDate").show();
+        $("#btnViewAllReport").hide();
+    })
+    $(document).on("click", "#btncancelFilterbydate", function () {
+
+        $("#btnprev").hide();
+        $("#btnnext").hide();
+        $("#tableviewarea").html('');
+        $("#grpfilterDate").hide();
+        $("#btnViewAllReport").show();
+    })
+    $("#btnprev").click(function () {
+        if (parseInt($("#pageNo").val()) > 1) {
+            $("#pageNo").val(parseInt($("#pageNo").val()) - 1);
+            if ($("#isAllData").val() == "true") {
+                // $('#btnViewAllReport').click();
+                showallReportData();
+            }
+            else {
+               // $('#btnViewReport').click();
+                showfilterReportData();
+            }
+            showNavigation($("#pageNo").val(), $("#rowcount").val());
+        }
+    })
+    $("#btnnext").click(function () {
+        $("#pageNo").val(parseInt($("#pageNo").val()) + 1);
+        if ($("#isAllData").val() == "true") {
+           // $('#btnViewAllReport').click();
+            showallReportData();
+        }
+        else {
+            //$('#btnViewReport').click();
+            showfilterReportData();
+        }
+        showNavigation($("#pageNo").val(), $("#rowcount").val());
+    })
+</script>
+<!--<script type="jac">
+  var checkin = $('#dtpickerFrmDate').datepicker({
+  onRender: function(date) {
+  return date.valueOf() < now.valueOf() ? 'disabled' : '';
+  }
+}).on('changeDate', function(ev) {
+  if (ev.date.valueOf() > checkout.date.valueOf()) {
+    var newDate = new Date(ev.date)
+    newDate.setDate(newDate.getDate() + 1);
+    checkout.setValue(newDate);
+  }
+  checkin.hide();
+  $('#dtpickerToDate')[0].focus();
+}).data('datepicker');
+var checkout = $('#dtpickerToDate').datepicker({
+  onRender: function(date) {
+    return date.valueOf() <= checkin.date.valueOf() ? 'disabled' : '';
+  }
+}).on('changeDate', function(ev) {
+  checkout.hide();
+}).data('datepicker');
+
+</script>-->

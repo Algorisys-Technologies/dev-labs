@@ -1,0 +1,140 @@
+﻿@using MT.Model;
+@using System.Globalization;
+@{
+    List<ToTProvisionTrendModel> MonthlyToTProvisionTrendList = ViewData["CategoryWiseToTProvisionTrendList"] as List<ToTProvisionTrendModel>;
+}
+<style>
+    .leftAlign {
+        text-align: left;
+    }
+
+    .firstColumn {
+        width: 200px;
+    }
+
+    .listheads {
+        /*position:fixed;
+
+        display: block;*/
+    }
+
+    th {
+        font-weight: normal !important;
+    }
+
+    .fixedtable {
+        height: 300px;
+    }
+    /*table.scroll tbody,
+    table.scroll thead { display: block; }
+
+
+    table.scroll tbody {
+        height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    tbody { border-top: 2px solid black; }*/
+</style>
+
+<div class="">
+    @*<center> <label>@ViewBag.ReportName</label></center>*@
+    <input type="hidden" id="hdnReportName" value="@ViewBag.ReportName" />
+
+    @if (MonthlyToTProvisionTrendList.Count() > 0)
+    {   <div class="row mbottom10">
+        <div class="col-sm-12">
+            <!-- Data Table -->
+            <section id="tableinfo">
+                <a href="#" id="download"><img class="downloadimg" src="/img/dashboard/Download_Excel.png" alt=""><span class="btn" style="Color:blue;Padding:5px">Download</span></a>
+                <label class="pull-right"> Values in Rs Crores</label>
+
+                <div class="fixedtable">
+                    <table id="tblAuditTrail" class="table table-striped table-bordered table-condensed dataTable no-footer" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th class="firstColumn"> </th>
+                                @foreach (var columnitem in MonthlyToTProvisionTrendList[0].MonthlyToTProvisionTrend)
+                                {
+                                    <th colspan="3">@columnitem.UniqueMonthName</th>
+                                }
+                            </tr>
+                            <tr>
+                                <th>Sub -Category  </th>
+                                @foreach (var columnitem in MonthlyToTProvisionTrendList[0].MonthlyToTProvisionTrend)
+                                {
+                                    <th class="firstColumn">SalesTUR</th>
+                                    <th class="firstColumn">ToTProvision</th>
+                                    <th class="firstColumn">ToTPercentage</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+                            @foreach (var columnitem in MonthlyToTProvisionTrendList)
+                            {
+                                <tr>
+
+                                    <td class="leftaligncell listheads">@(columnitem.SubCategory) </td>
+                                    @foreach (var item in columnitem.MonthlyToTProvisionTrend)
+                                    {
+                                        <td class="rightaligncell">@(item.SalesTUR) </td>
+                                        <td class="rightaligncell">@(item.ToTProvision) </td>
+                                        <td class="rightaligncell">@(item.ToTPercentage) %</td>
+                                    }
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="clearfix"></div>
+            </section>
+
+        </div>
+    </div>
+    }
+    else
+    {
+        <div class="row col-md-12">
+            <center>No data available!</center>
+        </div>
+    }
+</div>
+<script>
+    $("#tblAuditTrail").tableHeadFixer({ 'left': 1 });
+
+    $("#tblAuditTrail th").css("background-color", "#66ccff");
+    //$("table").on("scroll", function () {
+    //    $("table > *").width($("table").width() + $("table").scrollLeft());
+    //});
+
+    //oTable = $('#tblAuditTrail').DataTable({
+    //    //  "scrollX": true,
+    //    //   "scrollY": '500px'
+    //});
+    //$('#tblAuditTrailInputTextField').keyup(function () {
+    //    oTable.search($(this).val()).draw();
+    //})
+    $("#spnReportName").html($("#hdnReportName").val());
+
+    $(document).off("click", "#download").on("click", "#download", function () {
+        window.location = "/ProvisionReport/Download_ToTProvisionTrendCategaoryWiseExcel?moc=" + $("#selectedMOC").val();
+    });
+    //$('#tblAuditTrail').DataTable( {
+    //    search:false,
+    //    "scrollX": true,
+    //    "scrollY": '500px',
+    //    fixedColumns: {
+    //        leftColumns: 2
+    //    }
+    //} );
+    //fixedColumns:   {
+    //        leftColumns: 1,
+    //        rightColumns: 1
+    //}
+
+</script>
