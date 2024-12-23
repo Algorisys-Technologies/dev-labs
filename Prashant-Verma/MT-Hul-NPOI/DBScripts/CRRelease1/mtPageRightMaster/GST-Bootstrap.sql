@@ -1,1 +1,0 @@
-INSERT [dbo].[mtPageRightMaster] ([PageId], [PageName], [Rights]) VALUES (N'GST', N'GST Master', N'read/write')

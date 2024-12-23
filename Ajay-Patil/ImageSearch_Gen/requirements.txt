@@ -1,7 +1,0 @@
-numpy
-pillow
-tensorflow
-flask
-openai==0.28
-python-dotenv
-tensorflow-cpu
