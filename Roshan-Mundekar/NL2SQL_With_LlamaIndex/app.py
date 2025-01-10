@@ -8,7 +8,21 @@ from llama_index.llms.openai import OpenAI
 from llama_index.core import Settings
 from sqlalchemy.engine import URL
 import openai
-openai.api_key = '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'
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the API key from environment variables
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Verify if the key is loaded
+if openai.api_key:
+    print("API key loaded successfully")
+else:
+    print("API key not found")
+
 app = Flask(__name__)
 
 # Load database configurations
