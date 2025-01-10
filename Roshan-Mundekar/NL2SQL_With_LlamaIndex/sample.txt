@@ -1,0 +1,52 @@
+Table: WIP 
+  Column: Age, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Agingno, Type: FLOAT
+  Column: Period, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Prod Ratio, Type: FLOAT
+  Column: WIP Ratio, Type: FLOAT
+  Column: In Hand Pts, Type: FLOAT
+  Column: In Hand Pcs, Type: FLOAT
+  Column: Bag Type, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Order Type, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: PProcess, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Factory, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: PLocation, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Status, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Flag, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Order, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Bag No, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Circulation Date, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: PCD date, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: PCD, Type: DATETIME
+  Column: PCD D, Type: DATETIME
+  Column: PDD date, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: PDD, Type: DATETIME
+  Column: Delivery Period, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Customer Code, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Style No, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: OdKt, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: OdDmCol, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Set Type, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Prod Status, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Aging Range, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Aging, Type: FLOAT
+  Column: Aging Days, Type: FLOAT
+  Column: WIP Pcs, Type: FLOAT
+  Column: WIP Pts, Type: FLOAT
+  Column: Prod Pcs, Type: FLOAT
+  Column: Prod Pts, Type: FLOAT
+  Column: Process, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: WSQty, Type: FLOAT
+  Column: HSQty, Type: FLOAT
+  Column: WeekNo, Type: FLOAT
+  Column: Product, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Difficulty Level, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Difficult, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: Day Flag, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: PCD ToGo, Type: FLOAT
+  Column: PCD Crossed, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+  Column: wk, Type: FLOAT
+  Column: CurrentWk, Type: FLOAT
+  Column: NextWeek, Type: FLOAT
+  Column: Prev Week, Type: NVARCHAR(255) COLLATE "SQL_Latin1_General_CP1_CI_AS"
+
