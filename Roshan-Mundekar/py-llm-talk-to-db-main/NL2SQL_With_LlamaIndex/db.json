@@ -15,6 +15,15 @@
           "password": "root",
           "host": "localhost",
           "db_name": "llmtalktodb"
+      },
+      {
+        "name": "SQLServer_DB",
+        "type": "Ms_sql_server",
+        "host": "DESKTOP-SFJI2T5\\SQLEXPRESS",
+        "user": "sa",
+        "password": "admin@123",
+        "db_name": "IBMDB",
+        "port": 1433
       }
   ]
 }

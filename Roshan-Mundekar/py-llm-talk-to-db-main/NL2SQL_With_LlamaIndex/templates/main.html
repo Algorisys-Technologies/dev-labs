@@ -104,6 +104,7 @@
                         } else {
                             $('#chat-box').append(`<div class="p-3 bg-red-100 rounded-lg"><strong>Bot:</strong> ${response.sql_query}</div>`);
                         }
+                        $('#query').val('');
                     },
                     error: function () {
                         $('#chat-box').append('<div class="p-3 bg-red-100 rounded-lg"><strong>Bot:</strong> An error occurred while querying the database.</div>');
