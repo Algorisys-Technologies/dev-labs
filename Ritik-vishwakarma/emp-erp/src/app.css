@@ -1,0 +1,19 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+}
+
+#main-content {
+  height: 100vh;
+  padding: 1.4rem;
+}
+
+#sidebar {
+  background-color: aliceblue;
+  height: 100vh;
+}
