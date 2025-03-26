@@ -1,0 +1,317 @@
+{
+    "App1": {
+      "theme": "theme-green",
+      "appTitle": "Welcome to Todo App",
+      "enableAnalytics": false,
+      "layout": {},
+      "routes": {
+        "/todos": {
+          "pageId": "todos",
+          "server": {},
+          "isAuthenticate": true
+        },
+        "/viewjson": {
+          "pageId": "viewjson",
+          "server": {},
+          "isAuthenticate": false,
+          "isJsonConvertor": false
+        },
+        "/aboutus": {
+          "pageId": "aboutus",
+          "server": {},
+          "isAuthenticate": false,
+          "isJsonConvertor": false
+        },
+        "/contactus": {
+          "pageId": "contactus",
+          "server": {},
+          "isAuthenticate": false,
+          "isJsonConvertor": false
+        }
+      },
+      "menus": {
+        "layout": "row",
+        "data": [
+          {
+            "id": "1",
+            "title": "Todos",
+            "path": "/todos"
+          },
+          {
+            "id": "2",
+            "title": "About Us",
+            "path": "/aboutus"
+          },
+          {
+            "id": "3",
+            "title": "Contact Us",
+            "path": "/contactus"
+          }
+        ]
+      },
+      "screens": {
+        "todos": {
+          "pageTitle": "Todos",
+          "type": "Page",
+          "path": {
+            "url": "/todos",
+            "params": {}
+          },
+          "addTab": false,
+          "components": {
+            "SearchForm": {
+              "type": "SearchForm",
+              "state": "searchTerm",
+              "formTitle": "Search Criteria",
+              "labelAlignment": "left",
+              "primaryKeyCol": { "colName": "id" },
+              "enableBulkOperation": false,
+              "isRequiredFieldAppl": false,
+              "advanceSearchModel": [],
+              "allColWidth": "50%,50%",
+              "allowInsert": true,
+              "insertLink": {
+                "label": "Add New Todo",
+                "viewType": "tab",
+                "tabName": "Add Todo"
+              },
+              "allowBulkInsert": false,
+              "formLinks": [],
+              "model": [
+                {
+                  "accessor": "title",
+                  "label": "Title",
+                  "row": 0,
+                  "col": 0,
+                  "flex": 1,
+                  "controlWidth": "50",
+                  "validator": {
+                    "RequiredField": { "message": "Title is required" }
+                  }
+                },
+                {
+                  "accessor": "description",
+                  "label": "Description",
+                  "row": 1,
+                  "col": 0,
+                  "flex": 1,
+                  "controlType": "textarea",
+                  "controlWidth": "50",
+                  "validator": {
+                    "RequiredField": { "message": "Description is required" }
+                  }
+                },
+                {
+                  "accessor": "status",
+                  "label": "Status",
+                  "controlType": "select",
+                  "controlWidth": "50",
+                  "row": 2,
+                  "col": 0,
+                  "options": [
+                    { "label": "Pending", "value": "pending" },
+                    { "label": "In Progress", "value": "In Progress" },
+                    { "label": "Completed", "value": "completed" }
+                  ],
+                  "validator": {
+                    "RequiredField": { "message": "Status is required" }
+                  }
+                }
+              ],
+              "buttons": [
+                { "title": "Clear", "type": "reset", "className": "btn-gray" },
+                { "title": "Search", "type": "submit", "className": "search-button" }
+              ],
+              "server": {
+                "create": {
+                  "endpoint": "http://localhost:8080/api/todos/create"
+                }
+              },
+              "resultType": "grid",
+              "resultControlModel": {
+                "type": "DataTable",
+                "datatableTitle": "Todos",
+                "state": "result",
+                "serverSideDataLoad": true,
+                "allowAddNew": true,
+                "allowEditLink": true,
+                "allowDeleting": true,
+                "allowSelectAll": true,
+                "childViewType": "popup",
+                "perRowDelete": true,
+                "selectAllSettings": {},
+                "enableBulkOperation": false,
+                "server": {
+                  "data": {
+                    "endpoint": "http://localhost:8080/api/todos/findall",
+                    "method": "post",
+                    "dataKey": "data",
+                    "totalRecordsKey": "totalRecords"
+                  },
+                  "create": {
+                    "endpoint": "http://localhost:8080/api/todos/create",
+                    "method": "post"
+                  },
+                  "update": {
+                    "endpoint": "http://localhost:8080/api/todos/update",
+                    "method": "post"
+                  },
+                  "delete": {
+                    "endpoint": "http://localhost:8080/api/todos/{pkey}"
+                  }
+                },
+                "headers": [
+                  {
+                    "label": "Title",
+                    "accessor": "title",
+                    "controlWidth": "50",
+                    "index": 1,
+                    "row": 0,
+                    "col": 0,
+                    "dataType": "varchar",
+                    "allowSort": true,
+                    "allowSearch": true,
+                    "allowInsert": true,
+                    "allowEdit": true,
+                    "colAlign": "left",
+                    "headerAlign": "center"
+                  },
+                  {
+                    "label": "Description",
+                    "accessor": "description",
+                    "controlWidth": "50",
+                    "index": 2,
+                    "row": 1,
+                    "col": 0,
+                    "dataType": "varchar",
+                    "allowSort": true,
+                    "allowSearch": true,
+                    "allowInsert": true,
+                    "allowEdit": true,
+                    "colAlign": "left",
+                    "headerAlign": "center"
+                  },
+                  {
+                    "label": "Status",
+                    "accessor": "status",
+                    "controlWidth": "50",
+                    "index": 3,
+                    "row": 2,
+                    "col": 0,
+                    "dataType": "varchar",
+                    "allowSort": true,
+                    "allowSearch": true,
+                    "allowInsert": true,
+                    "allowEdit": true,
+                    "colAlign": "left",
+                    "headerAlign": "center"
+                  }
+                ],
+                "pagination": {
+                  "enabled": true,
+                  "pageLength": 10,
+                  "type": "long",
+                  "startQueryKey": "offset",
+                  "limitQueryKey": "limit",
+                  "pageSet": 5,
+                  "allowPageset": true,
+                  "pageSizeDropdown": "10|25|50|100"
+                },
+                "sort": {
+                  "enabled": true,
+                  "sortCol": "title",
+                  "sortOrder": "asc"
+                },
+                "export": {
+                  "enabled": true,
+                  "method": "uiside"
+                }
+              }
+            }
+          }
+        },
+        "login": {
+          "title": "Login",
+          "type": "Page",
+          "header": false,
+          "isTabs": false,
+          "path": {
+            "url": "/login",
+            "params": {}
+          },
+          "components": {
+            "Login": {
+              "type": "Login",
+              "state": "login",
+              "title": "Login Form",
+              "allColWidth": "100%,100%",
+              "model": [
+                {
+                  "accessor": "username",
+                  "name": "username",
+                  "label": "UserName",
+                  "row": 0,
+                  "col": 0,
+                  "type": "text",
+                  "validator": {
+                    "RequiredField": { "message": "Email Required" },
+                    "Format": { "type": "email" }
+                  }
+                },
+                {
+                  "accessor": "password",
+                  "name": "password",
+                  "label": "Password",
+                  "row": 1,
+                  "col": 0,
+                  "type": "password",
+                  "validator": {
+                    "RequiredField": { "message": "Password Required" }
+                  }
+                }
+              ],
+              "row": 0,
+              "col": 0,
+              "server": {
+                "loginApi": "http://localhost:8080/api/user/login",
+                "respDataKey": "data"
+              },
+              "landngPageUrl": "/todos"
+            }
+          }
+        },
+        "viewjson": {
+          "pageTitle": "",
+          "type": "Page",
+          "isTabs": false,
+          "components": {
+            "ViewJson": {
+              "type": "ViewJson"
+            }
+          }
+        },
+        "aboutus": {
+          "pageTitle": "About Us",
+          "type": "Page",
+          "isTabs": false,
+          "components": {
+            "StaticContent": {
+              "type": "StaticContent",
+              "content": "About us details here!"
+            }
+          }
+        },
+        "contactus": {
+          "pageTitle": "Contact Us",
+          "type": "Page",
+          "isTabs": false,
+          "components": {
+            "StaticContent": {
+              "type": "StaticContent",
+              "content": "Contact us details here!"
+            }
+          }
+        }
+      }
+    }
+  }
