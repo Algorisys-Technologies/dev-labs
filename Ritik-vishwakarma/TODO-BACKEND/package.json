@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start":"node server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -13,11 +13,12 @@
     "api",
     "sequelize",
     "mysql"
-  ],  
+  ],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@sequelize/sqlite3": "^7.0.0-alpha.46",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

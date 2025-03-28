@@ -6,6 +6,7 @@ const authConfig = require("../config/auth.config.js");
 
 exports.login = (req, res, next) => {
   const {username, password} = req.body;
+  console.log(" {username, password} ::", {username, password} )
   if (username && password) {
     passport.authenticate("local", { session: false }, (x, usr) => {
       if (usr) {

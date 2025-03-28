@@ -34,7 +34,9 @@ app.get("/", (req, res) => {
 require("./app/routes/todos.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/master.routes")(app);
-
+// require("./app/routes/status.routes")(app);
+const statusRoutes = require("./app/routes/status.routes");
+app.use("/api", statusRoutes);
 // Set port and start the server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
