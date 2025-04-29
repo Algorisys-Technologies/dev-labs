@@ -24,6 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 const db = require("./app/models");
 
 db.sequelize.sync(); // Sync database
+// db.sequelize.sync({ alter: true });
+
 
 // Simple route
 app.get("/", (req, res) => {

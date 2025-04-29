@@ -20,9 +20,14 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       defaultValue: "pending", // Possible values: pending, in-progress, completed
     },
+    pendingApproval: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
     dueDate: {
       type: Sequelize.DATE,
-    },
+    }
+    
   });
 
   return Todo;

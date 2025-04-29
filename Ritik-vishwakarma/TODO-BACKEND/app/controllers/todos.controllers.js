@@ -28,39 +28,23 @@ exports.create = async (req, res) => {
     });
     return;
   }
-//yaha se ......................................................
-try {
-  const createdTodo = await Todo.create(todo);
-  
-  // Store todo in the summary table
-  await db.todoSummary.create({
-    id: createdTodo.id,
-    title: createdTodo.title,
-    status: createdTodo.status,
-  });
+  //yaha se ......................................................
+  try {
+    const createdTodo = await Todo.create(todo);
 
-  res.send({ status: "success", data: createdTodo });
-} catch (err) {
-  res.status(500).send({ status: "failure", message: err.message || "Error creating Todo." });
-}
-//yaha tak.............................................................
+    // Store todo in the summary table
 
 
-  
+    res.send({ status: "success", data: createdTodo });
+  } catch (err) {
+    res.status(500).send({ status: "failure", message: err.message || "Error creating Todo." });
+  }
+  //yaha tak.............................................................
+
+
+
   // Save Todo in the database
-  Todo.create(todo)
-    .then((data) => {
-      res.send({
-        status: "success",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        status: "failure",
-        message: err.message || "Some error occurred while creating the Todo.",
-      });
-    });
+
 };
 
 // Retrieve all Todos from the database.
@@ -113,6 +97,65 @@ exports.findAll = async (req, res) => {
   });
 };
 
+// Fetch all Todos pending approval
+exports.findPendingApproval = async (req, res) => {
+  const title = req.body.title;
+  const status = req.body.status;
+  const category = req.body.category;
+  const priority = req.body.priority;
+
+  let sortCol = req.body.sortCol || "createdAt";
+  const sortOrder = req.body.sortOrder || "asc";
+
+  let conditions = [`pendingApproval = 1`]; // Only pending approval
+
+  if (title) {
+    conditions.push(`title LIKE "%${title}%"`);
+  }
+  if (status) {
+    conditions.push(`status = "${status}"`);
+  }
+  if (category) {
+    conditions.push(`category = "${category}"`);
+  }
+  if (priority) {
+    conditions.push(`priority = "${priority}"`);
+  }
+
+  let conditionString = `WHERE ${conditions.join(" AND ")}`;
+
+  let limit = req.body.limit;
+  let offset = req.body.offset;
+
+  let query = `SELECT * FROM todos ${conditionString} ORDER BY ${sortCol} ${sortOrder}`;
+  if (limit) {
+    query += ` LIMIT ${offset}, ${limit}`;
+  }
+
+  try {
+    let data = await db.sequelize.query(query, {
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    let totalCountQuery = `SELECT COUNT(*) AS totalRecords FROM todos ${conditionString}`;
+    let totalCount = await db.sequelize.query(totalCountQuery, {
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    res.send({
+      status: "success",
+      data: data,
+      totalRecords: totalCount[0].totalRecords,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failure",
+      message: err.message || "Error retrieving pending approval Todos.",
+    });
+  }
+};
+
+
 // Find a single Todo by ID
 exports.findOne = (req, res) => {
   const id = req.params.id;
@@ -159,45 +202,13 @@ exports.update = (req, res) => {
         });
 
         //yaha se
-         db.todoSummary.update(
+        db.todoSummary.update(
           { title: todo.title, status: todo.status },
           { where: { id: todo.id } }
         );
-  
+
         res.send({ status: "success", message: "Todo updated successfully." });
         //yaha tak
-      } else {
-        res.send({
-          status: "failure",
-          message: `Cannot update Todo with id=${todo.id}. Maybe Todo was not found or req.body is empty!`,
-        });
-      }
-    })
-    .catch(() => {
-      res.status(500).send({
-        message: `Error updating Todo with id=${todo.id}`,
-      });
-    });
-};
-
-// Delete a Todo by ID
-exports.delete = (req, res) => {
-  const id = req.params.id;
-
-  Todo.destroy({
-    where: { id: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          status: "success",
-          message: "Todo was deleted successfully!",
-        });
-          // Delete from todo_summary ......yahase ..........
-      db.todoSummary.destroy({ where: { id } });
-
-      res.send({ status: "success", message: "Todo deleted successfully!" });
-      //yahatak...................................................
       } else {
         res.send({
           status: "failure",
@@ -211,6 +222,165 @@ exports.delete = (req, res) => {
       });
     });
 };
+
+// Delete a Todo by ID
+exports.delete = (req, res) => {
+};
+
+// Approve a pending Todo by ID (set pendingApproval = false)
+exports.approvePendingTodo = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const todo = await Todo.findByPk(id);
+
+    if (!todo) {
+      return res.status(404).send({
+        status: "failure",
+        message: `Todo with id=${id} not found.`,
+      });
+    }
+
+    if (!todo.pendingApproval) {
+      return res.send({
+        status: "failure",
+        message: `Todo with id=${id} is not pending approval.`,
+      });
+    }
+
+    todo.pendingApproval = false;
+    await todo.save();
+
+    res.send({
+      status: "success",
+      message: `Todo with id=${id} has been approved.`,
+      data: todo,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failure",
+      message: err.message || `Could not approve Todo with id=${id}`,
+    });
+  }
+};
+
+// Bulk Approve pending Todos by IDs
+exports.bulkApprovePendingTodos = async (req, res) => {
+  const data = req.body.data;
+  const ids = data.map(todo => todo.id); // 🛠️ Extract ids only
+  console.log("ids", ids);
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).send({
+      status: "failure",
+      message: "Please send an array of todo IDs to approve.",
+    });
+  }
+
+  try {
+    const [updatedCount] = await Todo.update(
+      { pendingApproval: false },
+      {
+        where: {
+          id: {
+            [Op.in]: ids,
+          },
+          pendingApproval: true, // only update those actually pending
+        },
+      }
+    );
+
+    res.send({
+      status: "success",
+      message: `${updatedCount} todos approved successfully.`,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failure",
+      message: err.message || "Error approving todos in bulk.",
+    });
+  }
+};
+
+// Bulk Rejected pending Todos 
+exports.bulkRejectPendingTodos = async (req, res) => {
+  const data = req.body.data;
+  const ids = data.map(todo => todo.id);
+  
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).send({
+      status: "failure",
+      message: "Please send an array of todo IDs to reject.",
+    });
+  }
+
+  try {
+    const [updatedCount] = await Todo.update(
+      { 
+        status: 'rejected',
+        pendingApproval: false  // Clear pending flag
+      },
+      {
+        where: {
+          id: {
+            [Op.in]: ids,
+          },
+          pendingApproval: true // Only reject pending todos
+        },
+      }
+    );
+
+    res.send({
+      status: "success",
+      message: `${updatedCount} todos rejected successfully.`,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failure",
+      message: err.message || "Error rejecting todos in bulk.",
+    });
+  }
+};
+
+
+//Reject  pendingTodo
+exports.rejectPendingTodo = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const todo = await Todo.findByPk(id);
+
+    if (!todo) {
+      return res.status(404).send({
+        status: "failure",
+        message: `Todo with id=${id} not found.`,
+      });
+    }
+
+    if (!todo.pendingApproval) {
+      return res.send({
+        status: "failure",
+        message: `Todo with id=${id} is not pending approval.`,
+      });
+    }
+
+    // Update both pendingApproval and status
+    todo.pendingApproval = false;
+    todo.status = "rejected"; // Or whatever status you want to set for rejected todos
+    await todo.save();
+
+    res.send({
+      status: "success",
+      message: `Todo with id=${id} has been rejected.`,
+      data: todo,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failure",
+      message: err.message || `Could not reject Todo with id=${id}`,
+    });
+  }
+};
+
 
 // Delete all Todos from the database.
 exports.deleteAll = (req, res) => {
@@ -227,3 +397,23 @@ exports.deleteAll = (req, res) => {
       });
     });
 };
+
+
+
+// For approval
+// Approve a Todo (Admin only)
+// exports.approve = async (req, res) => {
+//   try {
+//     const todo = await Todo.findByPk(req.params.id);
+//     if (!todo) {
+//       return res.status(404).send({ status: "failure", message: "Todo not found." });
+//     }
+
+//     todo.pendingApproval = false;
+//     await todo.save();
+
+//     res.send({ status: "success", data: todo });
+//   } catch (err) {
+//     res.status(500).send({ status: "failure", message: err.message });
+//   }
+// };

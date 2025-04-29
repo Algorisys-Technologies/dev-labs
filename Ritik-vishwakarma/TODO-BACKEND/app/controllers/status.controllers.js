@@ -42,7 +42,8 @@ exports.getAllStatuses = async (req, res) => {
 // Get status by ID
 exports.getStatusById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params;
+    console.log("id=>",id);
     const status = await Status.findByPk(id);
     if (!status) {
       return res.status(404).json({ message: " Any Status  not found" });
@@ -54,24 +55,46 @@ exports.getStatusById = async (req, res) => {
 };
 
 // Update a status
-exports.updateStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const statusToUpdate = await Status.findByPk(id);
-    if (!statusToUpdate) {
-      return res.status(404).json({ message: "Status not found" });
-    }
-
-    statusToUpdate.status = status;
-    await statusToUpdate.save();
-
-    res.status(200).json({ data: statusToUpdate });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+exports.updateStatus = (req, res) => {
+  if (!_.isArray(req.body)) {
+    res.status(400).send({
+      status: "failure",
+      message: "Please send data in correct format!",
+    });
   }
+  if (req.body.length === 0) {
+    res.status(400).send({
+      status: "failure",
+      message: "Please send at least 1 record to update!",
+    });
+  }
+  let status = req.body[0];
+
+  Status.update(todo, {
+    where: { id: todo.id },
+  })
+    .then((num) => {
+      if (num == 1) {
+        res.send({
+          status: "success",
+          message: "Todo was updated successfully.",
+        });
+
+        
+      } else {
+        res.send({
+          status: "failure",
+          message: `Cannot update Todo with id=${todo.id}. Maybe Todo was not found or req.body is empty!`,
+        });
+      }
+    })
+    .catch(() => {
+      res.status(500).send({
+        message: `Error updating Todo with id=${todo.id}`,
+      });
+    });
 };
+
 
 // Delete a status
 exports.deleteStatus = async (req, res) => {
