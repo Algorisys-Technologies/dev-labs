@@ -154,7 +154,59 @@ exports.findPendingApproval = async (req, res) => {
     });
   }
 };
+// for Rejected todo finding
+exports.findRejectedTodos = async (req, res) => {
+  const title = req.body.title;
+  const category = req.body.category;
+  const priority = req.body.priority;
 
+  let sortCol = req.body.sortCol || "createdAt";
+  const sortOrder = req.body.sortOrder || "desc"; // Default to descending for recent rejects
+
+  let conditions = [`status = 'rejected'`]; // Only rejected status
+
+  if (title) {
+    conditions.push(`title LIKE "%${title}%"`);
+  }
+  if (category) {
+    conditions.push(`category = "${category}"`);
+  }
+  if (priority) {
+    conditions.push(`priority = "${priority}"`);
+  }
+
+  let conditionString = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  let limit = req.body.limit;
+  let offset = req.body.offset;
+
+  let query = `SELECT * FROM todos ${conditionString} ORDER BY ${sortCol} ${sortOrder}`;
+  if (limit) {
+    query += ` LIMIT ${offset}, ${limit}`;
+  }
+
+  try {
+    let data = await db.sequelize.query(query, {
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    let totalCountQuery = `SELECT COUNT(*) AS totalRecords FROM todos ${conditionString}`;
+    let totalCount = await db.sequelize.query(totalCountQuery, {
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    res.send({
+      status: "success",
+      data: data,
+      totalRecords: totalCount[0].totalRecords,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failure",
+      message: err.message || "Error retrieving rejected Todos.",
+    });
+  }
+};
 
 // Find a single Todo by ID
 exports.findOne = (req, res) => {
@@ -225,6 +277,34 @@ exports.update = (req, res) => {
 
 // Delete a Todo by ID
 exports.delete = (req, res) => {
+  const id = req.params.id;
+
+  Todo.destroy({
+    where: { id: id },
+  })
+    .then((num) => {
+      if (num == 1) {
+        res.send({
+          status: "success",
+          message: "Todo was deleted successfully!",
+        });
+          // Delete from todo_summary ......yahase ..........
+      db.todoSummary.destroy({ where: { id } });
+
+      res.send({ status: "success", message: "Todo deleted successfully!" });
+      //yahatak...................................................
+      } else {
+        res.send({
+          status: "failure",
+          message: `Cannot delete Todo with id=${id}. Maybe Todo was not found!`,
+        });
+      }
+    })
+    .catch(() => {
+      res.status(500).send({
+        message: `Could not delete Todo with id=${id}`,
+      });
+    });
 };
 
 // Approve a pending Todo by ID (set pendingApproval = false)
@@ -305,7 +385,7 @@ exports.bulkApprovePendingTodos = async (req, res) => {
 exports.bulkRejectPendingTodos = async (req, res) => {
   const data = req.body.data;
   const ids = data.map(todo => todo.id);
-  
+
   if (!Array.isArray(ids) || ids.length === 0) {
     return res.status(400).send({
       status: "failure",
@@ -315,7 +395,7 @@ exports.bulkRejectPendingTodos = async (req, res) => {
 
   try {
     const [updatedCount] = await Todo.update(
-      { 
+      {
         status: 'rejected',
         pendingApproval: false  // Clear pending flag
       },
@@ -381,7 +461,38 @@ exports.rejectPendingTodo = async (req, res) => {
   }
 };
 
+// Bulk delete from database
+exports.bulkDeleteTodos = async (req, res) => {
+  const data = req.body.data;
+  const ids = data.map(todo => todo.id);
 
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).send({
+      status: "failure",
+      message: "Please send an array of todo IDs to delete.",
+    });
+  }
+
+  try {
+    const deletedCount = await Todo.destroy({
+      where: {
+        id: {
+          [Op.in]: ids,
+        }
+      },
+    });
+
+    res.send({
+      status: "success",
+      message: `${deletedCount} todos deleted successfully.`,
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "failure",
+      message: err.message || "Error deleting todos in bulk.",
+    });
+  }
+};
 // Delete all Todos from the database.
 exports.deleteAll = (req, res) => {
   Todo.destroy({

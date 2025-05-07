@@ -13,6 +13,9 @@ module.exports = (app) => {
   // router.post("/checker", todos.findAll);
   router.post("/checker", verifyToken, todos.findPendingApproval);
 
+  // route for rejected todos
+  router.post("/rejected", verifyToken, todos.findRejectedTodos);
+
 
   // Retrieve a single Todo by ID
   router.get("/:id", verifyToken, todos.findOne);
@@ -32,7 +35,8 @@ module.exports = (app) => {
 
   router.put("/reject/:id", verifyToken, todos.rejectPendingTodo);
 
-
+  //For bulkdelete routes
+  router.put('/bulkdelete', todos.bulkDeleteTodos);
   // Delete all Todos
   router.delete("/", verifyToken, todos.deleteAll);
 
