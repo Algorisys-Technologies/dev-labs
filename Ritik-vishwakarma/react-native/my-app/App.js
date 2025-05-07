@@ -1,19 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Alert,Image } from 'react-native';
 import axios from 'axios';
 import Modal from 'react-native-modal';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
 
-const API_URL = 'http://192.168.1.14:8080/todos'; // Use your actual IP for mobile
+
+const API_URL = 'http://192.168.1.8:8080/todos'; // Use your actual IP for mobile
 
 export default function App() {
   const [todos, setTodos] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [currentTodo, setCurrentTodo] = useState(null);
   const [formData, setFormData] = useState({ title: '', description: '' });
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
-    fetchTodos();
+    const loadProfileImage = async () => {
+      try {
+        const savedImage = await AsyncStorage.getItem('profileImage');
+        if (savedImage) setProfileImage(savedImage);
+      } catch (error) {
+        console.log('Error loading profile image:', error);
+      }
+    };
+  
+    const initializeApp = async () => {
+      await requestPermissions();
+      await loadProfileImage();
+      await fetchTodos();  // Add this line
+    };
+  
+    initializeApp();
   }, []);
 
   const fetchTodos = async () => {
@@ -48,16 +68,49 @@ export default function App() {
   };
 
   const deleteTodo = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      fetchTodos();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to delete todo');
-    }
+    // Light tap when dialog appears
+  await Haptics.selectionAsync();
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this todo?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+          onPress: () => Haptics.selectionAsync(),
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success
+              );
+              await axios.delete(`${API_URL}/${id}`);
+              fetchTodos();
+              Alert.alert('Success', 'Todo deleted successfully');
+            } catch (error) {
+              // Error vibration
+            await Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error
+            );
+              Alert.alert('Error', 'Failed to delete todo');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const toggleComplete = async (todo) => {
     try {
+      await Haptics.notificationAsync(
+        !todo.completed 
+          ? Haptics.NotificationFeedbackType.Success 
+          : Haptics.NotificationFeedbackType.Warning
+      );
       await axios.put(`${API_URL}/${todo.id}`, {
         ...todo,
         completed: !todo.completed
@@ -77,14 +130,104 @@ export default function App() {
     setModalVisible(true);
   };
 
+  // Add these functions for image handling
+  const handleSetProfileImage = async (uri) => {
+    setProfileImage(uri);
+    try {
+      await AsyncStorage.setItem('profileImage', uri);
+    } catch (error) {
+      console.log('Error saving profile image:', error);
+    }
+  };
+  const requestPermissions = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'We need camera roll permissions to upload images');
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+       // 1. Check permissions
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please allow photo library access');
+      return;
+    }
+
+    // 2. Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+      allowsMultipleSelection: false,
+      });
+      console.log('Image picker result:', result);
+      
+      if (!result.canceled && result.assets?.length > 0) {
+        const uri = result.assets[0].uri;
+        console.log('Selected image URI:', uri);
+        handleSetProfileImage(uri);
+      } else {
+        console.log('Image selection canceled');
+      }
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('Error', 'Failed to pick image: ' + error.message);
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        handleSetProfileImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to take photo');
+    }
+  };
+
+  useEffect(() => {
+    requestPermissions();
+  }, []);
   return (
     <SafeAreaProvider>
       <SafeAreaView edges={['top']} style={{ flex: 1 }}>
         <View style={styles.container}>
           {/* Add Heading */}
           <View style={styles.headerContainer}>
-            <Text style={styles.header}>My Todo App</Text>
-            <Text style={styles.subHeader}>Manage your tasks</Text>
+            <View>
+              <Text style={styles.header}>My Todo App</Text>
+              <Text style={styles.subHeader}>Manage your tasks</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  'Profile Picture',
+                  'Choose option',
+                  [
+                    { text: 'Take Photo', onPress: takePhoto },
+                    { text: 'Choose from Gallery', onPress: pickImage },
+                    { text: 'Cancel', style: 'cancel' },
+                  ]
+                );
+              }}
+              style={styles.profileContainer}
+            >
+              {profileImage ? (
+                <Image source={{ uri: profileImage }} style={styles.profileImage} />
+              ) : (
+                <Text style={styles.profilePlaceholder}>👤</Text>
+              )}
+            </TouchableOpacity>
           </View>
           <Button
             title="Add New Todo"
@@ -148,7 +291,7 @@ export default function App() {
                   color="gray"
                   onPress={() => {
                     setModalVisible(false);
-                    setCurrentTodo(null); 
+                    setCurrentTodo(null);
                     setFormData({ title: '', description: '' });
                   }}
                 />
@@ -170,6 +313,33 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#3498db',
+    padding: 20,
+    width: '100%',
+    marginBottom: 20,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+  },
+  profileContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  profilePlaceholder: {
+    fontSize: 24,
   },
   header: {
     fontSize: 24,
