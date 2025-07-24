@@ -1,0 +1,7 @@
+openai==0.28.0
+paddleocr== 2.8.1
+rembg
+opencv-python
+numpy
+python-dotenv
+Pillow
