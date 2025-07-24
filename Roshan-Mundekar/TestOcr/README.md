@@ -35,5 +35,5 @@ This project processes Indian ID card images using OCR, cleans noisy background,
 ELECTION COMMISSION OF INDIA
 VOTER PHOTO IDENTITY CARD
 ID: UGU1996123
-Name: TULSITETYAL
+Name: TULSI TETYAL
 Mother's Name: SHUBHLATA
