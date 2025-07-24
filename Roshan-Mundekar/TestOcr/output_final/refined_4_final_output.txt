@@ -1,16 +1,14 @@
 Indian Union Driving Licence
 Issued by State of Kerala
-
-Registration Number: DL.KL0320140004080
-
+ID: DL.KL0320140004080
 Issue Date: 08-07-2014
 Validity: 07-07-2034
+TR: 06-06-2027
 
-Name: SARATH RAJ.S.
+Name: SARATH RAJ S.
 Date Of Birth: 21-04-1993
 Blood Group: O+
 Organ Donor: No
-
 Holder's Signature: S/D/W of SIVARAJAN
 
 Permanent Address:
