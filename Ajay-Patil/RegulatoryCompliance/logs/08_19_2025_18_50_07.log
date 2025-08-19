@@ -1,0 +1,80 @@
+2025-08-19 18:51:01,855 - src.agents.search_agents - INFO - Starting regulatory search for Paracetamol in India
+2025-08-19 18:51:01,859 - src.agents.search_agents - INFO - Initialized directories: downloaded_docs, vectorstore
+2025-08-19 18:51:01,859 - src.agents.search_agents - INFO - Generating search queries for Paracetamol in India
+2025-08-19 18:51:06,781 - src.agents.search_agents - INFO - Generated 33 search queries
+2025-08-19 18:51:06,782 - src.agents.search_agents - INFO - Initialized Tavily search tool
+2025-08-19 18:54:21,214 - src.agents.search_agents - INFO - Found 30 relevant URLs
+2025-08-19 18:54:21,217 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/DgSimilaBiologics25.pdf
+2025-08-19 18:54:43,879 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/DgSimilaBiologics25.pdf to downloaded_docs\cdsco_DgSimilaBiologics25_1755609861.pdf
+2025-08-19 18:54:43,882 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Draft%20Guidance%20for%20pvpi.pdf
+2025-08-19 18:55:06,841 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Draft%20Guidance%20for%20pvpi.pdf to downloaded_docs\cdsco_Draft%20Guidance%20for%20pvpi_1755609883.pdf
+2025-08-19 18:55:06,846 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf
+2025-08-19 18:55:29,753 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf to downloaded_docs\cdsco_Guidance_Documentpsur2_1755609906.pdf
+2025-08-19 18:55:29,755 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf
+2025-08-19 18:55:52,913 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf to downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755609929.pdf
+2025-08-19 18:55:52,916 - src.agents.search_agents - INFO - Downloading content from https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf
+2025-08-19 18:56:18,016 - src.agents.search_agents - INFO - Successfully downloaded https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf to downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755609952.pdf
+2025-08-19 18:56:18,019 - src.agents.search_agents - INFO - Downloading content from https://database.ich.org/sites/default/files/Q1A%28R2%29%20Guideline.pdf
+2025-08-19 18:56:19,418 - src.agents.search_agents - INFO - Successfully downloaded https://database.ich.org/sites/default/files/Q1A%28R2%29%20Guideline.pdf to downloaded_docs\database_Q1A%28R2%29%20Guideline_1755609978.pdf
+2025-08-19 18:56:19,421 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadGazette_NotificationsFiles/CTD%20Guidance%20Final.pdf
+2025-08-19 18:56:41,243 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadGazette_NotificationsFiles/CTD%20Guidance%20Final.pdf to downloaded_docs\cdsco_CTD%20Guidance%20Final_1755609979.pdf
+2025-08-19 18:56:41,246 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/1CDSCOGuidanceForIndustry.pdf
+2025-08-19 18:57:03,210 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/1CDSCOGuidanceForIndustry.pdf to downloaded_docs\cdsco_1CDSCOGuidanceForIndustry_1755610001.pdf
+2025-08-19 18:57:03,215 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf
+2025-08-19 18:57:26,032 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf to downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755610023.pdf
+2025-08-19 18:57:26,036 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/Guidance-for-IndusrtBiologicals.pdf
+2025-08-19 18:57:48,236 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/Guidance-for-IndusrtBiologicals.pdf to downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755610046.pdf
+2025-08-19 18:57:48,238 - src.agents.search_agents - INFO - Downloading content from https://ipc.gov.in/images/Aceclofenac_and_Paracetamol_Tablets_ver_2.0.pdf
+2025-08-19 18:57:49,553 - src.agents.search_agents - ERROR - Failed to download https://ipc.gov.in/images/Aceclofenac_and_Paracetamol_Tablets_ver_2.0.pdf: HTTPSConnectionPool(host='ipc.gov.in', port=443): Max retries exceeded with url: /images/Aceclofenac_and_Paracetamol_Tablets_ver_2.0.pdf (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:992)')))
+2025-08-19 18:57:49,561 - src.agents.search_agents - INFO - Downloading content from https://ipc.gov.in/images/Paracetamol_and_Mefenamic_Acid_Suspension_Ver._3_08.10.2024.pdf
+2025-08-19 18:57:49,695 - src.agents.search_agents - ERROR - Failed to download https://ipc.gov.in/images/Paracetamol_and_Mefenamic_Acid_Suspension_Ver._3_08.10.2024.pdf: HTTPSConnectionPool(host='ipc.gov.in', port=443): Max retries exceeded with url: /images/Paracetamol_and_Mefenamic_Acid_Suspension_Ver._3_08.10.2024.pdf (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:992)')))
+2025-08-19 18:57:49,695 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/opencms/Pdf-documents//PSUR_PV_AEFI/Guidance-document-for-industry-on-Pharmacovigilance-requirements-for-biological-products.pdf
+2025-08-19 18:58:12,046 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/opencms/Pdf-documents//PSUR_PV_AEFI/Guidance-document-for-industry-on-Pharmacovigilance-requirements-for-biological-products.pdf to downloaded_docs\cdsco_Guidance-document-for-industry-on-Pharmacovigilanc_1755610069.pdf
+2025-08-19 18:58:12,053 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf
+2025-08-19 18:58:33,931 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf to downloaded_docs\cdsco_Import_guidance_doc_1755610092.pdf
+2025-08-19 18:58:33,933 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/CDSCO%20-%20Revised%20Guidance%20for%20Industry%20-%20Stakeholders%20Comments%20Website.pdf
+2025-08-19 18:58:56,128 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/CDSCO%20-%20Revised%20Guidance%20for%20Industry%20-%20Stakeholders%20Comments%20Website.pdf to downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755610113.pdf
+2025-08-19 18:58:56,131 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_DgSimilaBiologics25_1755609861.pdf
+2025-08-19 18:59:07,177 - src.agents.search_agents - INFO - Loaded 67 pages from PDF: downloaded_docs\cdsco_DgSimilaBiologics25_1755609861.pdf
+2025-08-19 18:59:07,179 - src.agents.search_agents - INFO - Loaded 67 pages from downloaded_docs\cdsco_DgSimilaBiologics25_1755609861.pdf
+2025-08-19 18:59:07,179 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Draft%20Guidance%20for%20pvpi_1755609883.pdf
+2025-08-19 18:59:12,935 - src.agents.search_agents - INFO - Loaded 121 pages from PDF: downloaded_docs\cdsco_Draft%20Guidance%20for%20pvpi_1755609883.pdf
+2025-08-19 18:59:12,940 - src.agents.search_agents - INFO - Loaded 121 pages from downloaded_docs\cdsco_Draft%20Guidance%20for%20pvpi_1755609883.pdf
+2025-08-19 18:59:12,941 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance_Documentpsur2_1755609906.pdf
+2025-08-19 18:59:17,754 - src.agents.search_agents - INFO - Loaded 86 pages from PDF: downloaded_docs\cdsco_Guidance_Documentpsur2_1755609906.pdf
+2025-08-19 18:59:17,755 - src.agents.search_agents - INFO - Loaded 86 pages from downloaded_docs\cdsco_Guidance_Documentpsur2_1755609906.pdf
+2025-08-19 18:59:17,755 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755609929.pdf
+2025-08-19 18:59:20,200 - src.agents.search_agents - INFO - Loaded 71 pages from PDF: downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755609929.pdf
+2025-08-19 18:59:20,202 - src.agents.search_agents - INFO - Loaded 71 pages from downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755609929.pdf
+2025-08-19 18:59:20,202 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755609952.pdf
+2025-08-19 19:01:46,311 - src.agents.search_agents - INFO - Loaded 1103 pages from PDF: downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755609952.pdf
+2025-08-19 19:01:46,311 - src.agents.search_agents - INFO - Loaded 1103 pages from downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755609952.pdf
+2025-08-19 19:01:46,311 - src.agents.search_agents - INFO - Loading document: downloaded_docs\database_Q1A%28R2%29%20Guideline_1755609978.pdf
+2025-08-19 19:01:47,350 - src.agents.search_agents - INFO - Loaded 24 pages from PDF: downloaded_docs\database_Q1A%28R2%29%20Guideline_1755609978.pdf
+2025-08-19 19:01:47,351 - src.agents.search_agents - INFO - Loaded 24 pages from downloaded_docs\database_Q1A%28R2%29%20Guideline_1755609978.pdf
+2025-08-19 19:01:47,351 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_CTD%20Guidance%20Final_1755609979.pdf
+2025-08-19 19:01:52,325 - src.agents.search_agents - INFO - Loaded 110 pages from PDF: downloaded_docs\cdsco_CTD%20Guidance%20Final_1755609979.pdf
+2025-08-19 19:01:52,326 - src.agents.search_agents - INFO - Loaded 110 pages from downloaded_docs\cdsco_CTD%20Guidance%20Final_1755609979.pdf
+2025-08-19 19:01:52,326 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_1CDSCOGuidanceForIndustry_1755610001.pdf
+2025-08-19 19:01:55,983 - src.agents.search_agents - INFO - Loaded 181 pages from PDF: downloaded_docs\cdsco_1CDSCOGuidanceForIndustry_1755610001.pdf
+2025-08-19 19:01:55,984 - src.agents.search_agents - INFO - Loaded 181 pages from downloaded_docs\cdsco_1CDSCOGuidanceForIndustry_1755610001.pdf
+2025-08-19 19:01:55,984 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755610023.pdf
+2025-08-19 19:02:06,635 - src.agents.search_agents - INFO - Loaded 143 pages from PDF: downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755610023.pdf
+2025-08-19 19:02:06,637 - src.agents.search_agents - INFO - Loaded 143 pages from downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755610023.pdf
+2025-08-19 19:02:06,637 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755610046.pdf
+2025-08-19 19:02:12,559 - src.agents.search_agents - INFO - Loaded 110 pages from PDF: downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755610046.pdf
+2025-08-19 19:02:12,559 - src.agents.search_agents - INFO - Loaded 110 pages from downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755610046.pdf
+2025-08-19 19:02:12,559 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance-document-for-industry-on-Pharmacovigilanc_1755610069.pdf
+2025-08-19 19:02:13,214 - src.agents.search_agents - INFO - Loaded 54 pages from PDF: downloaded_docs\cdsco_Guidance-document-for-industry-on-Pharmacovigilanc_1755610069.pdf
+2025-08-19 19:02:13,214 - src.agents.search_agents - INFO - Loaded 54 pages from downloaded_docs\cdsco_Guidance-document-for-industry-on-Pharmacovigilanc_1755610069.pdf
+2025-08-19 19:02:13,215 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Import_guidance_doc_1755610092.pdf
+2025-08-19 19:02:17,717 - src.agents.search_agents - INFO - Loaded 83 pages from PDF: downloaded_docs\cdsco_Import_guidance_doc_1755610092.pdf
+2025-08-19 19:02:17,717 - src.agents.search_agents - INFO - Loaded 83 pages from downloaded_docs\cdsco_Import_guidance_doc_1755610092.pdf
+2025-08-19 19:02:17,717 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755610113.pdf
+2025-08-19 19:02:29,913 - src.agents.search_agents - INFO - Loaded 110 pages from PDF: downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755610113.pdf
+2025-08-19 19:02:29,913 - src.agents.search_agents - INFO - Loaded 110 pages from downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755610113.pdf
+2025-08-19 19:02:29,914 - src.agents.search_agents - INFO - Checking regulatory document coverage
+2025-08-19 19:02:29,916 - src.agents.search_agents - INFO - Creating vectorstore from 2263 documents
+2025-08-19 19:02:29,917 - src.agents.search_agents - INFO - Initializing HuggingFace embeddings
+2025-08-19 19:03:02,552 - src.agents.search_agents - INFO - Split documents into 5095 chunks
+2025-08-19 19:03:02,554 - src.agents.search_agents - INFO - Creating FAISS vectorstore at vectorstore\paracetamol_india_docs

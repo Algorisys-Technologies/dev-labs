@@ -1,0 +1,9 @@
+groq
+python-dotenv
+langchain
+langchain_groq
+langchain_community
+langchain-huggingface 
+transformers 
+torch 
+huggingface_hub

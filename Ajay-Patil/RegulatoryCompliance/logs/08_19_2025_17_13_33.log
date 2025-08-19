@@ -1,0 +1,166 @@
+2025-08-19 17:13:33,585 - __main__ - INFO - Starting regulatory search for Paracetamol in India
+2025-08-19 17:13:33,586 - __main__ - INFO - Initialized directories: downloaded_docs, vectorstore
+2025-08-19 17:13:33,586 - __main__ - INFO - Generating search queries for Paracetamol in India
+2025-08-19 17:13:36,887 - __main__ - INFO - Generated 26 search queries
+2025-08-19 17:13:36,887 - __main__ - INFO - Initialized Tavily search tool
+2025-08-19 17:16:27,393 - __main__ - INFO - Found 30 relevant URLs
+2025-08-19 17:16:27,396 - __main__ - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/DgSimilaBiologics25.pdf
+2025-08-19 17:16:50,503 - __main__ - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/DgSimilaBiologics25.pdf to downloaded_docs\cdsco_DgSimilaBiologics25_1755603987.pdf
+2025-08-19 17:16:50,507 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0396%20-Meghmani.pdf: cdsco_WC%20-0396%20-Meghmani_1755599382.pdf
+2025-08-19 17:16:50,509 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf: cdsco_Guidance_Documentpsur2_1755599958.pdf
+2025-08-19 17:16:50,510 - __main__ - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/BiosimilarGuideline2016.pdf
+2025-08-19 17:17:14,144 - __main__ - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/BiosimilarGuideline2016.pdf to downloaded_docs\cdsco_BiosimilarGuideline2016_1755604010.pdf
+2025-08-19 17:17:14,147 - __main__ - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/CDSCO%20-%20Revised%20Guidance%20for%20Industry%20-%20Stakeholders%20Comments%20Website.pdf
+2025-08-19 17:17:37,624 - __main__ - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/CDSCO%20-%20Revised%20Guidance%20for%20Industry%20-%20Stakeholders%20Comments%20Website.pdf to downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755604034.pdf
+2025-08-19 17:17:37,628 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf: cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf
+2025-08-19 17:17:37,629 - __main__ - INFO - Using existing file for https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf: cdsco_CDSCO%20Guidance%20Document_1755599525.pdf
+2025-08-19 17:17:37,631 - __main__ - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/Guidance-for-IndusrtBiologicals.pdf
+2025-08-19 17:18:00,845 - __main__ - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/Guidance-for-IndusrtBiologicals.pdf to downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755604057.pdf
+2025-08-19 17:18:00,849 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf: cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf
+2025-08-19 17:18:00,851 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf: cdsco_Import_guidance_doc_1755599573.pdf
+2025-08-19 17:18:00,854 - __main__ - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadImmunization/11GUIDELINES1.pdf
+2025-08-19 17:18:23,070 - __main__ - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadImmunization/11GUIDELINES1.pdf to downloaded_docs\cdsco_11GUIDELINES1_1755604080.pdf
+2025-08-19 17:18:23,074 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/EoI_DDRS_CDSCO_2ndnov23.pdf: cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf
+2025-08-19 17:18:23,076 - __main__ - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20&%20Rheumatology%2006.02.2024.pdf
+2025-08-19 17:18:45,702 - __main__ - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20&%20Rheumatology%2006.02.2024.pdf to downloaded_docs\cdsco_Recommendations%20Analgesic%20&%20Rheumatology%200_1755604103.pdf
+2025-08-19 17:18:45,713 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20%20Rheumatology%2019.03.2025.pdf: cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf
+2025-08-19 17:18:45,715 - __main__ - INFO - Using existing file for https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/noticefdc29may.pdf: cdsco_noticefdc29may_1755599664.pdf
+2025-08-19 17:18:45,715 - __main__ - INFO - Loading document: downloaded_docs\cdsco_DgSimilaBiologics25_1755603987.pdf
+2025-08-19 17:18:57,612 - __main__ - INFO - Loaded 67 pages from PDF: downloaded_docs\cdsco_DgSimilaBiologics25_1755603987.pdf
+2025-08-19 17:18:57,613 - __main__ - INFO - Loaded 67 pages from downloaded_docs\cdsco_DgSimilaBiologics25_1755603987.pdf
+2025-08-19 17:18:57,613 - __main__ - INFO - Loading document: downloaded_docs\cdsco_WC%20-0396%20-Meghmani_1755599382.pdf
+2025-08-19 17:18:57,787 - __main__ - INFO - Loaded 3 pages from PDF: downloaded_docs\cdsco_WC%20-0396%20-Meghmani_1755599382.pdf
+2025-08-19 17:18:57,789 - __main__ - INFO - Loaded 3 pages from downloaded_docs\cdsco_WC%20-0396%20-Meghmani_1755599382.pdf
+2025-08-19 17:18:57,790 - __main__ - INFO - Loading document: downloaded_docs\cdsco_Guidance_Documentpsur2_1755599958.pdf
+2025-08-19 17:19:06,447 - __main__ - INFO - Loaded 86 pages from PDF: downloaded_docs\cdsco_Guidance_Documentpsur2_1755599958.pdf
+2025-08-19 17:19:06,450 - __main__ - INFO - Loaded 86 pages from downloaded_docs\cdsco_Guidance_Documentpsur2_1755599958.pdf
+2025-08-19 17:19:06,451 - __main__ - INFO - Loading document: downloaded_docs\cdsco_BiosimilarGuideline2016_1755604010.pdf
+2025-08-19 17:19:13,574 - __main__ - INFO - Loaded 58 pages from PDF: downloaded_docs\cdsco_BiosimilarGuideline2016_1755604010.pdf
+2025-08-19 17:19:13,575 - __main__ - INFO - Loaded 58 pages from downloaded_docs\cdsco_BiosimilarGuideline2016_1755604010.pdf
+2025-08-19 17:19:13,576 - __main__ - INFO - Loading document: downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755604034.pdf
+2025-08-19 17:19:29,397 - __main__ - INFO - Loaded 110 pages from PDF: downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755604034.pdf
+2025-08-19 17:19:29,398 - __main__ - INFO - Loaded 110 pages from downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755604034.pdf
+2025-08-19 17:19:29,399 - __main__ - INFO - Loading document: downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf
+2025-08-19 17:19:34,065 - __main__ - INFO - Loaded 71 pages from PDF: downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf
+2025-08-19 17:19:34,067 - __main__ - INFO - Loaded 71 pages from downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf
+2025-08-19 17:19:34,067 - __main__ - INFO - Loading document: downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755599525.pdf
+2025-08-19 17:21:44,738 - __main__ - INFO - Loaded 1103 pages from PDF: downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755599525.pdf
+2025-08-19 17:21:44,740 - __main__ - INFO - Loaded 1103 pages from downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755599525.pdf
+2025-08-19 17:21:44,741 - __main__ - INFO - Loading document: downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755604057.pdf
+2025-08-19 17:21:59,127 - __main__ - INFO - Loaded 110 pages from PDF: downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755604057.pdf
+2025-08-19 17:21:59,128 - __main__ - INFO - Loaded 110 pages from downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755604057.pdf
+2025-08-19 17:21:59,129 - __main__ - INFO - Loading document: downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf
+2025-08-19 17:22:25,477 - __main__ - INFO - Loaded 143 pages from PDF: downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf
+2025-08-19 17:22:25,480 - __main__ - INFO - Loaded 143 pages from downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf
+2025-08-19 17:22:25,480 - __main__ - INFO - Loading document: downloaded_docs\cdsco_Import_guidance_doc_1755599573.pdf
+2025-08-19 17:22:35,941 - __main__ - INFO - Loaded 83 pages from PDF: downloaded_docs\cdsco_Import_guidance_doc_1755599573.pdf
+2025-08-19 17:22:35,944 - __main__ - INFO - Loaded 83 pages from downloaded_docs\cdsco_Import_guidance_doc_1755599573.pdf
+2025-08-19 17:22:35,945 - __main__ - INFO - Loading document: downloaded_docs\cdsco_11GUIDELINES1_1755604080.pdf
+2025-08-19 17:22:36,657 - __main__ - INFO - Loaded 7 pages from PDF: downloaded_docs\cdsco_11GUIDELINES1_1755604080.pdf
+2025-08-19 17:22:36,658 - __main__ - INFO - Loaded 7 pages from downloaded_docs\cdsco_11GUIDELINES1_1755604080.pdf
+2025-08-19 17:22:36,658 - __main__ - INFO - Loading document: downloaded_docs\cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf
+2025-08-19 17:22:52,939 - __main__ - INFO - Loaded 74 pages from PDF: downloaded_docs\cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf
+2025-08-19 17:22:52,941 - __main__ - INFO - Loaded 74 pages from downloaded_docs\cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf
+2025-08-19 17:22:52,941 - __main__ - INFO - Loading document: downloaded_docs\cdsco_Recommendations%20Analgesic%20&%20Rheumatology%200_1755604103.pdf
+2025-08-19 17:22:53,189 - __main__ - INFO - Loaded 4 pages from PDF: downloaded_docs\cdsco_Recommendations%20Analgesic%20&%20Rheumatology%200_1755604103.pdf
+2025-08-19 17:22:53,189 - __main__ - INFO - Loaded 4 pages from downloaded_docs\cdsco_Recommendations%20Analgesic%20&%20Rheumatology%200_1755604103.pdf
+2025-08-19 17:22:53,190 - __main__ - INFO - Loading document: downloaded_docs\cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf
+2025-08-19 17:22:53,292 - __main__ - INFO - Loaded 3 pages from PDF: downloaded_docs\cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf
+2025-08-19 17:22:53,293 - __main__ - INFO - Loaded 3 pages from downloaded_docs\cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf
+2025-08-19 17:22:53,293 - __main__ - INFO - Loading document: downloaded_docs\cdsco_noticefdc29may_1755599664.pdf
+2025-08-19 17:22:54,301 - __main__ - INFO - Loaded 22 pages from PDF: downloaded_docs\cdsco_noticefdc29may_1755599664.pdf
+2025-08-19 17:22:54,302 - __main__ - INFO - Loaded 22 pages from downloaded_docs\cdsco_noticefdc29may_1755599664.pdf
+2025-08-19 17:22:54,302 - __main__ - INFO - Checking regulatory document coverage
+2025-08-19 17:22:54,303 - __main__ - INFO - Creating vectorstore from 1944 documents
+2025-08-19 17:22:54,303 - __main__ - INFO - Initializing HuggingFace embeddings
+2025-08-19 17:23:25,584 - __main__ - INFO - Split documents into 4545 chunks
+2025-08-19 17:23:25,593 - __main__ - INFO - Creating FAISS vectorstore at vectorstore\paracetamol_india_docs
+2025-08-19 17:27:40,667 - __main__ - INFO - Vectorstore successfully saved to vectorstore\paracetamol_india_docs
+2025-08-19 17:27:40,678 - __main__ - INFO - Search completed successfully: Processed 15 documents. Vectorstore created at vectorstore\paracetamol_india_docs.
+2025-08-19 17:27:40,687 - __main__ - INFO - 
+=== REGULATORY SEARCH RESULTS ===
+2025-08-19 17:27:40,688 - __main__ - INFO - Status: success
+2025-08-19 17:27:40,688 - __main__ - INFO - Molecule: Paracetamol
+2025-08-19 17:27:40,688 - __main__ - INFO - Region: India
+2025-08-19 17:27:40,688 - __main__ - INFO - 
+Generated Search Queries:
+2025-08-19 17:27:40,689 - __main__ - INFO - 1. site:cdsco.gov.in <think> filetype:pdf
+2025-08-19 17:27:40,689 - __main__ - INFO - 2. site:cdsco.gov.in Alright, so I need to help this user who's a regulatory affairs expert focusing on pharmaceutical compliance. They want me to generate precise search queries for Paracetamol in India. Let me break this down. filetype:pdf
+2025-08-19 17:27:40,689 - __main__ - INFO - 3. site:cdsco.gov.in First, I should consider the key focus areas they mentioned. They’re looking for pharmacopoeial monographs, ICH guidelines, regulatory authority guidelines, stability testing, impurity profiling, manufacturing standards, and regional specifics. filetype:pdf
+2025-08-19 17:27:40,690 - __main__ - INFO - 4. site:cdsco.gov.in Since the focus is on India, I need to prioritize sites like cdsco.gov.in and ipc.gov.in. I remember that IPC stands for Indian Pharmacopoeia Commission, so that's where the monographs would be. CDSCO is the Central Drugs Standard Control Organization, which handles regulatory approvals and guidelines. filetype:pdf
+2025-08-19 17:27:40,691 - __main__ - INFO - 5. site:cdsco.gov.in I should start with pharmacopoeial monographs. So, I'll search for "Paracetamol" along with "Indian Pharmacopoeia" and include the filetype as PDF. That should get the monograph from the IPC. filetype:pdf
+2025-08-19 17:27:40,692 - __main__ - INFO - 6. Next, for the ICH guidelines, I need to target specific ones like Q1A, Q3A, etc. Each of these covers different aspects like stability, impurities, and quality. I'll create separate queries for each ICH guideline, making sure to include "filetype:pdf" and site:cdsco.gov.in or ipc.gov.in.
+2025-08-19 17:27:40,693 - __main__ - INFO - 7. site:cdsco.gov.in Then, regulatory authority guidelines from FDA, EMA, CDSCO, and WHO. For India, I'll focus on CDSCO and WHO. So, I'll search for "Paracetamol regulatory guidelines" with the respective sites and filetype. filetype:pdf
+2025-08-19 17:27:40,693 - __main__ - INFO - 8. site:cdsco.gov.in Stability testing is another key area. I'll need to look for stability testing requirements and protocols, again on the Indian regulatory sites. filetype:pdf
+2025-08-19 17:27:40,693 - __main__ - INFO - 9. site:cdsco.gov.in Impurity profiling is important too. I'll search for impurity profiling and control strategies, including the specific sites and filetype. filetype:pdf
+2025-08-19 17:27:40,693 - __main__ - INFO - 10. site:cdsco.gov.in Manufacturing and quality standards in India would involve GMP and quality standards. So, I'll include terms like "GMP guidelines" and "quality standards" in the queries. filetype:pdf
+2025-08-19 17:27:40,693 - __main__ - INFO - 11. site:cdsco.gov.in Lastly, regional specific regulations. I'll look for "regional specific regulations" along with "India" and the filetype. filetype:pdf
+2025-08-19 17:27:40,694 - __main__ - INFO - 12. site:cdsco.gov.in I should make sure each query is concise but covers all necessary aspects. Including the filetype:pdf ensures that the user gets downloadable documents. Also, using specific regulatory terms will help in getting precise results.
+2025-08-19 17:27:40,694 - __main__ - INFO - 
+Top Downloaded Documents (sorted by relevance):
+2025-08-19 17:27:40,694 - __main__ - INFO - 1. Score: 41 - downloaded_docs\cdsco_DgSimilaBiologics25_1755603987.pdf
+2025-08-19 17:27:40,694 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/DgSimilaBiologics25.pdf
+2025-08-19 17:27:40,694 - __main__ - INFO - 2. Score: 39 - downloaded_docs\cdsco_WC%20-0396%20-Meghmani_1755599382.pdf
+2025-08-19 17:27:40,696 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0396%20-Meghmani.pdf
+2025-08-19 17:27:40,696 - __main__ - INFO - 3. Score: 34 - downloaded_docs\cdsco_Guidance_Documentpsur2_1755599958.pdf
+2025-08-19 17:27:40,696 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf
+2025-08-19 17:27:40,697 - __main__ - INFO - 4. Score: 33 - downloaded_docs\cdsco_BiosimilarGuideline2016_1755604010.pdf
+2025-08-19 17:27:40,697 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/BiosimilarGuideline2016.pdf
+2025-08-19 17:27:40,697 - __main__ - INFO - 5. Score: 30 - downloaded_docs\cdsco_CDSCO%20-%20Revised%20Guidance%20for%20Industry%20_1755604034.pdf
+2025-08-19 17:27:40,698 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/CDSCO%20-%20Revised%20Guidance%20for%20Industry%20-%20Stakeholders%20Comments%20Website.pdf
+2025-08-19 17:27:40,698 - __main__ - INFO - 6. Score: 29 - downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf
+2025-08-19 17:27:40,698 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf
+2025-08-19 17:27:40,698 - __main__ - INFO - 7. Score: 28 - downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755599525.pdf
+2025-08-19 17:27:40,699 - __main__ - INFO -    Source: https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf
+2025-08-19 17:27:40,699 - __main__ - INFO - 8. Score: 28 - downloaded_docs\cdsco_Guidance-for-IndusrtBiologicals_1755604057.pdf
+2025-08-19 17:27:40,699 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/Guidance-for-IndusrtBiologicals.pdf
+2025-08-19 17:27:40,699 - __main__ - INFO - 9. Score: 28 - downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf
+2025-08-19 17:27:40,699 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf
+2025-08-19 17:27:40,700 - __main__ - INFO - 10. Score: 28 - downloaded_docs\cdsco_Import_guidance_doc_1755599573.pdf
+2025-08-19 17:27:40,701 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf
+2025-08-19 17:27:40,701 - __main__ - INFO - 11. Score: 25 - downloaded_docs\cdsco_11GUIDELINES1_1755604080.pdf
+2025-08-19 17:27:40,701 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadImmunization/11GUIDELINES1.pdf
+2025-08-19 17:27:40,702 - __main__ - INFO - 12. Score: 25 - downloaded_docs\cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf
+2025-08-19 17:27:40,702 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/EoI_DDRS_CDSCO_2ndnov23.pdf
+2025-08-19 17:27:40,702 - __main__ - INFO - 13. Score: 24 - downloaded_docs\cdsco_Recommendations%20Analgesic%20&%20Rheumatology%200_1755604103.pdf
+2025-08-19 17:27:40,703 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20&%20Rheumatology%2006.02.2024.pdf
+2025-08-19 17:27:40,703 - __main__ - INFO - 14. Score: 24 - downloaded_docs\cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf
+2025-08-19 17:27:40,703 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20%20Rheumatology%2019.03.2025.pdf
+2025-08-19 17:27:40,703 - __main__ - INFO - 15. Score: 24 - downloaded_docs\cdsco_noticefdc29may_1755599664.pdf
+2025-08-19 17:27:40,703 - __main__ - INFO -    Source: https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/noticefdc29may.pdf
+2025-08-19 17:27:40,703 - __main__ - INFO - 
+All Relevant URLs Found:
+2025-08-19 17:27:40,703 - __main__ - INFO - 1. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/DgSimilaBiologics25.pdf
+2025-08-19 17:27:40,704 - __main__ - INFO - 2. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0396%20-Meghmani.pdf
+2025-08-19 17:27:40,704 - __main__ - INFO - 3. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf
+2025-08-19 17:27:40,704 - __main__ - INFO - 4. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/BiosimilarGuideline2016.pdf
+2025-08-19 17:27:40,704 - __main__ - INFO - 5. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/CDSCO%20-%20Revised%20Guidance%20for%20Industry%20-%20Stakeholders%20Comments%20Website.pdf
+2025-08-19 17:27:40,704 - __main__ - INFO - 6. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf
+2025-08-19 17:27:40,706 - __main__ - INFO - 7. https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf
+2025-08-19 17:27:40,706 - __main__ - INFO - 8. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/biologicals/Guidance-for-IndusrtBiologicals.pdf
+2025-08-19 17:27:40,706 - __main__ - INFO - 9. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf
+2025-08-19 17:27:40,706 - __main__ - INFO - 10. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf
+2025-08-19 17:27:40,706 - __main__ - INFO - 11. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadImmunization/11GUIDELINES1.pdf
+2025-08-19 17:27:40,707 - __main__ - INFO - 12. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/EoI_DDRS_CDSCO_2ndnov23.pdf
+2025-08-19 17:27:40,707 - __main__ - INFO - 13. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20&%20Rheumatology%2006.02.2024.pdf
+2025-08-19 17:27:40,707 - __main__ - INFO - 14. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20%20Rheumatology%2019.03.2025.pdf
+2025-08-19 17:27:40,707 - __main__ - INFO - 15. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/noticefdc29may.pdf
+2025-08-19 17:27:40,707 - __main__ - INFO - 16. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/medical-device/Guidance2.pdf
+2025-08-19 17:27:40,708 - __main__ - INFO - 17. https://www.ema.europa.eu/en/documents/comments/overview-comments-received-paracetamol-oral-use-immediate-release-formulations-product-specific-bioequivalence-guidance-ema-chmp-356877-2022-rev1_en.pdf
+2025-08-19 17:27:40,709 - __main__ - INFO - 18. https://cdsco.gov.in/opencms/opencms/en/Notifications/documents/
+2025-08-19 17:27:40,710 - __main__ - INFO - 19. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0242%20-Farmson%20(2).pdf
+2025-08-19 17:27:40,710 - __main__ - INFO - 20. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/dguideline.pdf
+2025-08-19 17:27:40,710 - __main__ - INFO - 21. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadDataBankContent/NFI_2011%20(1).pdf
+2025-08-19 17:27:40,711 - __main__ - INFO - 22. https://www.ipc.gov.in/images/eLEMENTAL_iMPURITIES_18.03.2020.pdf
+2025-08-19 17:27:40,712 - __main__ - INFO - 23. https://ipc.gov.in/images/Impuritie_List.pdf
+2025-08-19 17:27:40,712 - __main__ - INFO - 24. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDfAq24.pdf
+2025-08-19 17:27:40,712 - __main__ - INFO - 25. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0262%20-Farmson.pdf
+2025-08-19 17:27:40,713 - __main__ - INFO - 26. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Minutes%20with%20approval%20letter%20of%2090%20DTAB.pdf
+2025-08-19 17:27:40,713 - __main__ - INFO - 27. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2024/PSURFiles/NationaAEFI.pdf
+2025-08-19 17:27:40,713 - __main__ - INFO - 28. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/stnsqapr25.pdf
+2025-08-19 17:27:40,713 - __main__ - INFO - 29. https://www.ema.europa.eu/en/documents/other/chapter-3ii-xevprm-detailed-user-guidance-electronic-submission-information-medicinal-products-human-use-marketing-authorisation-holders-ema_en.pdf
+2025-08-19 17:27:40,714 - __main__ - INFO - 30. https://apps.who.int/iris/bitstream/handle/10665/65175/WHO_DMP_RGS_98.5.pdf;sequence=1
+2025-08-19 17:27:40,714 - __main__ - INFO - 
+Vectorstore created at: vectorstore\paracetamol_india_docs
+2025-08-19 17:27:40,714 - __main__ - INFO - 
+Message: Processed 15 documents. Vectorstore created at vectorstore\paracetamol_india_docs.

@@ -1,0 +1,6 @@
+2025-08-19 18:17:40,206 - src.agents.ingestion_agent - INFO - IngestionAgent initialized successfully
+2025-08-19 18:17:40,206 - src.agents.ingestion_agent - INFO - Running ingestion for molecule=Paracetamol, region=India
+2025-08-19 18:17:44,576 - src.agents.ingestion_agent - INFO - Ingestion successful
+2025-08-19 18:17:44,577 - __main__ - INFO - 
+=== REGULATORY SEARCH RESULTS ===
+2025-08-19 18:17:44,577 - __main__ - ERROR - Fatal error in main execution: name 'results' is not defined

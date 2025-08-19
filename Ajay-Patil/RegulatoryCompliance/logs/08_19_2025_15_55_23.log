@@ -1,0 +1,181 @@
+
+
+2025-08-19 15:55:27,499 - src.agents.search_agents - INFO - Starting regulatory search for Paracetamol in India
+2025-08-19 15:55:27,501 - src.agents.search_agents - INFO - Initialized directories: downloaded_docs, vectorstore
+2025-08-19 15:55:27,501 - src.agents.search_agents - INFO - Generating search queries for Paracetamol in India
+2025-08-19 15:55:32,974 - src.agents.search_agents - INFO - Generated 57 search queries
+2025-08-19 15:55:32,975 - src.agents.search_agents - INFO - Initialized Tavily search tool
+2025-08-19 15:59:27,361 - src.agents.search_agents - INFO - Found 30 relevant URLs
+2025-08-19 15:59:27,363 - src.agents.search_agents - INFO - Initializing HuggingFace embeddings
+2025-08-19 15:59:42,019 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0396%20-Meghmani.pdf
+2025-08-19 16:00:06,201 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0396%20-Meghmani.pdf to downloaded_docs\cdsco_WC%20-0396%20-Meghmani_1755599382.pdf
+2025-08-19 16:00:06,203 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_WC%20-0396%20-Meghmani_1755599382.pdf
+2025-08-19 16:00:06,273 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_WC%20-0396%20-Meghmani_1755599382.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:00:06,275 - src.agents.search_agents - INFO - Downloading content from https://www.ipc.gov.in/
+2025-08-19 16:00:07,577 - src.agents.search_agents - ERROR - Failed to download https://www.ipc.gov.in/: HTTPSConnectionPool(host='www.ipc.gov.in', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:992)')))
+2025-08-19 16:00:07,579 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Draft%20Guidance%20for%20pvpi.pdf
+2025-08-19 16:00:30,595 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Draft%20Guidance%20for%20pvpi.pdf to downloaded_docs\cdsco_Draft%20Guidance%20for%20pvpi_1755599407.pdf
+2025-08-19 16:00:30,597 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Draft%20Guidance%20for%20pvpi_1755599407.pdf
+2025-08-19 16:00:30,598 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Draft%20Guidance%20for%20pvpi_1755599407.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:00:30,598 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/GDP.pdf
+2025-08-19 16:00:53,168 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/GDP.pdf to downloaded_docs\cdsco_GDP_1755599430.pdf
+2025-08-19 16:00:53,171 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_GDP_1755599430.pdf
+2025-08-19 16:00:53,175 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_GDP_1755599430.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:00:53,176 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/alert%20August-2024.pdf
+2025-08-19 16:01:17,232 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/alert%20August-2024.pdf to downloaded_docs\cdsco_alert%20August-2024_1755599453.pdf
+2025-08-19 16:01:17,235 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_alert%20August-2024_1755599453.pdf
+2025-08-19 16:01:17,239 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_alert%20August-2024_1755599453.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:01:17,239 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Notice-25.09.2018_Draft%20Guidelines%20on%20Good%20Distribution%20Practices%20for%20Pharmaceutical%20Products.pdf
+2025-08-19 16:01:40,737 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Notice-25.09.2018_Draft%20Guidelines%20on%20Good%20Distribution%20Practices%20for%20Pharmaceutical%20Products.pdf to downloaded_docs\cdsco_Notice-25.09.2018_Draft%20Guidelines%20on%20Good%2_1755599477.pdf
+2025-08-19 16:01:40,739 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Notice-25.09.2018_Draft%20Guidelines%20on%20Good%2_1755599477.pdf
+2025-08-19 16:01:40,741 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Notice-25.09.2018_Draft%20Guidelines%20on%20Good%2_1755599477.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:01:40,741 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/reportnlem2022.pdf
+2025-08-19 16:02:05,069 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/reportnlem2022.pdf to downloaded_docs\cdsco_reportnlem2022_1755599500.pdf
+2025-08-19 16:02:05,072 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_reportnlem2022_1755599500.pdf
+2025-08-19 16:02:05,075 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_reportnlem2022_1755599500.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:02:05,076 - src.agents.search_agents - INFO - Downloading content from https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf
+2025-08-19 16:02:30,720 - src.agents.search_agents - INFO - Successfully downloaded https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf to downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755599525.pdf
+2025-08-19 16:02:30,721 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755599525.pdf
+2025-08-19 16:02:30,722 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_CDSCO%20Guidance%20Document_1755599525.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:02:30,723 - src.agents.search_agents - INFO - Downloading content from https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/52ndDTAB.pdf
+2025-08-19 16:02:53,900 - src.agents.search_agents - INFO - Successfully downloaded https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/52ndDTAB.pdf to downloaded_docs\cdsco_52ndDTAB_1755599550.pdf
+2025-08-19 16:02:53,903 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_52ndDTAB_1755599550.pdf
+2025-08-19 16:02:53,907 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_52ndDTAB_1755599550.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:02:53,908 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf
+2025-08-19 16:03:16,274 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf to downloaded_docs\cdsco_Import_guidance_doc_1755599573.pdf
+2025-08-19 16:03:16,276 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Import_guidance_doc_1755599573.pdf
+2025-08-19 16:03:16,279 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Import_guidance_doc_1755599573.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:03:16,280 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf
+2025-08-19 16:03:39,572 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf to downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf
+2025-08-19 16:03:39,575 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf
+2025-08-19 16:03:39,578 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Guidance%20document%20for%20risk%20based%20inspect_1755599596.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:03:39,580 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/STATE%20NSQ%20%20June%20-2025.pdf
+2025-08-19 16:04:01,788 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/STATE%20NSQ%20%20June%20-2025.pdf to downloaded_docs\cdsco_STATE%20NSQ%20%20June%20-2025_1755599619.pdf
+2025-08-19 16:04:01,790 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_STATE%20NSQ%20%20June%20-2025_1755599619.pdf
+2025-08-19 16:04:01,794 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_STATE%20NSQ%20%20June%20-2025_1755599619.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:04:01,795 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadConsumer/Updated%20Banned%20Drugs%20List%20(1).pdf
+2025-08-19 16:04:24,517 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadConsumer/Updated%20Banned%20Drugs%20List%20(1).pdf to downloaded_docs\cdsco_Updated%20Banned%20Drugs%20List%20(1)_1755599641.pdf
+2025-08-19 16:04:24,520 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Updated%20Banned%20Drugs%20List%20(1)_1755599641.pdf
+2025-08-19 16:04:24,524 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Updated%20Banned%20Drugs%20List%20(1)_1755599641.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:04:24,525 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/noticefdc29may.pdf
+2025-08-19 16:04:47,057 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/noticefdc29may.pdf to downloaded_docs\cdsco_noticefdc29may_1755599664.pdf
+2025-08-19 16:04:47,059 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_noticefdc29may_1755599664.pdf
+2025-08-19 16:04:47,062 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_noticefdc29may_1755599664.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:04:47,063 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/RecommendationsAnalgesic%20%20Rheumatology%20dated%2003.10.2024.pdf
+2025-08-19 16:05:09,016 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/RecommendationsAnalgesic%20%20Rheumatology%20dated%2003.10.2024.pdf to downloaded_docs\cdsco_RecommendationsAnalgesic%20%20Rheumatology%20dated_1755599687.pdf
+2025-08-19 16:05:09,018 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_RecommendationsAnalgesic%20%20Rheumatology%20dated_1755599687.pdf
+2025-08-19 16:05:09,019 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_RecommendationsAnalgesic%20%20Rheumatology%20dated_1755599687.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:05:09,020 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20%20Rheumatology%2019.03.2025.pdf
+2025-08-19 16:05:30,978 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20%20Rheumatology%2019.03.2025.pdf to downloaded_docs\cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf
+2025-08-19 16:05:30,981 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf
+2025-08-19 16:05:30,984 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Recommendations%20Analgesic%20%20Rheumatology%2019_1755599709.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:05:30,985 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/The_NDAC.pdf
+2025-08-19 16:05:53,302 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/The_NDAC.pdf to downloaded_docs\cdsco_The_NDAC_1755599730.pdf
+2025-08-19 16:05:53,304 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_The_NDAC_1755599730.pdf
+2025-08-19 16:05:53,305 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_The_NDAC_1755599730.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:05:53,307 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/EoI_DDRS_CDSCO_2ndnov23.pdf
+2025-08-19 16:06:15,762 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/EoI_DDRS_CDSCO_2ndnov23.pdf to downloaded_docs\cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf
+2025-08-19 16:06:15,763 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf
+2025-08-19 16:06:15,764 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_EoI_DDRS_CDSCO_2ndnov23_1755599753.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:06:15,765 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf
+2025-08-19 16:06:38,157 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf to downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf
+2025-08-19 16:06:38,158 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf
+2025-08-19 16:06:38,161 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Guidance_for_New_Drug_Approval-23july2_1755599775.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:06:38,162 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/medical-device/Guidance2.pdf
+2025-08-19 16:07:00,515 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/medical-device/Guidance2.pdf to downloaded_docs\cdsco_Guidance2_1755599798.pdf
+2025-08-19 16:07:00,515 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance2_1755599798.pdf
+2025-08-19 16:07:00,517 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Guidance2_1755599798.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:07:00,519 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/dguideline.pdf
+2025-08-19 16:07:24,002 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/dguideline.pdf to downloaded_docs\cdsco_dguideline_1755599820.pdf
+2025-08-19 16:07:24,004 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_dguideline_1755599820.pdf
+2025-08-19 16:07:24,007 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_dguideline_1755599820.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:07:24,009 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadApprovalNewDrugs/dciApprovedfdc.pdf
+2025-08-19 16:07:46,965 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadApprovalNewDrugs/dciApprovedfdc.pdf to downloaded_docs\cdsco_dciApprovedfdc_1755599844.pdf
+2025-08-19 16:07:46,968 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_dciApprovedfdc_1755599844.pdf
+2025-08-19 16:07:46,970 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_dciApprovedfdc_1755599844.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:07:46,972 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Pv-Guidancedoc24.pdf
+2025-08-19 16:08:10,646 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Pv-Guidancedoc24.pdf to downloaded_docs\cdsco_Pv-Guidancedoc24_1755599866.pdf
+2025-08-19 16:08:10,648 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Pv-Guidancedoc24_1755599866.pdf
+2025-08-19 16:08:10,651 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Pv-Guidancedoc24_1755599866.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:08:10,653 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Guidance%20document%20on%20disposal.pdf
+2025-08-19 16:08:34,073 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Guidance%20document%20on%20disposal.pdf to downloaded_docs\cdsco_Guidance%20document%20on%20disposal_1755599890.pdf
+2025-08-19 16:08:34,077 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance%20document%20on%20disposal_1755599890.pdf
+2025-08-19 16:08:34,080 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Guidance%20document%20on%20disposal_1755599890.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:08:34,082 - src.agents.search_agents - INFO - Downloading content from https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/46dcc.pdf
+2025-08-19 16:08:56,286 - src.agents.search_agents - INFO - Successfully downloaded https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/46dcc.pdf to downloaded_docs\cdsco_46dcc_1755599914.pdf
+2025-08-19 16:08:56,289 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_46dcc_1755599914.pdf
+2025-08-19 16:08:56,293 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_46dcc_1755599914.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:08:56,294 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/Consumer_Section_PDFs/banneddrugs.pdf
+2025-08-19 16:09:18,620 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/Consumer_Section_PDFs/banneddrugs.pdf to downloaded_docs\cdsco_banneddrugs_1755599936.pdf
+2025-08-19 16:09:18,623 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_banneddrugs_1755599936.pdf
+2025-08-19 16:09:18,628 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_banneddrugs_1755599936.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:09:18,631 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf
+2025-08-19 16:09:43,125 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf to downloaded_docs\cdsco_Guidance_Documentpsur2_1755599958.pdf
+2025-08-19 16:09:43,127 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_Guidance_Documentpsur2_1755599958.pdf
+2025-08-19 16:09:43,130 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_Guidance_Documentpsur2_1755599958.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:09:43,131 - src.agents.search_agents - INFO - Downloading content from https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/55thdcc.pdf
+2025-08-19 16:10:06,790 - src.agents.search_agents - INFO - Successfully downloaded https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/55thdcc.pdf to downloaded_docs\cdsco_55thdcc_1755599983.pdf
+2025-08-19 16:10:06,792 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_55thdcc_1755599983.pdf
+2025-08-19 16:10:06,794 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_55thdcc_1755599983.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:10:06,795 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/49thDTAB.pdf
+2025-08-19 16:10:28,652 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/49thDTAB.pdf to downloaded_docs\cdsco_49thDTAB_1755600006.pdf
+2025-08-19 16:10:28,654 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_49thDTAB_1755600006.pdf
+2025-08-19 16:10:28,658 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_49thDTAB_1755600006.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:10:28,659 - src.agents.search_agents - INFO - Downloading content from https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDfAq24.pdf
+2025-08-19 16:10:50,982 - src.agents.search_agents - INFO - Successfully downloaded https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDfAq24.pdf to downloaded_docs\cdsco_MDfAq24_1755600028.pdf
+2025-08-19 16:10:50,983 - src.agents.search_agents - INFO - Loading document: downloaded_docs\cdsco_MDfAq24_1755600028.pdf
+2025-08-19 16:10:50,987 - src.agents.search_agents - ERROR - Failed to load downloaded_docs\cdsco_MDfAq24_1755600028.pdf: `pypdf` package not found, please install it with `pip install pypdf`
+2025-08-19 16:10:50,988 - src.agents.search_agents - ERROR - No documents processed
+2025-08-19 16:10:50,989 - __main__ - INFO - 
+=== REGULATORY SEARCH RESULTS ===
+2025-08-19 16:10:50,990 - __main__ - INFO - Status: error
+2025-08-19 16:10:50,991 - __main__ - INFO - Molecule: Paracetamol
+2025-08-19 16:10:50,993 - __main__ - INFO - Region: India
+2025-08-19 16:10:50,994 - __main__ - INFO - 
+Generated Search Queries:
+2025-08-19 16:10:50,995 - __main__ - INFO - 1. site:cdsco.gov.in <think> filetype:pdf
+2025-08-19 16:10:50,996 - __main__ - INFO - 2. site:cdsco.gov.in Okay, so I need to generate comprehensive regulatory search queries for Paracetamol in India. Hmm, where do I start? I'm not very familiar with regulatory stuff, but I know Paracetamol is a common drug, so there must be a lot of regulations around it. filetype:pdf
+2025-08-19 16:10:50,998 - __main__ - INFO - 3. site:cdsco.gov.in First, I think I should consider the different regulatory bodies in India. I remember hearing about the Central Drugs Standard Control Organization (CDSCO). They must handle drug approvals and standards. So maybe I should include terms related to CDSCO in my search queries. filetype:pdf
+2025-08-19 16:10:50,998 - __main__ - INFO - 4. site:cdsco.gov.in Next, I should think about the types of regulations. There's probably something about the approval process. So maybe I can search for "Paracetamol approval India" or "CDSCO Paracetamol approval." That makes sense because any drug needs approval before it can be sold. filetype:pdf
+2025-08-19 16:10:50,999 - __main__ - INFO - 5. site:cdsco.gov.in Then, there are quality standards. I think the Indian Pharmacopoeia sets standards for drugs, so searching for "Indian Pharmacopoeia Paracetamol" or "Paracetamol quality standards India" would be useful. These standards ensure that the drug is safe and effective. filetype:pdf
+2025-08-19 16:10:51,000 - __main__ - INFO - 6. site:cdsco.gov.in Safety is another big area. I should look into adverse drug reactions and pharmacovigilance. Maybe terms like "Paracetamol safety India" or "Paracetamol adverse reactions India" would find relevant information. Also, checking for any alerts or warnings from regulatory bodies could be important. filetype:pdf
+2025-08-19 16:10:51,002 - __main__ - INFO - 7. site:cdsco.gov.in Pricing and availability must be regulated too. The National Pharmaceutical Pricing Authority (NPPA) probably handles the prices. So searching for "NPPA Paracetamol price" or "Paracetamol price control India" would help find pricing regulations. filetype:pdf
+2025-08-19 16:10:51,011 - __main__ - INFO - 8. site:cdsco.gov.in Manufacturing and distribution have their own set of rules. I should look for Good Manufacturing Practices (GMP) and Good Distribution Practices (GDP). Terms like "Paracetamol GMP India" or "Paracetamol manufacturing regulations India" might work. filetype:pdf
+2025-08-19 16:10:51,014 - __main__ - INFO - 9. site:cdsco.gov.in Labeling and packaging are also regulated. Searching for "Paracetamol labeling requirements India" or "Paracetamol packaging regulations India" should cover that. This ensures that the information on the drug is clear and correct. filetype:pdf
+2025-08-19 16:10:51,016 - __main__ - INFO - 10. site:cdsco.gov.in Environmental impact is another aspect. Maybe searching for "Paracetamol environmental impact India" or "Paracetamol disposal regulations India" would find relevant guidelines on how to handle the drug's waste. filetype:pdf
+2025-08-19 16:10:51,017 - __main__ - INFO - 11. site:cdsco.gov.in Clinical trials are important too. If Paracetamol is used in trials, there must be regulations. So terms like "Paracetamol clinical trials India" or "Paracetamol trial regulations India" would be useful. filetype:pdf
+2025-08-19 16:10:51,019 - __main__ - INFO - 12. site:cdsco.gov.in Export and import regulations are probably in place as well. Searching for "Paracetamol export regulations India" or "Paracetamol import India" would help find those rules. filetype:pdf
+2025-08-19 16:10:51,020 - __main__ - INFO - 
+All Relevant URLs Found:
+2025-08-19 16:10:51,021 - __main__ - INFO - 1. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadInternationalCell/WC%20-0396%20-Meghmani.pdf
+2025-08-19 16:10:51,031 - __main__ - INFO - 2. https://www.ipc.gov.in/
+2025-08-19 16:10:51,044 - __main__ - INFO - 3. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Draft%20Guidance%20for%20pvpi.pdf
+2025-08-19 16:10:51,048 - __main__ - INFO - 4. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/GDP.pdf
+2025-08-19 16:10:51,051 - __main__ - INFO - 5. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/alert%20August-2024.pdf
+2025-08-19 16:10:51,053 - __main__ - INFO - 6. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Notice-25.09.2018_Draft%20Guidelines%20on%20Good%20Distribution%20Practices%20for%20Pharmaceutical%20Products.pdf
+2025-08-19 16:10:51,064 - __main__ - INFO - 7. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/reportnlem2022.pdf
+2025-08-19 16:10:51,070 - __main__ - INFO - 8. https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/Guidance_doc/CDSCO%20Guidance%20Document.pdf
+2025-08-19 16:10:51,071 - __main__ - INFO - 9. https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/52ndDTAB.pdf
+2025-08-19 16:10:51,072 - __main__ - INFO - 10. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/import-registration/Import_guidance_doc.pdf
+2025-08-19 16:10:51,081 - __main__ - INFO - 11. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCircularFile/Guidance%20document%20for%20risk%20based%20inspection.pdf
+2025-08-19 16:10:51,082 - __main__ - INFO - 12. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/STATE%20NSQ%20%20June%20-2025.pdf
+2025-08-19 16:10:51,083 - __main__ - INFO - 13. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadConsumer/Updated%20Banned%20Drugs%20List%20(1).pdf
+2025-08-19 16:10:51,088 - __main__ - INFO - 14. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/noticefdc29may.pdf
+2025-08-19 16:10:51,089 - __main__ - INFO - 15. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/RecommendationsAnalgesic%20%20Rheumatology%20dated%2003.10.2024.pdf
+2025-08-19 16:10:51,090 - __main__ - INFO - 16. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/Recommendations%20Analgesic%20%20Rheumatology%2019.03.2025.pdf
+2025-08-19 16:10:51,096 - __main__ - INFO - 17. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/The_NDAC.pdf
+2025-08-19 16:10:51,103 - __main__ - INFO - 18. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/EoI_DDRS_CDSCO_2ndnov23.pdf
+2025-08-19 16:10:51,106 - __main__ - INFO - 19. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadAlertsFiles/Guidance_for_New_Drug_Approval-23july2.pdf
+2025-08-19 16:10:51,107 - __main__ - INFO - 20. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/medical-device/Guidance2.pdf
+2025-08-19 16:10:51,108 - __main__ - INFO - 21. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/dguideline.pdf
+2025-08-19 16:10:51,112 - __main__ - INFO - 22. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadApprovalNewDrugs/dciApprovedfdc.pdf
+2025-08-19 16:10:51,114 - __main__ - INFO - 23. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Pv-Guidancedoc24.pdf
+2025-08-19 16:10:51,115 - __main__ - INFO - 24. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Guidance%20document%20on%20disposal.pdf
+2025-08-19 16:10:51,116 - __main__ - INFO - 25. https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/46dcc.pdf
+2025-08-19 16:10:51,118 - __main__ - INFO - 26. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/Consumer_Section_PDFs/banneddrugs.pdf
+2025-08-19 16:10:51,120 - __main__ - INFO - 27. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/PSUR_PV_AEFI/Guidance_Documentpsur2.pdf
+2025-08-19 16:10:51,122 - __main__ - INFO - 28. https://www.cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/55thdcc.pdf
+2025-08-19 16:10:51,130 - __main__ - INFO - 29. https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadCommitteeFiles/49thDTAB.pdf
+2025-08-19 16:10:51,130 - __main__ - INFO - 30. https://cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/MDfAq24.pdf
+2025-08-19 16:10:51,130 - __main__ - INFO - 
+Message: No documents processed

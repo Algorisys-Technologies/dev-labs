@@ -1,0 +1,1515 @@
+<!doctype html><html lang="en"><head>
+    <meta charset="utf-8">
+    
+      <title>Understanding the Basics of Search Query Analysis</title>
+    
+    
+      <link rel="shortcut icon" href="https://aicontentfy.com/hubfs/favicon.ico">
+    
+    <meta name="description" content="Learn how to analyze search queries effectively to improve your website's visibility and user experience.">
+    <meta property="og:site_name" content="AIContentfy">
+    
+    
+    
+      
+    
+    
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:description" content="Learn how to analyze search queries effectively to improve your website's visibility and user experience.">
+    <meta property="og:title" content="Understanding the Basics of Search Query Analysis">
+    <meta name="twitter:description" content="Learn how to analyze search queries effectively to improve your website's visibility and user experience.">
+    <meta name="twitter:title" content="Understanding the Basics of Search Query Analysis">
+
+    
+
+    
+    <style>
+a.cta_button{-moz-box-sizing:content-box !important;-webkit-box-sizing:content-box !important;box-sizing:content-box !important;vertical-align:middle}.hs-breadcrumb-menu{list-style-type:none;margin:0px 0px 0px 0px;padding:0px 0px 0px 0px}.hs-breadcrumb-menu-item{float:left;padding:10px 0px 10px 10px}.hs-breadcrumb-menu-divider:before{content:'›';padding-left:10px}.hs-featured-image-link{border:0}.hs-featured-image{float:right;margin:0 0 20px 20px;max-width:50%}@media (max-width: 568px){.hs-featured-image{float:none;margin:0;width:100%;max-width:100%}}.hs-screen-reader-text{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px}
+</style>
+
+<link rel="stylesheet" href="https://aicontentfy.com/hs-fs/hubfs/hub_generated/template_assets/1/60218240734/1744384279278/template_main.min.css">
+<link rel="stylesheet" href="https://aicontentfy.com/hs-fs/hubfs/hub_generated/template_assets/1/60218240733/1744384278905/template_blog-post.min.css">
+<link rel="stylesheet" href="https://aicontentfy.com/hs-fs/hubfs/hub_generated/template_assets/1/60217870011/1747241754580/template_theme-overrides.css">
+<link rel="stylesheet" href="https://aicontentfy.com/hs-fs/hubfs/hub_generated/module_assets/1/60218155713/1744356156945/module_website-header.min.css">
+<link rel="stylesheet" href="https://aicontentfy.com/hs-fs/hubfs/hub_generated/module_assets/1/60218608337/1744356166842/module_social-sharing.min.css">
+<link rel="stylesheet" href="https://aicontentfy.com/hs-fs/hubfs/hub_generated/module_assets/1/60218240722/1744356162581/module_social-follow.min.css">
+<style>
+  @font-face {
+    font-family: "Inter";
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/Inter/700.woff2") format("woff2"), url("/_hcms/googlefonts/Inter/700.woff") format("woff");
+  }
+  @font-face {
+    font-family: "Inter";
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/Inter/regular.woff2") format("woff2"), url("/_hcms/googlefonts/Inter/regular.woff") format("woff");
+  }
+  @font-face {
+    font-family: "Inter";
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/Inter/600.woff2") format("woff2"), url("/_hcms/googlefonts/Inter/600.woff") format("woff");
+  }
+  @font-face {
+    font-family: "Inter";
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/Inter/regular.woff2") format("woff2"), url("/_hcms/googlefonts/Inter/regular.woff") format("woff");
+  }
+  @font-face {
+    font-family: "DM Serif Display";
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/DM_Serif_Display/regular.woff2") format("woff2"), url("/_hcms/googlefonts/DM_Serif_Display/regular.woff") format("woff");
+  }
+  @font-face {
+    font-family: "DM Serif Display";
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/DM_Serif_Display/regular.woff2") format("woff2"), url("/_hcms/googlefonts/DM_Serif_Display/regular.woff") format("woff");
+  }
+</style>
+
+<!-- Editor Styles -->
+<style id="hs_editor_style" type="text/css">
+#hs_cos_wrapper_widget_1674583270824  { background-color: #f5ccff !important; background-image: none !important; border-color: #fff !important; border-radius: 20px !important; border-style: solid !important; border-width: 0px !important; display: block !important; margin-top: 0px !important; padding-top: 10px !important }
+#hs_cos_wrapper_widget_1674583270824 input[type="submit"] { background-color: #c334e3 !important; background-image: none !important; border-style: none !important; border-width: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 .hs-button { background-color: #c334e3 !important; background-image: none !important; border-style: none !important; border-width: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 input[type="text"] { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 input[type="email"] { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 textarea { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 input[type="number"] { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 select { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 input[type="file"] { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 input[type="tel"] { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 input[type="date"] { padding-top: 0px !important }
+#hs_cos_wrapper_widget_1674583270824 .hs-richtext { font-size: 24px !important; line-height: 30px !important }
+#hs_cos_wrapper_widget_1674583270824 .hs-richtext p { font-size: 24px !important; line-height: 30px !important }
+#hs_cos_wrapper_widget_1674583270824 .form-title { font-size: 24px !important; line-height: 30px !important }
+#hs_cos_wrapper_widget_1674583270824 .submitted-message { font-size: 24px !important; line-height: 30px !important }
+.header-row-0-force-full-width-section > .row-fluid {
+  max-width: none !important;
+}
+.footer-row-0-max-width-section-centering > .row-fluid {
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+/* HubSpot Non-stacked Media Query Styles */
+@media (min-width:768px) {
+  .header-row-0-vertical-alignment > .row-fluid {
+    display: -ms-flexbox !important;
+    -ms-flex-direction: row;
+    display: flex !important;
+    flex-direction: row;
+  }
+  .cell_16744019264012-vertical-alignment {
+    display: -ms-flexbox !important;
+    -ms-flex-direction: column !important;
+    -ms-flex-pack: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  .cell_16744019264012-vertical-alignment > div {
+    flex-shrink: 0 !important;
+  }
+  .footer-row-0-vertical-alignment > .row-fluid {
+    display: -ms-flexbox !important;
+    -ms-flex-direction: row;
+    display: flex !important;
+    flex-direction: row;
+  }
+  .cell_1674583735638-vertical-alignment {
+    display: -ms-flexbox !important;
+    -ms-flex-direction: column !important;
+    -ms-flex-pack: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  .cell_1674583735638-vertical-alignment > div {
+    flex-shrink: 0 !important;
+  }
+  .footer-column-1-vertical-alignment {
+    display: -ms-flexbox !important;
+    -ms-flex-direction: column !important;
+    -ms-flex-pack: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  .footer-column-1-vertical-alignment > div {
+    flex-shrink: 0 !important;
+  }
+}
+/* HubSpot Styles (default) */
+.header-row-0-padding {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+.footer-row-0-padding {
+  padding-top: 48px !important;
+  padding-bottom: 48px !important;
+}
+.footer-row-0-background-layers {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(195, 52, 227, 0.1)) !important;
+  background-position: left top !important;
+  background-size: auto !important;
+  background-repeat: no-repeat !important;
+}
+.footer-column-8-margin {
+  margin-bottom: 20px !important;
+}
+.cell_1710740309083-margin {
+  margin-bottom: 20px !important;
+}
+.footer-column-6-margin {
+  margin-bottom: 20px !important;
+}
+.footer-column-2-margin {
+  margin-bottom: 20px !important;
+}
+</style>
+    <script type="application/ld+json">
+{
+  "mainEntityOfPage" : {
+    "@type" : "WebPage",
+    "@id" : "https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis"
+  },
+  "author" : {
+    "name" : "AIContentfy team",
+    "url" : "https://aicontentfy.com/en/blog/author/aicontentfy-team",
+    "@type" : "Person"
+  },
+  "headline" : "Understanding the Basics of Search Query Analysis",
+  "datePublished" : "2023-10-02T07:54:19.000Z",
+  "dateModified" : "2025-03-05T08:29:59.170Z",
+  "publisher" : {
+    "name" : "AIContentfy Oy",
+    "logo" : {
+      "url" : "https://aicontentfy.com/hubfs/Logo%20(1).png",
+      "@type" : "ImageObject"
+    },
+    "@type" : "Organization"
+  },
+  "@context" : "https://schema.org",
+  "@type" : "BlogPosting",
+  "image" : [ "https://aicontentfy.com/hubfs/Blog/21016e78-7f16-4819-988e-6b2aab2a9562.jpg" ]
+}
+</script>
+
+
+    
+<!--  Added by GoogleAnalytics4 integration -->
+<script>
+var _hsp = window._hsp = window._hsp || [];
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+
+var useGoogleConsentModeV2 = true;
+var waitForUpdateMillis = 1000;
+
+
+if (!window._hsGoogleConsentRunOnce) {
+  window._hsGoogleConsentRunOnce = true;
+
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'wait_for_update': waitForUpdateMillis
+  });
+
+  if (useGoogleConsentModeV2) {
+    _hsp.push(['useGoogleConsentModeV2'])
+  } else {
+    _hsp.push(['addPrivacyConsentListener', function(consent){
+      var hasAnalyticsConsent = consent && (consent.allowed || (consent.categories && consent.categories.analytics));
+      var hasAdsConsent = consent && (consent.allowed || (consent.categories && consent.categories.advertisement));
+
+      gtag('consent', 'update', {
+        'ad_storage': hasAdsConsent ? 'granted' : 'denied',
+        'analytics_storage': hasAnalyticsConsent ? 'granted' : 'denied',
+        'ad_user_data': hasAdsConsent ? 'granted' : 'denied',
+        'ad_personalization': hasAdsConsent ? 'granted' : 'denied'
+      });
+    }]);
+  }
+}
+
+gtag('js', new Date());
+gtag('set', 'developer_id.dZTQ1Zm', true);
+gtag('config', 'G-YGNE3QZ9EC');
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YGNE3QZ9EC"></script>
+
+<!-- /Added by GoogleAnalytics4 integration -->
+
+
+<script>
+  const exceptions = []
+  const currentPath = window.location.pathname
+  
+  if (exceptions.includes(currentPath) || !currentPath.startsWith('/en/blog')){
+    !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){if(window.analytics.initialized)return window.analytics[e].apply(window.analytics,arguments);var i=Array.prototype.slice.call(arguments);i.unshift(e);analytics.push(i);return analytics}};for(var i=0;i<analytics.methods.length;i++){var key=analytics.methods[i];analytics[key]=analytics.factory(key)}analytics.load=function(key,i){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=i};analytics._writeKey="1yiYS2ECC9UogqON1Mv4e4nzrEGwNCfN";;analytics.SNIPPET_VERSION="4.16.1";
+    analytics.load("1yiYS2ECC9UogqON1Mv4e4nzrEGwNCfN");
+    analytics.page();
+    }}();
+  }
+</script>
+
+<!-- Clearbit -->
+<script src="https://tag.clearbitscripts.com/v1/pk_f97ac7645b99486851b8190f1dfa2be5/tags.js" referrerpolicy="strict-origin-when-cross-origin"></script>
+
+<!-- Microsoft Clarity Tracking Code for https://aicontentfy.com/ -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "qmi5zil1ux");
+</script>
+
+
+
+<link rel="amphtml" href="https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis?hs_amp=true">
+
+<meta property="og:image" content="https://aicontentfy.com/hubfs/Blog/21016e78-7f16-4819-988e-6b2aab2a9562.jpg">
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:alt" content="Telescope in flat illustration style, colorful purple gradient colors">
+<meta name="twitter:image" content="https://aicontentfy.com/hubfs/Blog/21016e78-7f16-4819-988e-6b2aab2a9562.jpg">
+<meta name="twitter:image:alt" content="Telescope in flat illustration style, colorful purple gradient colors">
+
+<meta property="og:url" content="https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="canonical" href="https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis">
+<link rel="icon" type="image/x-icon" href="https://aicontentfy.com/hubfs/favicon.ico">
+<meta property="og:type" content="article">
+<link rel="alternate" type="application/rss+xml" href="https://aicontentfy.com/en/blog/rss.xml">
+<meta name="twitter:domain" content="aicontentfy.com">
+<script src="//platform.linkedin.com/in.js" type="text/javascript">
+    lang: en_US
+</script>
+
+<meta http-equiv="content-language" content="en">
+
+
+
+
+
+
+        
+    <script type="application/ld+json">
+      {
+        "@context" : "http://schema.org",
+        "@type" : "Article",
+        "headline" : "Understanding the Basics of Search Query Analysis",
+        "image": "https://aicontentfy.com/hubfs/Blog/21016e78-7f16-4819-988e-6b2aab2a9562.jpg",
+        "author": {
+          "@type": "Person",
+          "name": ["AIContentfy team"]
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "AIContentfy",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://aicontentfy.com/hubfs/Logo.svg"
+          }
+        },
+        "description": "Learn how to analyze search queries effectively to improve your website's visibility and user experience.",  
+        "datePublished": "2023-10-02T07:54:19+0000", 
+        "url" : "https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis"
+      }
+    </script>    
+  <meta name="generator" content="HubSpot"></head>
+  <body>
+    <div class="body-wrapper   hs-content-id-81146831335 hs-blog-post hs-blog-id-60182986170">
+      
+        <div data-global-resource-path="AIContentfy/templates/partials/header.html"><header class="header">
+
+  
+
+  <a href="#main-content" class="header__skip">Skip to content</a>
+
+  <div class="container-fluid">
+<div class="row-fluid-wrapper">
+<div class="row-fluid">
+<div class="span12 widget-span widget-type-cell " style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-1 dnd-section header-row-0-padding header-row-0-force-full-width-section header-row-0-vertical-alignment">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-cell dnd-column cell_16744019264012-vertical-alignment" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-2 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_header-module-1" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+#hs_cos_wrapper_header-module-1 .header__top { background-color:rgba(195,52,227,0.15); }
+
+#hs_cos_wrapper_header-module-1 .header__language-switcher-current-label>span {}
+
+#hs_cos_wrapper_header-module-1 .header__language-switcher:hover .header__language-switcher-current-label>span,
+#hs_cos_wrapper_header-module-1 .header__language-switcher:focus .header__language-switcher-current-label>span {}
+
+#hs_cos_wrapper_header-module-1 .header__language-switcher .lang_list_class a:hover,
+#hs_cos_wrapper_header-module-1 .header__language-switcher .lang_list_class a:focus {}
+
+#hs_cos_wrapper_header-module-1 .header__language-switcher .lang_list_class a:active {}
+
+#hs_cos_wrapper_header-module-1 .header__menu-link {
+  font-style:normal;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+#hs_cos_wrapper_header-module-1 .header__menu-item--depth-1>.header__menu-link:hover,
+#hs_cos_wrapper_header-module-1 .header__menu-item--depth-1>.header__menu-link:focus { color:#c334e4; }
+
+#hs_cos_wrapper_header-module-1 .header__menu-item--depth-1>.header__menu-link:active { color:#ff84ff; }
+
+#hs_cos_wrapper_header-module-1 .header__menu-item--depth-1>.header__menu-link--active-link { color:#c334e4; }
+
+#hs_cos_wrapper_header-module-1 .header__menu-submenu .header__menu-link:hover,
+#hs_cos_wrapper_header-module-1 .header__menu-submenu .header__menu-link:focus {
+  background-color:rgba(195,52,227,0.15);
+  color:#c334e4;
+}
+
+#hs_cos_wrapper_header-module-1 .button {
+  border-radius:50px;
+  font-size:16px;
+}
+
+#hs_cos_wrapper_header-module-1 .button:hover,
+#hs_cos_wrapper_header-module-1 .button:focus {}
+
+#hs_cos_wrapper_header-module-1 .button:active {}
+
+</style>
+
+
+
+
+
+
+
+
+  <div class="header__container header__container--left">
+
+    
+    <div class="header__bottom">
+      <div class="header__wrapper header__wrapper--bottom">
+        <div class="header__logo-col">
+          
+
+  
+    
+  
+
+  <div class="header__logo">
+
+    
+      <a class="header__logo-link" href="https://aicontentfy.com/">
+    
+
+      
+
+      
+
+        <img class="header__logo-image" src="https://aicontentfy.com/hubfs/Logo.svg" loading="eager" alt="AIContentfy logo" height="65" width="245">
+
+      
+
+      
+
+    
+      </a>
+    
+
+  </div>
+
+
+        </div>
+        <div class="header__menu-col">
+          
+
+  <nav class="header__menu header__menu--desktop" aria-label="Desktop navigation">
+    <ul class="header__menu-wrapper no-list">
+      
+
+  
+
+  
+
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1 header__menu-item--has-submenu hs-skip-lang-url-rewrite">
+      <a class="header__menu-link header__menu-link--toggle " href="" aria-haspopup="true" aria-expanded="false">Platform</a>
+      
+        
+          <button class="header__menu-child-toggle no-button" aria-expanded="false">
+            <span class="show-for-sr">Show submenu for Platform</span>
+              <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-hidden="true"><g id="chevron-down1_layer"><path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" /></g></svg>
+          </button>
+          <ul class="header__menu-submenu header__menu-submenu--level-2 no-list">
+            
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/product">Platform</a>
+      
+    </li>
+  
+            
+          </ul>
+        
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1 header__menu-item--has-submenu hs-skip-lang-url-rewrite">
+      <a class="header__menu-link header__menu-link--toggle " href="" aria-haspopup="true" aria-expanded="false">Services</a>
+      
+        
+          <button class="header__menu-child-toggle no-button" aria-expanded="false">
+            <span class="show-for-sr">Show submenu for Services</span>
+              <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-hidden="true"><g id="chevron-down1_layer"><path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" /></g></svg>
+          </button>
+          <ul class="header__menu-submenu header__menu-submenu--level-2 no-list">
+            
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/link-building">Link building</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/optimized-articles">Human-optimized articles</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/seo-as-a-service">SEO-as-a-service</a>
+      
+    </li>
+  
+            
+          </ul>
+        
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/pricing">Pricing</a>
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1 header__menu-item--has-submenu hs-skip-lang-url-rewrite">
+      <a class="header__menu-link header__menu-link--toggle " href="" aria-haspopup="true" aria-expanded="false">Customers</a>
+      
+        
+          <button class="header__menu-child-toggle no-button" aria-expanded="false">
+            <span class="show-for-sr">Show submenu for Customers</span>
+              <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-hidden="true"><g id="chevron-down1_layer"><path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" /></g></svg>
+          </button>
+          <ul class="header__menu-submenu header__menu-submenu--level-2 no-list">
+            
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/case-studies">Case studies</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/agencies">For agencies</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://tools.aicontentfy.com">Free SEO tools</a>
+      
+    </li>
+  
+            
+          </ul>
+        
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/en/blog">Blog</a>
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://app.aicontentfy.com/sign-in">Sign in</a>
+      
+    </li>
+  
+  
+
+
+    </ul>
+  </nav>
+
+
+          
+
+  <div class="header__menu-container header__menu-container--mobile">
+    <button class="header__menu-toggle header__menu-toggle--open header__menu-toggle--show no-button">
+      <span class="show-for-sr">Open main navigation</span>
+      <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" width="24" aria-hidden="true"><g id="bars1_layer"><path d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z" /></g></svg>
+    </button>
+    <button class="header__menu-toggle header__menu-toggle--close no-button">
+      <span class="show-for-sr">Close main navigation</span>
+      <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 384 512" width="24" aria-hidden="true"><g id="times2_layer"><path d="M323.1 441l53.9-53.9c9.4-9.4 9.4-24.5 0-33.9L279.8 256l97.2-97.2c9.4-9.4 9.4-24.5 0-33.9L323.1 71c-9.4-9.4-24.5-9.4-33.9 0L192 168.2 94.8 71c-9.4-9.4-24.5-9.4-33.9 0L7 124.9c-9.4 9.4-9.4 24.5 0 33.9l97.2 97.2L7 353.2c-9.4 9.4-9.4 24.5 0 33.9L60.9 441c9.4 9.4 24.5 9.4 33.9 0l97.2-97.2 97.2 97.2c9.3 9.3 24.5 9.3 33.9 0z" /></g></svg>
+    </button>
+    <nav class="header__menu header__menu--mobile" aria-label="Mobile navigation">
+      <ul class="header__menu-wrapper no-list">
+        
+
+  
+
+  
+
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1 header__menu-item--has-submenu hs-skip-lang-url-rewrite">
+      <a class="header__menu-link header__menu-link--toggle " href="" aria-haspopup="true" aria-expanded="false">Platform</a>
+      
+        
+          <button class="header__menu-child-toggle no-button" aria-expanded="false">
+            <span class="show-for-sr">Show submenu for Platform</span>
+              <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-hidden="true"><g id="chevron-down3_layer"><path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" /></g></svg>
+          </button>
+          <ul class="header__menu-submenu header__menu-submenu--level-2 no-list">
+            
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/product">Platform</a>
+      
+    </li>
+  
+            
+          </ul>
+        
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1 header__menu-item--has-submenu hs-skip-lang-url-rewrite">
+      <a class="header__menu-link header__menu-link--toggle " href="" aria-haspopup="true" aria-expanded="false">Services</a>
+      
+        
+          <button class="header__menu-child-toggle no-button" aria-expanded="false">
+            <span class="show-for-sr">Show submenu for Services</span>
+              <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-hidden="true"><g id="chevron-down4_layer"><path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" /></g></svg>
+          </button>
+          <ul class="header__menu-submenu header__menu-submenu--level-2 no-list">
+            
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/link-building">Link building</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/optimized-articles">Human-optimized articles</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/seo-as-a-service">SEO-as-a-service</a>
+      
+    </li>
+  
+            
+          </ul>
+        
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/pricing">Pricing</a>
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1 header__menu-item--has-submenu hs-skip-lang-url-rewrite">
+      <a class="header__menu-link header__menu-link--toggle " href="" aria-haspopup="true" aria-expanded="false">Customers</a>
+      
+        
+          <button class="header__menu-child-toggle no-button" aria-expanded="false">
+            <span class="show-for-sr">Show submenu for Customers</span>
+              <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-hidden="true"><g id="chevron-down5_layer"><path d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" /></g></svg>
+          </button>
+          <ul class="header__menu-submenu header__menu-submenu--level-2 no-list">
+            
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/case-studies">Case studies</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/agencies">For agencies</a>
+      
+    </li>
+  
+            
+              
+    <li class="header__menu-item header__menu-item--depth-2  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://tools.aicontentfy.com">Free SEO tools</a>
+      
+    </li>
+  
+            
+          </ul>
+        
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://aicontentfy.com/en/blog">Blog</a>
+      
+    </li>
+  
+  
+    
+    <li class="header__menu-item header__menu-item--depth-1  hs-skip-lang-url-rewrite">
+      <a class="header__menu-link  " href="https://app.aicontentfy.com/sign-in">Sign in</a>
+      
+    </li>
+  
+  
+
+
+        
+        
+          <li class="header__menu-item header__menu-item--button header__menu-item--depth-1 hs-skip-lang-url-rewrite">
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  
+    
+  
+
+  <a href="https://app.aicontentfy.com/sign-up" class="header__button button   " target="_blank" rel="noopener">
+
+    
+    Start for free
+
+  </a>
+
+</li>
+        
+      </ul>
+    </nav>
+  </div>
+
+
+        </div>
+        
+          <div class="header__button-col hidden-phone">
+            
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  
+  
+    
+  
+
+  <a href="https://app.aicontentfy.com/sign-up" class="header__button button   " target="_blank" rel="noopener">
+
+    
+    Start for free
+
+  </a>
+
+
+          </div>
+        
+      </div>
+    </div>
+
+  </div>
+
+
+
+</div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div>
+</div>
+</div>
+
+</header></div>
+      
+
+      
+      <main id="main-content">
+        
+
+
+
+<div class="content-wrapper">
+
+  
+
+  <div class="blog-post__column-wrapper">
+
+    <div class="blog-post__left-sidebar">
+      <a class="btn__back-to-posts" href="https://aicontentfy.com/en/blog">
+        All posts
+      </a>     
+    </div>
+  
+    <div class="blog-post-section">
+      <article class="blog-post">
+        <time datetime="2023-10-02 07:54:19" class="blog-post__timestamp">
+          March 5, 2025
+        </time>
+        <h1 class="blog-post__headline"><span id="hs_cos_wrapper_name" class="hs_cos_wrapper hs_cos_wrapper_meta_field hs_cos_wrapper_type_text" style="" data-hs-cos-general-type="meta_field" data-hs-cos-type="text">Understanding the Basics of Search Query Analysis</span></h1>
+        <div class="blog-post__meta">
+          <div class="blog-post__author">
+            By&nbsp;
+            <span class="blog-post__author-name">
+              AIContentfy team
+            </span>
+            <span>&nbsp;·&nbsp;</span>            
+            <span class="reading-minutes">
+              
+              
+              
+              
+
+              
+                7 minute read
+              
+            </span>          
+          </div>        
+        </div>
+        <aside class="aside"><nav id="sidebarNav"></nav></aside>
+        
+          <div class="blog-post__image">
+            <img src="https://aicontentfy.com/hubfs/Blog/21016e78-7f16-4819-988e-6b2aab2a9562.jpg" alt="Telescope in flat illustration style, colorful purple gradient colors">
+          </div>
+        
+        <div class="blog-post__body">
+         
+          <span id="hs_cos_wrapper_post_body" class="hs_cos_wrapper hs_cos_wrapper_meta_field hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="meta_field" data-hs-cos-type="rich_text"><p>Have you ever wondered how search engines understand what we're looking for when we type in a query? Well, it all boils down to a fascinating field called search query analysis. Think about it – every time you search for something online, you unleash a wave of words and phrases that hold immense meaning, shaping the results you see. <!--more--></p>
+<p>In this article, we'll dive into the basics of search query analysis, demystifying the incredible technology that helps search engines decipher our intentions and deliver the most relevant information. So, buckle up and get ready to delve into the intriguing world of understanding search queries!</p>
+<h2>What is Search Query Analysis?</h2>
+<p>Search query analysis involves understanding and examining the specific words or phrases that users enter into search engines when looking for information. By analyzing these search queries, businesses can gain valuable insights into user intent, preferences, and behaviors. It helps identify the language users are using to search for products or services, the problems they are trying to solve, and the keywords they associate with certain topics.</p>
+<p>For example, analyzing search queries related to "healthy recipes" may reveal common ingredients or specific dietary preferences. This analysis guides keyword optimization, <a href="https://aicontentfy.com/en/blog/impact-of-ai-on-content-creation-jobs-and-skills" rel="dofollow noopener" target="_blank">content creation</a>, and overall <a href="https://blog.bit.ai/how-to-create-an-effective-marketing-strategy/" rel="noopener" target="_blank">marketing strategies</a> to better cater to user needs.</p>
+<h2>Why is Search Query Analysis Important?</h2>
+<p>Search query analysis is vital for understanding user intent and optimizing your website for <a href="https://aicontentfy.com/en/blog/how-to-keep-website-content-fresh-for-better-search-rankings" rel="dofollow noopener" target="_blank">better search</a> engine rankings. By analyzing the specific words and phrases users enter into search engines, you can gain valuable insights into their needs, preferences, and pain points. This analysis helps you tailor your content to match their queries, increasing the relevance and visibility of your website.</p>
+<div id="cta_video_embed" class="blog-post__cta_embed-container">
+<div class="blog-post__cta_embed_background">
+<div class="blog-post__cta_embed_left_container">
+<div class="blog-post__cta_embed_title">"We grew to 100k/mo visitors in 10 months with AIContentfy"</div>
+<div class="blog-post__cta_embed_subtitle">─ Founder of AIContentfy</div>
+<img src="https://aicontentfy.com/hubfs/Brand%20images/259.To-Do-List-1.svg" style="max-width: 250px; height: auto;" alt="259.To-Do-List-1" title="259.To-Do-List-1" loading="lazy">
+<div class="blog-post__cta_embed_text">Content creation made effortless</div>
+<a href="https://app.aicontentfy.com/sign-up" class="button button--highlight" style="width: fit-content;"> Start for free</a></div>
+<video width="undefined" height="undefined" autoplay="autoplay" loop="loop" muted class="blog-post__cta_embed_video"><source src="https://aicontentfy.com/hubfs/Videos/Aicontentfy%20animation.mp4" type="video/mp4"></video></div>
+</div>
+<p>For example, if your website sells running shoes and you discover that a significant number of users search for "best trail running shoes," you can create content specifically targeting this keyword to attract more relevant traffic. In short, search query analysis helps you align your website with user demands, driving organic traffic and improving user experience.</p>
+<h2>Search Query vs Keyword</h2>
+<h3>Understanding the Difference</h3>
+<p>In <a href="https://aicontentfy.com/en/blog/maximizing-content-marketing-results-with-search-engine-optimization" rel="dofollow noopener" target="_blank">search engine optimization</a> (SEO), it's important to grasp the distinction between a search query and a keyword. A search query refers to the actual words or phrases users type into search engines, reflecting their specific intent. On the other hand, a keyword is a targeted word or phrase chosen by website owners to optimize their content for search engines. While a search query is user-generated, keywords are website owner-generated.</p>
+<p>For instance, if someone types "best budget smartphones" into a search engine, that is the search query. However, website owners may choose keywords like "affordable smartphones" to optimize their content. Recognizing this distinction allows you to align your content with the language your audience uses, resulting in more effective SEO strategies.</p>
+<h3>When to Use Search Query Analysis Instead of Keyword Analysis</h3>
+<p>When conducting <a href="https://aicontentfy.com/en/blog/comprehensive-guide-to-keyword-research-unleash-power-of-keyword-analysis" rel="dofollow noopener" target="_blank">keyword analysis</a>, it is important to consider when it may be more beneficial to use search query analysis instead. While keyword analysis focuses on identifying relevant keywords to optimize content, search query analysis goes a step further by understanding the specific queries users are entering into search engines. This helps uncover the intent behind those queries, allowing for more targeted optimization.</p>
+<p>For example, if a website sells gardening tools, keyword analysis may reveal popular keywords like "garden tools", but search query analysis can uncover specific queries like "best pruning shears for roses" or "how to safely store garden tools". By understanding these specific queries, you can create content that directly addresses users' needs and provides better solutions, ultimately improving the chances of attracting and converting relevant traffic.</p>
+<h2>Elements of a Search Query</h2>
+<h3>Search Query Structure</h3>
+<p>Search query structure refers to the way search queries are organized. It consists of one or more keywords or phrases entered by users when searching for information online. Generally, a search query follows a subject-verb-object pattern, where the subject represents the user's intent or information need. For instance, a search query for "best DSLR cameras" follows this structure.</p>
+<p>Understanding search query structure is crucial for optimizing content and targeting specific keywords. By analyzing the structure, marketers can identify the primary keywords used by searchers and tailor their content accordingly. This helps in improving search engine visibility and attracting relevant traffic to a website.</p>
+<p>For example, if a <a href="https://aicontentfy.com/en/blog/art-of-creating-compelling-user-stories-for-viral-distribution" rel="dofollow noopener" target="_blank">user s</a>earches for "how to make chocolate cake from scratch," an understanding of the search query structure helps marketers create content that answers this query effectively.</p>
+<h3>Search Intent</h3>
+<p>Search Intent refers to the purpose or motivation behind a search query. Understanding search intent is crucial for effective search query analysis. It helps you align your content with what users are looking for.</p>
+<p>For example, if someone searches for "best budget smartphones," their intent is to find recommendations for affordable smartphones. On the other hand, if someone searches for "how to fix a leaky faucet," their intent is to find a step-by-step guide for repairing a leaky faucet.</p>
+<p>Analyzing search intent allows you to optimize your content to match the specific needs of your target audience. By identifying the intent behind search queries, you can create highly relevant and valuable content that aligns with user expectations.</p>
+<h3>Modifiers and Operators in Search Queries</h3>
+<p>Modifiers and operators play a significant role in search queries. Modifiers like "best," "top," or "cheap" indicate specific user preferences, while operators like "AND," "OR," or "NOT" refine search results. By understanding these modifiers and operators, you can optimize your content to align with user intent.</p>
+<p>For example, someone searching for "best budget smartphones" has a specific preference for affordable options. Incorporating these modifiers into your content can attract users looking for cost-effective solutions. On the other hand, operators like "OR" can expand the search and help users find alternatives or complementary products.</p>
+<p>Analyzing search queries allows you to uncover valuable insights into what users want and adapt your strategy accordingly. Incorporating relevant modifiers and operators in your content can improve visibility and drive more targeted traffic to your website.</p>
+<h2>Performing Search Query Analysis</h2>
+<h3>Collecting Search Query Data</h3>
+<p>Collecting data on search queries is vital for understanding user behavior and optimizing your website. Utilize tools like Google Analytics, SEMrush, or Ahrefs to gather this valuable information. These platforms offer insights into the specific terms and phrases users enter when searching for content or products related to your industry. By analyzing the search queries, you can uncover patterns, identify popular keywords, and discover user intent.</p>
+<p>For instance, if you run an e-commerce store selling shoes, analyzing search queries may reveal that users frequently search for "best running shoes for flat feet." Armed with this knowledge, you can create tailored content and optimize your product descriptions to match these queries, improving your website's visibility and driving relevant traffic.</p>
+<h3>Analyzing Search Query Data</h3>
+<p>Analyzing search query data is crucial for understanding user behavior and optimizing your website's performance. By studying the search queries that lead users to your site, you can gain valuable insights into their intent and preferences. Look for patterns in the queries to identify common themes or recurring keywords. This information can guide your content creation and keyword optimization strategies.</p>
+<p>For example, if you notice a high volume of queries related to a specific product feature, you can prioritize creating content that addresses that topic.</p>
+<p>Additionally, analyzing search query data can help you identify gaps in your website's content and uncover new keyword opportunities to target.</p>
+<h2>Benefits of Search Query Analysis</h2>
+<h3>Improved Keyword Optimization</h3>
+<p>Effective search query analysis leads to improved keyword optimization by providing insights into the specific phrases and terms that users are using to search for information or products. This analysis helps businesses understand the language and nuances their target audience uses, allowing them to tailor their content and SEO strategies accordingly.</p>
+<p>For example, if a business discovers through search query analysis that a significant portion of their target audience is searching for "best budget smartphones under $200," they can create content optimizing for this specific query. By incorporating this type of language into their website content, meta tags, and product descriptions, they can attract more relevant traffic and increase their chances of appearing in the search results for these specific keywords.</p>
+<h3>Enhanced Content Creation</h3>
+<p>Effective search query analysis leads to enhanced content creation. By understanding the specific search queries used by your target audience, you can tailor your content to address their needs and provide valuable information.</p>
+<p>For example, if you run a gardening blog and analyze search queries related to "how to grow tomatoes in small spaces," you can create detailed articles or videos specifically addressing this query. This not only improves the relevancy of your content but also increases the chances of appearing in relevant search results. By aligning your content with user queries, you can attract more organic traffic and provide valuable answers to your audience's specific questions.</p>
+<h3>Better Understanding of User Intent</h3>
+<ul>
+<li>By analyzing search queries, businesses gain valuable insights into the intent behind user searches.</li>
+<li>Understanding user intent helps in creating content that aligns with what users are looking for, increasing the chances of attracting the right audience.</li>
+<li>It allows businesses to optimize their website and landing pages to better match user queries, improving the overall user experience.</li>
+<li>By uncovering common themes and patterns in search queries, businesses can identify gaps in their offerings and develop new products or services to meet customer needs.</li>
+<li>For example, analyzing search queries may reveal that many users are looking for "vegan recipes for beginners," prompting a food blog to create a dedicated section catering to this specific audience.</li>
+</ul>
+<h2>Tools for Search Query Analysis</h2>
+<h3>Google Analytics</h3>
+<img src="https://aicontentfy-customer-images.s3.eu-central-1.amazonaws.com/google_dc25481c-7826-4a49-9fb6-5e7c8973c66d.png" alt="Google Analytics website" loading="lazy">
+<p>Google Analytics is a powerful tool for search query analysis. It provides valuable insights into the keywords and phrases that users are using to find your website. By examining the search query data in Google Analytics, you can discover trends, identify popular queries, and gain a better understanding of user intent. This information can help you optimize your content and improve your website's visibility in search results.</p>
+<p>For example, if you notice that a significant percentage of users are searching for a specific product or service, you can prioritize creating content related to that topic. Google Analytics also offers advanced segmentation options, allowing you to analyze search queries based on various dimensions like demographics, location, and device type.</p>
+<h3>SEMrush</h3>
+<img src="https://aicontentfy-customer-images.s3.eu-central-1.amazonaws.com/semrush_a7c24ed3-d297-4103-ad4b-8598cad699be.png" alt="SEMrush website" loading="lazy">
+<p>SEMrush is a powerful tool for search query analysis. It provides comprehensive data on keywords, search volumes, and competitor analysis. With SEMrush, you can uncover valuable insights about the search terms people use to find information related to your business. This information helps in optimizing your content and uncovering new opportunities for keyword targeting.</p>
+<p>For example, by analyzing search queries, you can identify long-tail keywords that have lower competition, allowing you to create highly targeted content.</p>
+<p>Additionally, SEMrush's keyword research feature allows you to explore related search queries, giving you a deeper understanding of user intent and enabling you to fine-tune your content strategy.</p>
+<h3>Ahrefs</h3>
+<img src="https://aicontentfy-customer-images.s3.eu-central-1.amazonaws.com/ahrefs_b72e9fb6-2097-4b06-b3df-a2dec93cd3e8.png" alt="Ahrefs website" loading="lazy">
+<p>Ahrefs is a powerful tool for conducting search query analysis. It provides in-depth insights into the search queries that users are using to find information or products. With Ahrefs, you can analyze the search volume, competition, and ranking difficulty of specific search queries. This helps you understand the popularity and competitiveness of different keywords and tailor your content to meet user demands.</p>
+<p>For example, if you find that a particular search query has a high search volume but low competition, you can optimize your content to target that keyword and potentially gain more organic traffic. Ahrefs also offers features like keyword suggestions and competitor analysis, which further aid in refining your search query optimization strategy.</p>
+<h2>Wrapping up</h2>
+<p>Search query analysis is a vital process for understanding how users interact with search engines and improving search performance. By examining the language patterns, intent, and context behind search queries, businesses can gain valuable insights into their target audience and optimize their content accordingly. This analysis involves categorizing queries, identifying popular keywords, and understanding user behavior to enhance search engine optimization strategies.</p>
+<p>Additionally, it enables businesses to refine their keyword selection, create effective content, and ultimately improve their visibility in search engine results pages (SERPs).</p></span>
+        </div>     
+        
+        <div>
+          <div id="hs_cos_wrapper_social_sharing" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
+
+
+  
+
+
+
+
+
+
+
+
+<div class="social-sharing">
+
+  
+    <span class="social-sharing__share-text">Share:</span>
+  
+
+  
+
+  
+
+    
+
+    
+    
+      
+    
+
+    
+
+    <a class="social-sharing__link" href="http://www.facebook.com/share.php?u=https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis" target="_blank" rel="noopener">
+      <span class="icon--small  ">
+        <span id="hs_cos_wrapper_social_sharing_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_icon social-sharing__icon icon" style="" data-hs-cos-general-type="widget" data-hs-cos-type="icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 264 512" aria-labelledby="facebook-f1" role="img"><title id="facebook-f1">facebook-f icon</title><g id="facebook-f1_layer"><path d="M76.7 512V283H0v-91h76.7v-71.7C76.7 42.4 124.3 0 193.8 0c33.3 0 61.9 2.5 70.2 3.6V85h-48.2c-37.8 0-45.1 18-45.1 44.3V192H256l-11.7 91h-73.6v229" /></g></svg></span>
+      </span>
+    </a>
+
+  
+
+    
+
+    
+    
+      
+    
+
+    
+
+    <a class="social-sharing__link" href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis" target="_blank" rel="noopener">
+      <span class="icon--small  ">
+        <span id="hs_cos_wrapper_social_sharing_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_icon social-sharing__icon icon" style="" data-hs-cos-general-type="widget" data-hs-cos-type="icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-labelledby="linkedin-in2" role="img"><title id="linkedin-in2">linkedin-in icon</title><g id="linkedin-in2_layer"><path d="M100.3 480H7.4V180.9h92.9V480zM53.8 140.1C24.1 140.1 0 115.5 0 85.8 0 56.1 24.1 32 53.8 32c29.7 0 53.8 24.1 53.8 53.8 0 29.7-24.1 54.3-53.8 54.3zM448 480h-92.7V334.4c0-34.7-.7-79.2-48.3-79.2-48.3 0-55.7 37.7-55.7 76.7V480h-92.8V180.9h89.1v40.8h1.3c12.4-23.5 42.7-48.3 87.9-48.3 94 0 111.3 61.9 111.3 142.3V480z" /></g></svg></span>
+      </span>
+    </a>
+
+  
+
+    
+
+    
+    
+      
+    
+
+    
+
+    <a class="social-sharing__link" href="https://twitter.com/intent/tweet?url=https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis" target="_blank" rel="noopener">
+      <span class="icon--small  ">
+        <span id="hs_cos_wrapper_social_sharing_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_icon social-sharing__icon icon" style="" data-hs-cos-general-type="widget" data-hs-cos-type="icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512" aria-labelledby="twitter3" role="img"><title id="twitter3">twitter icon</title><g id="twitter3_layer"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z" /></g></svg></span>
+      </span>
+    </a>
+
+  
+
+    
+
+    
+    
+      
+    
+
+    
+
+    <a class="social-sharing__link" href="http://pinterest.com/pin/create/link/?url=https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis" target="_blank" rel="noopener">
+      <span class="icon--small  ">
+        <span id="hs_cos_wrapper_social_sharing_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_icon social-sharing__icon icon" style="" data-hs-cos-general-type="widget" data-hs-cos-type="icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 384 512" aria-labelledby="pinterest-p4" role="img"><title id="pinterest-p4">pinterest-p icon</title><g id="pinterest-p4_layer"><path d="M204 6.5C101.4 6.5 0 74.9 0 185.6 0 256 39.6 296 63.6 296c9.9 0 15.6-27.6 15.6-35.4 0-9.3-23.7-29.1-23.7-67.8 0-80.4 61.2-137.4 140.4-137.4 68.1 0 118.5 38.7 118.5 109.8 0 53.1-21.3 152.7-90.3 152.7-24.9 0-46.2-18-46.2-43.8 0-37.8 26.4-74.4 26.4-113.4 0-66.2-93.9-54.2-93.9 25.8 0 16.8 2.1 35.4 9.6 50.7-13.8 59.4-42 147.9-42 209.1 0 18.9 2.7 37.5 4.5 56.4 3.4 3.8 1.7 3.4 6.9 1.5 50.4-69 48.6-82.5 71.4-172.8 12.3 23.4 44.1 36 69.3 36 106.2 0 153.9-103.5 153.9-196.8C384 71.3 298.2 6.5 204 6.5z" /></g></svg></span>
+      </span>
+    </a>
+
+  
+
+    
+
+    
+    
+      
+    
+
+    
+
+    <a class="social-sharing__link" href="mailto:?body=https://aicontentfy.com/en/blog/understanding-basics-of-search-query-analysis" target="_blank" rel="noopener">
+      <span class="icon--small  ">
+        <span id="hs_cos_wrapper_social_sharing_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_icon social-sharing__icon icon" style="" data-hs-cos-general-type="widget" data-hs-cos-type="icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512" aria-labelledby="envelope5" role="img"><title id="envelope5">envelope icon</title><g id="envelope5_layer"><path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z" /></g></svg></span>
+      </span>
+    </a>
+
+  
+
+</div>
+
+
+
+<style>
+  #hs_cos_wrapper_social_sharing .social-sharing {}
+
+#hs_cos_wrapper_social_sharing .social-sharing__share-text {
+  margin-bottom:22px;
+  margin-top:10px;
+}
+
+#hs_cos_wrapper_social_sharing .social-sharing__link {
+  margin-bottom:22px;
+  margin-top:10px;
+}
+
+#hs_cos_wrapper_social_sharing .social-sharing__icon {}
+
+#hs_cos_wrapper_social_sharing .social-sharing__icon svg {}
+
+  </style></div>
+        </div> 
+      </article>
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+      </main>
+
+      
+        <div data-global-resource-path="AIContentfy/templates/partials/website-footer.html"><footer class="footer">
+  <div class="container-fluid">
+<div class="row-fluid-wrapper">
+<div class="row-fluid">
+<div class="span12 widget-span widget-type-cell " style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-1 footer-row-0-vertical-alignment footer-row-0-max-width-section-centering footer-row-0-background-gradient dnd-section footer-row-0-padding footer-row-0-background-layers">
+<div class="row-fluid ">
+<div class="span8 widget-span widget-type-cell footer-column-1-vertical-alignment dnd-column" style="" data-widget-type="cell" data-x="0" data-w="8">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-2 dnd-row">
+<div class="row-fluid ">
+<div class="span4 widget-span widget-type-cell dnd-column footer-column-2-margin" style="" data-widget-type="cell" data-x="0" data-w="4">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-3 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_footer-module-3" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module widget-type-logo" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
+  
+
+
+
+
+
+  <span id="hs_cos_wrapper_footer-module-3_hs_logo_widget" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_logo" style="" data-hs-cos-general-type="widget" data-hs-cos-type="logo"><a href="//aicontentfy.com/" id="hs-link-footer-module-3_hs_logo_widget" style="border-width:0px;border:0px;"><img src="https://aicontentfy.com/hubfs/Logo.svg" class="hs-image-widget " height="65" style="height: auto;width:245px;border-width:0px;border:0px;" width="245" alt="AIContentfy logo" title="AIContentfy logo"></a></span>
+</div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+<div class="row-fluid-wrapper row-depth-1 row-number-4 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_footer-module-4" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module widget-type-rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><span id="hs_cos_wrapper_footer-module-4_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><p style="font-size: 18px; line-height: 1.75;"><em>Content creation made effortless</em></p></span></div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+<div class="row-fluid-wrapper row-depth-1 row-number-5 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_footer-module-5" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
+
+<style>
+#hs_cos_wrapper_footer-module-5 .social-follow {}
+
+#hs_cos_wrapper_footer-module-5 .social-follow__link {}
+
+#hs_cos_wrapper_footer-module-5 .social-follow__icon {}
+
+#hs_cos_wrapper_footer-module-5 .social-follow__icon svg {}
+
+</style>
+
+
+
+
+
+
+
+
+
+
+
+<div class="social-follow">
+
+  
+
+  
+
+    
+
+    
+      
+    
+
+    
+
+    
+    
+    
+    
+      
+    
+    
+      
+    
+
+    
+
+    <a href="https://www.linkedin.com/company/aicontentfy" class="social-follow__link" target="_blank" rel="nofollow noopener">
+      <span class="  ">
+        <span id="hs_cos_wrapper_footer-module-5_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_icon social-follow__icon icon" style="" data-hs-cos-general-type="widget" data-hs-cos-type="icon"><svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512" aria-labelledby="linkedin-in1" role="img"><title id="linkedin-in1">Follow us on LinkedIn</title><g id="linkedin-in1_layer"><path d="M100.3 480H7.4V180.9h92.9V480zM53.8 140.1C24.1 140.1 0 115.5 0 85.8 0 56.1 24.1 32 53.8 32c29.7 0 53.8 24.1 53.8 53.8 0 29.7-24.1 54.3-53.8 54.3zM448 480h-92.7V334.4c0-34.7-.7-79.2-48.3-79.2-48.3 0-55.7 37.7-55.7 76.7V480h-92.8V180.9h89.1v40.8h1.3c12.4-23.5 42.7-48.3 87.9-48.3 94 0 111.3 61.9 111.3 142.3V480z" /></g></svg></span>
+      </span>
+    </a>
+
+  
+</div></div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+<div class="span2 widget-span widget-type-cell footer-column-6-margin dnd-column" style="" data-widget-type="cell" data-x="4" data-w="2">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-6 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_footer-module-7" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module widget-type-rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><span id="hs_cos_wrapper_footer-module-7_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><div style="text-align: left;">
+<div style="font-size: 18px; line-height: 2;"><strong>Company</strong></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/features" rel="noopener">Product</a></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/pricing" rel="noopener">Pricing</a></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/careers" rel="noopener">Careers</a></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.readme.io/" rel="nofollow noopener" target="_blank">Developers</a></div>
+<div style="line-height: 2;">&nbsp;</div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/about" rel="noopener">About us</a></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/contact" rel="noopener">Contact us</a></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/privacy-policy" rel="noopener">Privacy policy</a></div>
+</div></span></div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+<div class="span3 widget-span widget-type-cell cell_1710740309083-margin dnd-column" style="" data-widget-type="cell" data-x="6" data-w="3">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-7 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_module_17107403090833" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module widget-type-rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><span id="hs_cos_wrapper_module_17107403090833_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><div style="text-align: left; line-height: 2;">
+<div style="font-size: 18px; line-height: 2;"><strong>Services</strong></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/link-building" rel="noopener">Link building</a></div>
+<a href="https://aicontentfy.com/optimized-articles" rel="noopener">Human-optimized articles</a></div>
+<div style="text-align: left; line-height: 2;"><a href="https://aicontentfy.com/seo-as-a-service" rel="noopener">SEO-as-a-service</a></div>
+<div style="text-align: left; line-height: 2;">&nbsp;</div>
+<div style="text-align: left; font-size: 18px; line-height: 2;"><strong>Tools</strong></div>
+<div style="text-align: left; font-size: 16px; line-height: 2;"><a href="https://tools.aicontentfy.com" rel="noopener">Free SEO tools</a></div>
+<div style="text-align: left; font-size: 16px; line-height: 2;"><a href="https://aicontentfy.com/free-ai-content-detector-tool" rel="noopener">AI content detector tool</a></div>
+<div style="text-align: left; font-size: 16px; line-height: 2;"><a href="https://tools.aicontentfy.com/meta-description-generator" rel="noopener">Meta description generator</a></div>
+<div style="text-align: left; font-size: 16px; line-height: 2;"><a href="https://tools.aicontentfy.com/title-generator" rel="noopener">Title generator</a></div></span></div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+<div class="span3 widget-span widget-type-cell footer-column-8-margin dnd-column" style="" data-widget-type="cell" data-x="9" data-w="3">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-8 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_footer-module-9" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module widget-type-rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><span id="hs_cos_wrapper_footer-module-9_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rich_text"><div style="text-align: left;">
+<div style="font-size: 18px; line-height: 2;"><strong>Customers</strong></div>
+</div>
+<div style="text-align: left; line-height: 2;"><a href="https://app.aicontentfy.com/sign-in" rel="noopener">Sign in</a></div>
+<div style="text-align: left; line-height: 2;"><a href="https://app.aicontentfy.com/sign-up" rel="noopener">Sign up</a></div>
+<div style="text-align: left; line-height: 2;"><a href="https://aicontentfy.com/case-studies" rel="noopener">Case studies</a>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/agencies" rel="noopener"><span style="color: #000000;">For agencies</span></a></div>
+<div style="line-height: 2;"><a href="https://aicontentfy.com/en/blog" rel="noopener">Blog</a></div>
+<div style="line-height: 2;">
+<div style="line-height: 2;"><a href="https://aicontentfy.com/free-seo-course" rel="noopener">Free SEO course</a></div>
+</div>
+</div></span></div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+<div class="span4 widget-span widget-type-cell cell_1674583735638-vertical-alignment dnd-column" style="" data-widget-type="cell" data-x="8" data-w="4">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-9 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_widget_1674583270824" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module widget-type-form" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
+
+
+	
+
+
+
+	<span id="hs_cos_wrapper_widget_1674583270824_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_form" style="" data-hs-cos-general-type="widget" data-hs-cos-type="form"><h3 id="hs_cos_wrapper_widget_1674583270824_title" class="hs_cos_wrapper form-title" data-hs-cos-general-type="widget_field" data-hs-cos-type="text">Want to grow your business with SEO?</h3>
+
+<div id="hs_form_target_widget_1674583270824"></div>
+
+
+
+
+
+
+
+
+
+</span>
+</div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div>
+</div>
+</div>
+</footer></div>
+      
+    </div>
+    
+    
+    
+    
+    
+    
+<!-- HubSpot performance collection script -->
+<script defer src="/hs/hsstatic/content-cwv-embed/static-1.1293/embed.js"></script>
+<script src="https://aicontentfy.com/hs-fs/hubfs/hub_generated/template_assets/1/60181436914/1744384261929/template_main.min.js"></script>
+<script>
+var hsVars = hsVars || {}; hsVars['language'] = 'en';
+</script>
+
+<script src="/hs/hsstatic/cos-i18n/static-1.53/bundles/project.js"></script>
+<script src="https://aicontentfy.com/hs-fs/hubfs/hub_generated/module_assets/1/60218155713/1744356156945/module_website-header.min.js"></script>
+<script src="https://aicontentfy.com/hs-fs/hubfs/hub_generated/template_assets/1/79632350667/1744384282427/template_blog.min.js"></script>
+
+    <!--[if lte IE 8]>
+    <script charset="utf-8" src="https://js-eu1.hsforms.net/forms/v2-legacy.js"></script>
+    <![endif]-->
+
+<script data-hs-allowed="true" src="/_hcms/forms/v2.js"></script>
+
+    <script data-hs-allowed="true">
+        var options = {
+            portalId: '26864542',
+            formId: '3ea2aea4-36a9-42b1-aa33-e3a8893077b6',
+            formInstanceId: '904',
+            
+            pageId: '81146831335',
+            
+            region: 'eu1',
+            
+            
+            
+            
+            pageName: "Understanding the Basics of Search Query Analysis",
+            
+            
+            
+            inlineMessage: "Thanks for submitting the form.",
+            
+            
+            rawInlineMessage: "Thanks for submitting the form.",
+            
+            
+            hsFormKey: "25fe0d365e7488eeb5300ace77ecaf1e",
+            
+            
+            css: '',
+            target: '#hs_form_target_widget_1674583270824',
+            
+            
+            
+            
+            
+            
+            
+            contentType: "blog-post",
+            
+            
+            
+            formsBaseUrl: '/_hcms/forms/',
+            
+            
+            
+            formData: {
+                cssClass: 'hs-form stacked hs-custom-form'
+            }
+        };
+
+        options.getExtraMetaDataBeforeSubmit = function() {
+            var metadata = {};
+            
+
+            if (hbspt.targetedContentMetadata) {
+                var count = hbspt.targetedContentMetadata.length;
+                var targetedContentData = [];
+                for (var i = 0; i < count; i++) {
+                    var tc = hbspt.targetedContentMetadata[i];
+                     if ( tc.length !== 3) {
+                        continue;
+                     }
+                     targetedContentData.push({
+                        definitionId: tc[0],
+                        criterionId: tc[1],
+                        smartTypeId: tc[2]
+                     });
+                }
+                metadata["targetedContentMetadata"] = JSON.stringify(targetedContentData);
+            }
+
+            return metadata;
+        };
+
+        hbspt.forms.create(options);
+    </script>
+
+
+<!-- Start of HubSpot Analytics Code -->
+<script type="text/javascript">
+var _hsq = _hsq || [];
+_hsq.push(["setContentType", "blog-post"]);
+_hsq.push(["setCanonicalUrl", "https:\/\/aicontentfy.com\/en\/blog\/understanding-basics-of-search-query-analysis"]);
+_hsq.push(["setPageId", "81146831335"]);
+_hsq.push(["setContentMetadata", {
+    "contentPageId": 81146831335,
+    "legacyPageId": "81146831335",
+    "contentFolderId": null,
+    "contentGroupId": 60182986170,
+    "abTestId": null,
+    "languageVariantId": 81146831335,
+    "languageCode": "en",
+    
+    
+}]);
+</script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="/hs/scriptloader/26864542.js"></script>
+<!-- End of HubSpot Analytics Code -->
+
+
+<script type="text/javascript">
+var hsVars = {
+    render_id: "da0b8a28-c27e-4b22-b938-1bdc22fa1b63",
+    ticks: 1755290159917,
+    page_id: 81146831335,
+    
+    content_group_id: 60182986170,
+    portal_id: 26864542,
+    app_hs_base_url: "https://app-eu1.hubspot.com",
+    cp_hs_base_url: "https://cp-eu1.hubspot.com",
+    language: "en",
+    analytics_page_type: "blog-post",
+    scp_content_type: "",
+    
+    analytics_page_id: "81146831335",
+    category_id: 3,
+    folder_id: 0,
+    is_hubspot_user: false
+}
+</script>
+
+
+<script defer src="/hs/hsstatic/HubspotToolsMenu/static-1.432/js/index.js"></script>
+
+
+
+<div id="fb-root"></div>
+  <script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v3.0";
+  fjs.parentNode.insertBefore(js, fjs);
+ }(document, 'script', 'facebook-jssdk'));</script> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+ 
+
+
+  
+</body></html>

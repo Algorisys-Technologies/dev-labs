@@ -1,0 +1,46 @@
+2025-08-19 17:12:52,993 - __main__ - INFO - Starting regulatory search for Paracetamol in India
+2025-08-19 17:12:52,994 - __main__ - INFO - Initialized directories: downloaded_docs, vectorstore
+2025-08-19 17:12:52,994 - __main__ - INFO - Generating search queries for Paracetamol in India
+2025-08-19 17:12:53,100 - __main__ - ERROR - Failed to generate search queries: The api_key client option must be set either by passing api_key to the client or by setting the GROQ_API_KEY environment variable
+2025-08-19 17:12:53,103 - __main__ - ERROR - Regulatory search failed: Error in [D:\PharmaReg\multiagent_system\env\Lib\site-packages\groq\_client.py] at line [79] | Message: Failed to generate search queries: The api_key client option must be set either by passing api_key to the client or by setting the GROQ_API_KEY environment variable
+Traceback:
+Traceback (most recent call last):
+  File "D:\PharmaReg\multiagent_system\app.py", line 270, in generate_search_queries
+    llm = ChatGroq(
+          ^^^^^^^^^
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\langchain_core\load\serializable.py", line 130, in __init__
+    super().__init__(*args, **kwargs)
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\pydantic\main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\langchain_groq\chat_models.py", line 439, in validate_environment
+    self.client = groq.Groq(
+                  ^^^^^^^^^^
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\groq\_client.py", line 79, in __init__
+    raise GroqError(
+groq.GroqError: The api_key client option must be set either by passing api_key to the client or by setting the GROQ_API_KEY environment variable
+
+2025-08-19 17:12:53,108 - __main__ - INFO - 
+=== REGULATORY SEARCH RESULTS ===
+2025-08-19 17:12:53,111 - __main__ - INFO - Status: error
+2025-08-19 17:12:53,112 - __main__ - INFO - Molecule: Paracetamol
+2025-08-19 17:12:53,113 - __main__ - INFO - Region: India
+2025-08-19 17:12:53,113 - __main__ - INFO - 
+Message: Regulatory search failed: Error in [D:\PharmaReg\multiagent_system\env\Lib\site-packages\groq\_client.py] at line [79] | Message: Failed to generate search queries: The api_key client option must be set either by passing api_key to the client or by setting the GROQ_API_KEY environment variable
+Traceback:
+Traceback (most recent call last):
+  File "D:\PharmaReg\multiagent_system\app.py", line 270, in generate_search_queries
+    llm = ChatGroq(
+          ^^^^^^^^^
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\langchain_core\load\serializable.py", line 130, in __init__
+    super().__init__(*args, **kwargs)
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\pydantic\main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\langchain_groq\chat_models.py", line 439, in validate_environment
+    self.client = groq.Groq(
+                  ^^^^^^^^^^
+  File "D:\PharmaReg\multiagent_system\env\Lib\site-packages\groq\_client.py", line 79, in __init__
+    raise GroqError(
+groq.GroqError: The api_key client option must be set either by passing api_key to the client or by setting the GROQ_API_KEY environment variable
+
