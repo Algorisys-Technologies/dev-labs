@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime
 from src.agents.ingestion_agent import IngestionAgent
-from src.agents.search_agents import run_regulatory_search
+from src.agents.search_agents import SearchAgent
 from src.agents.writing_agent import WritingAgent
 from exception.custom_exception import CustomException
 from logger.custom_logger import CustomLogger
@@ -342,7 +342,8 @@ def main():
                 if run_search_btn:
                     with st.spinner("Searching for regulatory documents..."):
                         try:
-                            st.session_state.pipeline['search_results'] = run_regulatory_search(
+                            search_agent = SearchAgent()  # expects key "llm"
+                            st.session_state.pipeline['search_results'] = search_agent.run(
                                 molecule=st.session_state.pipeline['molecule'],
                                 context=st.session_state.pipeline['ingestion_output'],
                                 region=st.session_state.pipeline['region']
@@ -353,7 +354,7 @@ def main():
                             )
                             st.session_state.pipeline['search_last_run'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             st.success("Regulatory search completed!")
-                            display_search_results(st.session_state.pipeline['search_results'])
+                            # display_search_results(st.session_state.pipeline['search_results'])
                         except Exception as e:
                             st.error(f"Search failed: {e}")
 
