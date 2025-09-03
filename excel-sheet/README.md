@@ -66,4 +66,29 @@ export default tseslint.config([
     },
   },
 ])
+
+Features now
+
+Editable cells with formulas (=A1+10, =SUM(A1:AA3)).
+
+Undo/Redo (toolbar buttons).
+
+Export CSV (downloads sheet.csv).
+
+Import CSV (loads a .csv into the grid).
+
+Infinite columns (scroll right → adds more).
+
+Upload files .csv and .xlsx
+
+Formulas
+=SUM(A1:A3)
+
+=AVERAGE(A1:A3)
+
+=MIN(A1:A3)
+
+=MAX(A1:A3)
+
+=COUNT(A1:A3)
 ```
