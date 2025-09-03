@@ -14,12 +14,17 @@
 playwright.config.ts
 /tests-examples
 ./../../node_modules
+./../node_modules
 /rule-builder/client/node_modules
 /rule-builder/server/node_modules
 /rule-builder/.cache
 /rule-builder/build
 /rule-builder/public/build
-
+/excel-sheet/node_modules
+/excel-sheet/node_modules/
+/excel-sheet/.cache
+/excel-sheet/build
+/excel-sheet/public/build
 
 # Sentry Config File
 .sentryclirc
