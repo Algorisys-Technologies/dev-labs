@@ -22,10 +22,10 @@ logging.getLogger('').addHandler(console)
 # ===============================
 # TM1 connection details
 # ===============================
-base_url='https://hulprod01.planning-analytics.ibmcloud.com/tm1/api/HUL_HCPC/'
-user="hulprod0101_tm1_automation"
+base_url='https://huldev01.planning-analytics.ibmcloud.com/tm1/api/HUL_HCPC_New/'
+user="huldev0101_tm1_automation"
 namespace="LDAP"
-password="8XB0139P5CAn"
+password="60527g1dCsHh"
 ssl=True
 verify=True
 async_requests_mode=True
@@ -55,7 +55,7 @@ except Exception as e:
 mdx_source = """
 SELECT 
    {
-      TM1SubsetToSet([Month].[Month], "Month_PY", "public")       
+      TM1SubsetToSet([Month].[Month], "Forecast_Months", "public")       
    } *
    {
       TM1SubsetToSet([Basepack_Final].[Basepack_Final], "N_Level", "public")
@@ -64,7 +64,7 @@ SELECT
       TM1FilterByLevel(TM1SubsetAll([Channels].[Channels]), 1)
    } ON 0, 
    {
-      TM1SubsetToSet([Cashup_m].[Cashup_m], "Cashup_PY", "public")
+      TM1SubsetToSet([Cashup_m].[Cashup_m], "Trading_Trends", "public")
    } ON 1
 FROM [Category_cashup]
 WHERE (
@@ -133,4 +133,3 @@ except Exception as e:
     sys.exit(1)
 
 logging.info("Script completed successfully. Log file: %s", log_filename)
-
