@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Server (TypeScript)",
+      "program": "${workspaceFolder}/server/src/index.ts",
+      "runtimeExecutable": "ts-node-dev",
+      "runtimeArgs": [
+        "--respawn",
+        "--transpile-only"
+      ],
+      "cwd": "${workspaceFolder}/server",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug Client (Vite)",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/client/src"
+    }
+  ]
+}
