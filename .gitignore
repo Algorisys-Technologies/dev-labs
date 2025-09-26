@@ -25,6 +25,6 @@ playwright.config.ts
 /excel-sheet/.cache
 /excel-sheet/build
 /excel-sheet/public/build
-
+node_modules
 # Sentry Config File
 .sentryclirc
