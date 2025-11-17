@@ -289,6 +289,10 @@ def save_scraped_data():
 
         products_data = data.get('products', [])
         page_title = data.get('page_title', 'Unknown Page')
+        print("=================== Page Title ==================")
+        print(page_title)
+        print("=================== Page Title ==================")
+
         
         if not products_data:
             return jsonify({'error': 'No products data provided'}), 400

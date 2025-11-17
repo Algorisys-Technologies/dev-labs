@@ -211,11 +211,13 @@
  - sends postMessage to parent to request pick or scrape
  - receives selectorPicked and scrapeResult messages from parent
 */
+
+
 const pickBtn = document.getElementById('pickBtn');
 const stopPickBtn = document.getElementById('stopPickBtn');
 const selectorInput = document.getElementById('selectorInput');
 const scrapeBtn = document.getElementById('scrapeBtn');
-const exportBtn = document.getElementById('exportBtn');
+// const exportBtn = document.getElementById('exportBtn');
 const saveToDbBtn = document.getElementById('saveToDbBtn');
 const preview = document.getElementById('preview');
 const closeBtn = document.getElementById('closeBtn');
@@ -284,28 +286,43 @@ scrapeBtn.addEventListener('click', () => {
   window.parent.postMessage({ type: 'scrapeSelector', selector }, '*');
 });
 
-exportBtn.addEventListener('click', () => {
-  if (!currentScrapedData || currentScrapedData.length === 0) {
-    showStatus('No data to export. Please scrape some data first.', 'warning');
-    return;
-  }
+// exportBtn.addEventListener('click', () => {
+//   if (!currentScrapedData || currentScrapedData.length === 0) {
+//     showStatus('No data to export. Please scrape some data first.', 'warning');
+//     return;
+//   }
   
-  try {
-    const csv = toCSV(currentScrapedData);
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); 
-    a.href = url; 
-    a.download = `scraped_data_${new Date().toISOString().slice(0, 10)}.csv`; 
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showStatus('📊 CSV file downloaded successfully!', 'success');
-  } catch (e) { 
-    showStatus('❌ Error exporting CSV: ' + e.message, 'error');
-  }
-});
+//   try {
+//     const csv = toCSV(currentScrapedData);
+//     const blob = new Blob([csv], { type: 'text/csv' });
+//     const url = URL.createObjectURL(blob);
+//     const a = document.createElement('a'); 
+//     a.href = url; 
+//     a.download = `scraped_data_${new Date().toISOString().slice(0, 10)}.csv`; 
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//     URL.revokeObjectURL(url);
+//     showStatus('📊 CSV file downloaded successfully!', 'success');
+//   } catch (e) { 
+//     showStatus('❌ Error exporting CSV: ' + e.message, 'error');
+//   }
+// });
+
+
+
+
+
+function getRealPageTitle() {
+    return new Promise((resolve) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { action: "get_page_title" }, (response) => {
+                resolve(response?.page_title || "Unknown Page");
+            });
+        });
+    });
+}
+
 
 saveToDbBtn.addEventListener('click', async () => {
   if (!currentScrapedData || currentScrapedData.length === 0) {
@@ -324,7 +341,8 @@ saveToDbBtn.addEventListener('click', async () => {
     
     showProgress(0, 'Preparing to save...');
     
-    const pageTitle = document.title || 'Scraped Page';
+    const pageTitle = await getRealPageTitle();
+    console.log('Retrieved page title:', pageTitle);
     const dataToSave = {
       page_title: pageTitle,
       products: currentScrapedData
@@ -454,7 +472,7 @@ function updateStatistics(result = null) {
   }
   
   // Show/hide action buttons based on data availability
-  exportBtn.disabled = total === 0;
+  // exportBtn.disabled = total === 0;
   saveToDbBtn.disabled = total === 0;
 }
 
@@ -494,7 +512,7 @@ function initTooltips() {
 // Add titles for better UX
 pickBtn.title = 'Pick elements from the page (Ctrl+P)';
 scrapeBtn.title = 'Scrape data using the selector';
-exportBtn.title = 'Export as CSV file (Ctrl+E)';
+// exportBtn.title = 'Export as CSV file (Ctrl+E)';
 saveToDbBtn.title = 'Save to database (Ctrl+S)';
 closeBtn.title = 'Close panel';
 

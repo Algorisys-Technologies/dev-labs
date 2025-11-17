@@ -180,3 +180,10 @@ function runScrape(selector) {
     return { error: String(err) };
   }
 }
+
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.action === "get_page_title") {
+        sendResponse({ page_title: document.title });
+    }
+});
