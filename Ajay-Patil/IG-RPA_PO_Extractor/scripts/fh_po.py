@@ -307,6 +307,7 @@ def extract_fh_po(pdf_path: str, output_excel_path: str = None, debug: bool = Fa
         row["Total_Value_Line"] = pr.get("Total_Value_Line","")
         row["Description"] = pr.get("Description","")
         final_rows.append(row)
+    final_rows.pop()  # remove last row which is often garbage
     if not final_rows:
         row = {c: "" for c in OUTPUT_COLUMNS}
         row["PO_No"] = headers.get("PO_No","")

@@ -413,7 +413,7 @@ def extract_lbh_po(pdf_path: str, output_excel_path: str = None, debug: bool = F
         row["Metal_Weight"] = it.get("Metal_Weight", "")
         row["Average_Finished_Weight"] = it.get("Average_Finished_Weight", "")
         final_rows.append(row)
-
+    final_rows.pop()
     if not final_rows:
         # emit at least a header-only row
         final_rows.append({
