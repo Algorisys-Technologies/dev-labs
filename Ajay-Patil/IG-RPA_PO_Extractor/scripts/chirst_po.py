@@ -2,25 +2,20 @@
 """
 chirst_po_extractor_v2.py
 
-Robust CHIRST PO extractor (single-file). Fixed path-suffix bug.
+Robust CHIRST PO extractor (single-file).
+Outputs ONLY an Excel file (no CSV, no JSON, no debug files).
 
 Usage:
     python chirst_po_extractor_v2.py --pdf "/path/to/CHIRST-ORDERS_....pdf" \
-        --out "/path/to/out_prefix" --debug
+        --out "/path/to/out_prefix_optional" [--debug]
 
-Outputs:
-  - <out_prefix>_chirst_extracted.xlsx
-  - <out_prefix>_chirst_extracted.csv
-  - <out_prefix>_chirst_extracted.json
-  - debug folder when --debug
+If --out omitted the script will write: <pdf_stem>_chirst_extracted.xlsx
 
 Dependencies:
     pip install pdfplumber pandas python-dateutil openpyxl
 """
 import argparse
-import json
 import logging
-import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -265,7 +260,7 @@ def parse_item_block(block: str, header_article: Optional[str] = None) -> Dict[s
 
 
 def build_outputs(pdf_path: str, combined: str, blocks: List[Dict[str, Any]], headers: Dict[str, str],
-                  out_prefix: Path, debug: bool = False):
+                  out_prefix: Path, debug_flag: bool = False):
     parsed_items = []
     for b in blocks:
         parsed = parse_item_block(b["block"], header_article=b.get("article"))
@@ -273,26 +268,12 @@ def build_outputs(pdf_path: str, combined: str, blocks: List[Dict[str, Any]], he
             parsed["item_no"] = b.get("item_no", "")
         parsed_items.append(parsed)
 
-    result = {
-        "source_file": str(Path(pdf_path).resolve()),
-        "po_number": headers.get("PO_No", ""),
-        "po_date": headers.get("Order_Date", ""),
-        "supplier": headers.get("Bill_To", ""),
-        "buyer": headers.get("Ship_To", ""),
-        "items_count": len(parsed_items),
-        "items": parsed_items
-    }
+    # Build correct XLSX filename using stem (no CSV/JSON)
+    pdf_path = str(pdf_path)
+    pdf_name = Path(pdf_path).stem
+    xlsx_path = fr"D:\RPA\Purchase_Orders_Extracted_{pdf_name}.xlsx"
 
-    # Build correct filenames using stem + suffix (avoid with_suffix misuse)
-    parent = out_prefix.parent if out_prefix.parent != Path('.') else Path(out_prefix.parent)
-    stem = out_prefix.stem
-    json_path = parent / f"{stem}_chirst_extracted.json"
-    csv_path = parent / f"{stem}_chirst_extracted.csv"
-    xlsx_path = parent / f"{stem}_chirst_extracted.xlsx"
-
-    with json_path.open("w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2, ensure_ascii=False)
-
+    # Build dataframe rows consistent with OUTPUT_COLUMNS
     rows = []
     for idx, it in enumerate(parsed_items, start=1):
         r = {c: "" for c in OUTPUT_COLUMNS}
@@ -321,27 +302,16 @@ def build_outputs(pdf_path: str, combined: str, blocks: List[Dict[str, Any]], he
         rows.append(r)
 
     df = pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
-    df.to_csv(csv_path, index=False, encoding="utf-8")
     df.to_excel(xlsx_path, index=False)
 
-    if debug:
-        dbg_dir = parent / f"{stem}_chirst_debug"
-        dbg_dir.mkdir(parents=True, exist_ok=True)
-        (dbg_dir / "combined_text.txt").write_text(combined, encoding="utf-8")
-        dbg = {
-            "headers": headers,
-            "items_count_found": len(parsed_items),
-            "sample_parsed_items": parsed_items[:10]
-        }
-        (dbg_dir / "extraction.debug.json").write_text(json.dumps(dbg, indent=2), encoding="utf-8")
-        logging.info("Wrote debug files to: %s", str(dbg_dir))
+    # If debug flag passed, only increase logging verbosity; do NOT write debug files
+    if debug_flag:
+        logging.info("Debug flag set: verbose logging only (no debug files will be written).")
 
-    logging.info("Wrote JSON: %s", str(json_path))
-    logging.info("Wrote CSV: %s", str(csv_path))
     logging.info("Wrote Excel: %s (rows: %d)", str(xlsx_path), len(df))
 
 
-def extract_chirst_po_cli(pdf_path: str, out_path: Optional[str] = None, debug: bool = False) -> Path:
+def extract_chirst_po_cli(pdf_path: str, out_path: Optional[str] = None, debug_flag: bool = False) -> Path:
     pdfp = Path(pdf_path)
     if not pdfp.exists():
         raise FileNotFoundError(f"PDF not found: {pdf_path}")
@@ -361,26 +331,25 @@ def extract_chirst_po_cli(pdf_path: str, out_path: Optional[str] = None, debug: 
 
     if out_path:
         out_prefix = Path(out_path)
-        # if out_path has an extension (file), remove it to form prefix
         if out_prefix.suffix:
             out_prefix = out_prefix.with_suffix('')
     else:
         out_prefix = pdfp.with_name(pdfp.stem)
 
-    build_outputs(str(pdfp), combined, blocks, headers, out_prefix, debug=debug)
+    build_outputs(str(pdfp), combined, blocks, headers, out_prefix, debug_flag=debug_flag)
     return out_prefix
 
 
 def main():
-    parser = argparse.ArgumentParser(description="CHIRST PO extractor v2")
+    parser = argparse.ArgumentParser(description="CHIRST PO extractor v2 (Excel-only)")
     parser.add_argument("--pdf", required=True, help="Path to CHIRST PDF file")
     parser.add_argument("--out", required=False, help="Output file prefix or full path (optional). If omitted, uses PDF stem in same folder")
-    parser.add_argument("--debug", action="store_true", help="Write debug outputs")
+    parser.add_argument("--debug", action="store_true", help="Verbose logging only; will NOT write debug files")
     args = parser.parse_args()
 
     try:
-        outpref = extract_chirst_po_cli(args.pdf, args.out, debug=args.debug)
-        print("Extraction finished. Outputs written using prefix:", outpref)
+        outpref = extract_chirst_po_cli(args.pdf, args.out, debug_flag=args.debug)
+        print("Extraction finished. Excel written using prefix:", outpref)
     except Exception as e:
         logging.exception("Extraction failed: %s", e)
         raise
