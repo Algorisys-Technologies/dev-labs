@@ -29,8 +29,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-EXCEL_DATA_PATH = os.path.join(BASE_DIR, 'ExcelData')
-IMAGE_SAVE_PATH = os.path.join(BASE_DIR, 'Images')
+EXCEL_DATA_PATH = os.path.join(BASE_DIR, 'static', 'ExcelData')
+IMAGE_SAVE_PATH = os.path.join(BASE_DIR, 'static', 'Images')
+
 
 # Ensure directories exist
 os.makedirs(EXCEL_DATA_PATH, exist_ok=True)
@@ -75,51 +76,164 @@ def process_row(row):
         logger.error(f"Error processing row: {e}")
         return None
 
+
+
+def extract_metals(text):
+    """Extracts and prioritizes longest, most descriptive metal-related phrases."""
+    if not text:
+        return []
+
+    text_upper = text.upper()
+
+    patterns = [
+        # Match like "9K White Gold", "14CT Rose Gold & White Gold"
+        r'\b\d{1,2}(?:K|CT|CARAT)\s*(?:WHITE|YELLOW|ROSE|STRAWBERRY|TWO[- ]TONE)?\s*GOLD\b',
+
+        # Match standalone metal names
+        r'\b(?:PLATINUM|STERLING\s*SILVER|SILVER|WHITE\s*GOLD|YELLOW\s*GOLD|ROSE\s*GOLD|STRAWBERRY\s*GOLD|TWO[- ]TONE\s*GOLD|TITANIUM|BRASS|PALLADIUM|COPPER|ALLOY)\b',
+
+        # Match just karat values like "9K", "14CT" — only if not part of a decimal
+        r'(?<![\d.])\b\d{1,2}(?:K|CT|CARAT)\b'
+    ]
+
+    all_matches = []
+    for pattern in patterns:
+        all_matches.extend(re.findall(pattern, text_upper))
+
+    # Remove duplicates and substrings
+    unique_matches = sorted(set(all_matches), key=len, reverse=True)
+    final_matches = []
+    for match in unique_matches:
+        if not any(match in longer for longer in final_matches):
+            final_matches.append(match)
+
+    return final_matches
+
+
 def extract_karat_info(text):
-    """Extract karat information from product text"""
     if not text:
         return None
-    
-    karat_patterns = [
-        r'(\d+K)\s+(?:White|Yellow|Rose|Strawberry)\s+Gold',
-        r'(\d+K)\s+Gold',
-        r'Sterling Silver',
-        r'(\d+K)\s+[A-Za-z]+\s+Gold-Plated',
-        r'(\d+K)\s+[A-Za-z]+\s+Gold',
-        r'(\d+K)\s+White\s+Gold',
-        r'(\d+K)\s+Yellow\s+Gold',
-        r'(\d+K)\s+Rose\s+Gold',
-        r'Platinum',
-        r'Vermeil',
-        r'Rhodium-Plated'
-    ]
-    
-    for pattern in karat_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            return match.group(1) if match.groups() else match.group(0)
-    
+
+    metals = extract_metals(text)
+    if metals:
+        value = metals[0].upper()
+
+        # Normalize named metals
+        for metal in ['PLATINUM', 'STERLING SILVER', 'SILVER', 'TITANIUM', 'BRASS', 'PALLADIUM', 'COPPER', 'ALLOY']:
+            if metal in value:
+                return metal.lower()
+
+        # Normalize spacing and symbols
+        if '&' in value:
+            parts = [p.strip() for p in value.split('&')]
+            value = ' & '.join(parts)
+
+        # Fix concatenated names
+        value = value.replace('WHITEGOLD', 'WHITE GOLD')
+        value = value.replace('YELLOWGOLD', 'YELLOW GOLD')
+        value = value.replace('ROSEGOLD', 'ROSE GOLD')
+        value = value.replace('TWOTONE', 'TWO-TONE GOLD')
+        value = value.replace('TWO TONE', 'TWO-TONE')
+
+        # Convert CT/CARAT to K
+        value = re.sub(r'(\d{1,2})(CT|CARAT)', r'\1K', value)
+        value = re.sub(r'(\d{1,2}K)([A-Z])', r'\1 \2', value)
+
+        return value.lower()
+
+    # 🔍 Fallback: check for "Diamond <Metal>" structure
+    diamond_metal_match = re.search(
+        r'\bDIAMOND\s+(PLATINUM|STERLING\s+SILVER|SILVER|TITANIUM|BRASS|PALLADIUM|COPPER|ALLOY)\b',
+        text.upper()
+    )
+    if diamond_metal_match:
+        return diamond_metal_match.group(1).lower()
+
+    # ✅ Final fallback: If "diamond" is in the text but no metal found
+    if "DIAMOND" in text.upper():
+        return "diamond"
+
     return None
 
+
+
+def parse_ct(val):
+    """Convert ct string to float, supporting composite fractions like 1-3/4"""
+    try:
+        if '-' in val and '/' in val:
+            whole, frac = val.split('-')
+            num, denom = frac.split('/')
+            return int(whole) + float(num) / float(denom)
+        if '/' in val:
+            num, denom = val.split('/')
+            return float(num) / float(denom)
+        return float(val)
+    except Exception:
+        return None
+
+
+def standardize_diawt_value(value):
+    """Standardize diamond weight format (e.g., '0.5ct tw')"""
+    if not value:
+        return None
+
+    value = str(value).strip().lower()
+
+    # Normalize slashes and spacing
+    value = re.sub(r'\s*/\s*', '/', value)
+    value = re.sub(r'\s+', ' ', value)
+
+    # Detect if 'tw' (or variants) exist
+    has_tw = any(tw in value for tw in [' tw', 'tw', 't.w.', 'ctw'])
+
+    # Extract the number portion (e.g., 0.5, 3/4, 1-1/2)
+    num_match = re.search(r'(\d+-\d+/\d+|\d+/\d+|\d*\.\d+|\d+)', value)
+    if not num_match:
+        return None
+
+    num_part = num_match.group(1)
+    return f"{num_part}ct tw" if has_tw else f"{num_part}ct"
+
 def extract_diamond_weight(text):
-    """Extract diamond weight information"""
+    """Extract smallest valid diamond weight (ct), preserving 'tw' and handling formats like 0,50 ct"""
     if not text:
         return None
-    
-    weight_patterns = [
-        r'(\d+(?:[/\d]*)?\s*ct\s*tw)',  # 1/4 ct tw, 3 ct tw, 1-1/4 ct tw
-        r'(\d+(?:[/\d]*)?\s*carat\s*total\s*weight)',
-        r'(\d+(?:[/\d]*)?\s*ct)',  # Simple ct pattern
-        r'(\d+(?:[/\d]*)?\s*carat)',
-        r'(\d+(?:\.\d+)?\s*ct\s*tw)'  # Decimal weights
-    ]
-    
-    for pattern in weight_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            return match.group(1)
-    
-    return None
+
+    text = str(text).upper()
+
+    # Convert European decimal (comma) to dot
+    text = text.replace(',', '.')
+
+    # Remove metal descriptors only if at start
+    metal_free_text = re.sub(
+        r'^\s*\d{1,2}(?:K|CT|CARAT)(?:\s*(?:[A-Z]+\s*&\s*[A-Z]+|ROSE|WHITE|YELLOW|STRAWBERRY|TWO-TONE)\s*GOLD)?\s*',
+        '',
+        text,
+        flags=re.IGNORECASE
+    )
+
+    if any(x in metal_free_text for x in ['CUBIC ZIRCONIA', 'SAPPHIRE', 'CREATED']):
+        return None
+
+    # Match patterns: 1-3/4, 3/4, 0.25, 0,50, 1.25, etc. with ct indicators
+    matches = re.findall(
+        r'(\d+-\d+/\d+|\d+/\d+|\d*\.\d+|\d+)\s*(CTW|CT\s*TW|CT|CARAT\s*TW|CARAT|CT\.*\s*T*W*\.?)',
+        metal_free_text,
+        re.IGNORECASE
+    )
+
+    diamond_cts = []
+    for val, unit in matches:
+        ct_val = parse_ct(val)
+        if ct_val is not None and ct_val < 5.0:
+            diamond_cts.append((val.strip(), unit.strip(), ct_val))
+
+    if not diamond_cts:
+        return None
+
+    # Pick the smallest valid ct
+    smallest = min(diamond_cts, key=lambda x: x[2])
+    return standardize_diawt_value(f"{smallest[0]} {smallest[1]}")
 
 def extract_price(price_text):
     """Extract current price from price text"""
@@ -248,8 +362,12 @@ class ScrapingService:
             return "N/A"
 
         # Clean filename
-        safe_product_name = re.sub(r'[^\w\-_.]', '_', product_name)[:100]
-        image_filename = f"{unique_id}_{safe_product_name}.jpg"
+        # safe_product_name = re.sub(r'[^\w\-_.]', '_', product_name)[:100]
+        # image_filename = f"{unique_id}_{safe_product_name}.jpg"
+        # image_full_path = os.path.join(image_folder, image_filename)
+        # modified_url = ScrapingService.modify_image_url(image_url)
+
+        image_filename = f"{unique_id}_{timestamp}.jpg"
         image_full_path = os.path.join(image_folder, image_filename)
         modified_url = ScrapingService.modify_image_url(image_url)
 
@@ -303,8 +421,11 @@ def save_scraped_data():
         
         # Create folders for this scrape session
         session_id = str(uuid.uuid4())
-        session_folder = os.path.join(IMAGE_SAVE_PATH, f"session_{session_id}")
-        os.makedirs(session_folder, exist_ok=True)
+        # Prepare directories and files
+        os.makedirs(EXCEL_DATA_PATH, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        image_folder = os.path.join(IMAGE_SAVE_PATH, timestamp)
+        os.makedirs(image_folder, exist_ok=True)
         
         excel_filename = f"scraped_products_{timestamp}.xlsx"
         excel_path = os.path.join(EXCEL_DATA_PATH, excel_filename)
@@ -335,7 +456,7 @@ def save_scraped_data():
                 # Download image synchronously
                 image_url = parsed_data.get('image_url')
                 image_path = ScrapingService.download_image(
-                    image_url, product_name, timestamp, session_folder, unique_id
+                    image_url, product_name, timestamp, image_folder, unique_id
                 )
                 
                 if image_path != "N/A":

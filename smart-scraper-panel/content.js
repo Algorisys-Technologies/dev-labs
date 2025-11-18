@@ -157,6 +157,41 @@ function getCssPath(el) {
   return path.join(' > ');
 }
 
+
+
+const getProductImage = (node) => {
+  if (!node.querySelector) return "";
+
+  // 1️⃣ Highest priority → itemprop="image"
+  let img = node.querySelector('img[itemprop="image"]');
+  if (img?.src) return img.src;
+
+  // 2️⃣ Valid product images (hosted, not icons, not banners)
+  img = node.querySelector('img[src*="productimages"], img[src*="processed"], img[src*="medias"]');
+  if (img?.src) return img.src;
+
+  // 3️⃣ Any img but ignore garbage icons, logos, undefined, blank
+  img = node.querySelector('img');
+  if (img?.src && !isJunkImage(img.src)) return img.src;
+
+  return "";
+};
+
+const isJunkImage = (url) => {
+  url = url.toLowerCase();
+  return (
+    url.includes("undefined") ||
+    url.includes("logo") ||
+    url.includes("icon") ||
+    url.includes("placeholder") ||
+    url.endsWith(".svg") ||
+    url.endsWith(".gif") ||
+    url.startsWith("data:image")
+  );
+};
+
+
+
 // basic scraping logic to extract title/price/image/link heuristics
 function runScrape(selector) {
   try {
@@ -170,7 +205,8 @@ function runScrape(selector) {
       const html = node.innerHTML ? node.innerHTML.trim() : '';
       const title = (node.querySelector && (node.querySelector('h1,h2,h3,.title,.product-title,[itemprop="name"]')?.innerText || node.querySelector('b,strong')?.innerText)) || (text.split('\n').map(s=>s.trim()).filter(Boolean)[0]||'');
       const price = (node.querySelector && (node.querySelector('.price,[itemprop="price"],.amount')?.innerText)) || (text.match(/(₹|Rs\.?|USD|US\$|\$|EUR|€|GBP|£)\s?\d[\d,\.\s]*/i)?.[0]||'');
-      const image = (node.querySelector && (node.querySelector('img')?.src)) || '';
+      // const image = (node.querySelector && (node.querySelector('img')?.src)) || '';
+      const image = getProductImage(node);
       const link = (node.querySelector && (node.querySelector('a[href]')?.href)) || '';
       return { title, price, image, link, text, html, attributes: attrs };
     });
