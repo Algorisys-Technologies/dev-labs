@@ -45,18 +45,23 @@ OUTPUT_COLUMNS = [
 def numeric_normalize(v: Any) -> str:
     if v is None:
         return ''
-    s = str(v).strip().replace(',', '.').replace(' ', '').replace('£', '').replace('$', '')
+    s = str(v).strip().replace(',', '').replace('£', '').replace('$', '').replace(' ', '')
     m = re.search(r'[-+]?\d*\.?\d+', s)
     return m.group(0) if m else ''
 
 
 def to_float_safe(v: Any) -> float:
-    """Return float or nan."""
+    """Return float or nan. If percent string passed, return fraction (0.10 for '10%')."""
     if v is None:
         return float('nan')
-    s = str(v).strip().replace(',', '.').replace(' ', '')
+    s = str(v).strip().replace(',', '').replace('£', '').replace('$', '').replace(' ', '')
     if s == '':
         return float('nan')
+    if '%' in s:
+        try:
+            return float(s.replace('%', '').strip()) / 100.0
+        except Exception:
+            return float('nan')
     try:
         return float(re.search(r'[-+]?\d*\.?\d+', s).group(0))
     except Exception:
@@ -67,7 +72,7 @@ def normalize_date_iso(date_str: str) -> str:
     if not date_str:
         return ''
     try:
-        dt = dateparser.parse(date_str, dayfirst=True, fuzzy=True)
+        dt = dateparser.parse(date_str, fuzzy=True)
         return dt.strftime("%Y-%m-%d")
     except Exception:
         m = re.search(r'(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})', date_str)
@@ -87,6 +92,13 @@ def read_pdf_text(pdf_path: str) -> Tuple[str, List[str], List]:
         with pdfplumber.open(pdf_path) as pdf:
             for p in pdf.pages:
                 page_text = p.extract_text() or ''
+                try:
+                    tbs = p.extract_tables() or []
+                    for t in tbs:
+                        if t and any(any(cell for cell in row if cell) for row in t):
+                            tables.append(t)
+                except Exception:
+                    pass
                 pages.append(page_text)
     except Exception as e:
         raise RuntimeError(f"Failed to open/read PDF: {e}")
@@ -95,23 +107,26 @@ def read_pdf_text(pdf_path: str) -> Tuple[str, List[str], List]:
 
 
 # ---------- Header parsing ----------
-def parse_headers(combined_text: str) -> Dict[str, str]:
-    """Extract header fields for THOM-style PO."""
+def parse_headers(combined_text: str, pages_text: List[str], tables: List) -> Dict[str, str]:
+    """Extract header fields for THOM-style PO (Option A)."""
     out = {k: "" for k in ["PO_No", "Buyer", "Vendor", "PO_Date", "PO_Header_ExFactoryDate", "Subtotal", "GST", "Total_Units", "Total_USD"]}
 
-    # PO No extraction
-    po_patterns = [
-        r'Order\s+ref\s*[:\-]?\s*(\S+)',
-        r'Orders?\s*n°?\s*(\S+)',
-        r'Ordine\s*n°\s*(\S+)',
-        r'Purchase\s+Order\s*(?:No|#|number)?\s*[:\-]?\s*(\S+)'
-    ]
-    
-    for pattern in po_patterns:
-        m = re.search(pattern, combined_text, re.IGNORECASE)
+    # PO No - multiple patterns
+    m = re.search(r'Order\s+ref\s*[:\-]?\s*([A-Z0-9\-\_]{3,})', combined_text, re.IGNORECASE)
+    if m:
+        out["PO_No"] = m.group(1).strip()
+    else:
+        m = re.search(r'Purchase\s+Order\s*(?:No|#|number)?\s*[:\-]?\s*([A-Z0-9\-\_]{3,})', combined_text, re.IGNORECASE)
         if m:
             out["PO_No"] = m.group(1).strip()
-            break
+        else:
+            m = re.search(r'Orders?\s*n°?\s*([A-Z0-9\-\_]{3,})', combined_text, re.IGNORECASE)
+            if m:
+                out["PO_No"] = m.group(1).strip()
+            else:
+                m = re.search(r'Ordine\s*n°\s*([A-Z0-9\-\_]{3,})', combined_text, re.IGNORECASE)
+                if m:
+                    out["PO_No"] = m.group(1).strip()
 
     # Buyer extraction
     if 'HORIZON DISTRIBUTION' in combined_text:
@@ -120,235 +135,294 @@ def parse_headers(combined_text: str) -> Dict[str, str]:
         out["Buyer"] = "THOM FRANCE"
     elif 'Stroili Oro' in combined_text:
         out["Buyer"] = "Stroili Oro S.p.A."
+    else:
+        lines = combined_text.splitlines()
+        for ln in lines[:12]:
+            if ln.strip() and not re.search(r'purchase|order|invoice|telephone|phone|tel|fax|style|sku|address', ln, re.IGNORECASE):
+                out["Buyer"] = ln.strip()
+                break
 
     # Vendor extraction
     if 'INTER GOLD' in combined_text:
-        out["Vendor"] = "INTER GOLD (INDIA) PRIVATE LIMITED"
+        vendor_match = re.search(r'INTER GOLD[^\n]{0,100}', combined_text)
+        if vendor_match:
+            out["Vendor"] = vendor_match.group(0).strip()
 
     # PO Date extraction
-    date_patterns = [
-        r'Date of order\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})',
-        r'Data\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})',
-        r'Date\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})'
-    ]
-    
-    for pattern in date_patterns:
-        m = re.search(pattern, combined_text, re.IGNORECASE)
-        if m:
-            out["PO_Date"] = normalize_date_iso(m.group(1))
-            break
+    mdate = re.search(r'Date of order\s*[:\-]?\s*([A-Za-z0-9\/\-\., ]{6,40})', combined_text, re.IGNORECASE)
+    if mdate:
+        out["PO_Date"] = normalize_date_iso(mdate.group(1).strip())
+    else:
+        mdate = re.search(r'Data\s*[:\-]?\s*([A-Za-z0-9\/\-\., ]{6,40})', combined_text, re.IGNORECASE)
+        if mdate:
+            out["PO_Date"] = normalize_date_iso(mdate.group(1).strip())
+        else:
+            md = re.search(r'(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})', combined_text)
+            if md:
+                out["PO_Date"] = normalize_date_iso(md.group(1))
 
     # Total amounts
-    total_match = re.search(r'Order total excl tax[^\d]*([0-9\., ]+)', combined_text, re.IGNORECASE)
-    if total_match:
-        out["Subtotal"] = numeric_normalize(total_match.group(1))
-        out["Total_USD"] = numeric_normalize(total_match.group(1))
+    m = re.search(r'Order total excl tax[^\d]*([0-9\., ]+)', combined_text, re.IGNORECASE)
+    if m:
+        out["Subtotal"] = numeric_normalize(m.group(1))
+    
+    m = re.search(r'Total.*?([0-9\., ]+)\s*USD', combined_text, re.IGNORECASE)
+    if m:
+        out["Total_USD"] = numeric_normalize(m.group(1))
 
     return out
 
 
 # ---------- Item parsing for different PDF types ----------
-def parse_horizon_items(combined_text: str) -> List[Dict[str, Any]]:
+def parse_horizon_items(tables: List) -> List[Dict[str, Any]]:
     """Parse items from HORIZON DISTRIBUTION format (310411.pdf)"""
     items = []
     
-    # Find the item table section
-    lines = combined_text.split('\n')
-    in_items_section = False
-    
-    for i, line in enumerate(lines):
-        # Look for the start of the items table
-        if 'Provider ref' in line and 'Product reference' in line:
-            in_items_section = True
+    for table in tables:
+        if not table or len(table) < 2:
             continue
             
-        if in_items_section:
-            # Check if we've reached the end of items
-            if 'Currency USD' in line or 'Order total' in line or 'Page' in line:
+        # Look for header row with expected columns
+        header_found = False
+        header_row_idx = -1
+        
+        for i, row in enumerate(table):
+            if not row:
+                continue
+            row_text = ' '.join(str(cell) for cell in row if cell)
+            if all(keyword in row_text for keyword in ['Provider ref', 'Product reference', 'Name']):
+                header_row_idx = i
+                header_found = True
                 break
                 
-            # Parse item lines - they start with patterns like BR-, ER-, NK-, RG-, L-ER-, etc.
-            if re.match(r'^(BR-|ER-|NK-|RG-|L-ER-|L-RG-|PN-)', line.strip()):
-                parts = re.split(r'\s{2,}', line.strip())  # Split by multiple spaces
-                if len(parts) >= 6:
-                    item = {
-                        "Style_Code": parts[0].strip(),
-                        "SKU": parts[1].strip() if len(parts) > 1 else "",
-                        "Description": parts[2].strip() if len(parts) > 2 else "",
-                        "Line_ExFactoryDate": "",
-                        "Quantity": numeric_normalize(parts[4]) if len(parts) > 4 else "",
-                        "Weight": numeric_normalize(parts[3]) if len(parts) > 3 else "",
-                        "Unit_Price": numeric_normalize(parts[5]) if len(parts) > 5 else "",
-                        "Discount": "",
-                        "Amount": numeric_normalize(parts[6]) if len(parts) > 6 else ""
-                    }
-                    # If amount is missing but we have quantity and price, calculate it
-                    if not item["Amount"] and item["Quantity"] and item["Unit_Price"]:
-                        qty = to_float_safe(item["Quantity"])
-                        price = to_float_safe(item["Unit_Price"])
-                        if not math.isnan(qty) and not math.isnan(price):
-                            item["Amount"] = f"{qty * price:.2f}"
-                    
-                    items.append(item)
-    
+        if not header_found:
+            continue
+            
+        # Parse data rows
+        for row in table[header_row_idx + 1:]:
+            if not row or len(row) < 9:
+                continue
+                
+            # Check if row has meaningful data (has at least provider ref and quantity)
+            provider_ref = str(row[0]).strip() if row[0] else ''
+            quantity = str(row[5]).strip() if len(row) > 5 and row[5] else ''
+            
+            if not provider_ref or not quantity or not quantity.isdigit():
+                continue
+                
+            item = {
+                "Style_Code": provider_ref,
+                "SKU": str(row[1]).strip() if len(row) > 1 and row[1] else '',
+                "Description": str(row[2]).strip() if len(row) > 2 and row[2] else '',
+                "Line_ExFactoryDate": "",
+                "Quantity": numeric_normalize(quantity),
+                "Weight": numeric_normalize(row[4]) if len(row) > 4 and row[4] else '',
+                "Unit_Price": numeric_normalize(row[6]) if len(row) > 6 and row[6] else '',
+                "Discount": numeric_normalize(row[7]) if len(row) > 7 and row[7] else '',
+                "Amount": numeric_normalize(row[8]) if len(row) > 8 and row[8] else ''
+            }
+            items.append(item)
+            
     return items
 
 
-def parse_thom_france_items(combined_text: str) -> List[Dict[str, Any]]:
+def parse_thom_france_items(combined_text: str, tables: List) -> List[Dict[str, Any]]:
     """Parse items from THOM FRANCE format (commandes_4200099157.pdf)"""
     items = []
     
-    lines = combined_text.split('\n')
-    
-    for line in lines:
-        # Look for lines with product references and prices
-        if 'L-RG' in line and 'USD' in line:
-            # Extract components from the line
-            parts = line.split()
-            if len(parts) >= 10:
+    # Try table extraction first
+    for table in tables:
+        if not table or len(table) < 2:
+            continue
+            
+        # Look for line items in tables
+        for row in table:
+            if not row or len(row) < 10:
+                continue
+                
+            # Check if this looks like an item row (has ref and price)
+            ref_fm = str(row[1]).strip() if len(row) > 1 and row[1] else ''
+            price = str(row[7]).strip() if len(row) > 7 and row[7] else ''
+            
+            if ref_fm and price and any(c.isdigit() for c in price):
                 item = {
-                    "Style_Code": parts[1] if len(parts) > 1 else "",
-                    "SKU": parts[3] if len(parts) > 3 else "",
-                    "Description": ' '.join(parts[4:7]) if len(parts) > 7 else ' '.join(parts[4:]),
+                    "Style_Code": ref_fm,
+                    "SKU": str(row[2]).strip() if len(row) > 2 and row[2] else '',
+                    "Description": str(row[3]).strip() if len(row) > 3 and row[3] else '',
                     "Line_ExFactoryDate": "",
-                    "Quantity": "1",  # Default to 1 for single item POs
-                    "Weight": numeric_normalize(parts[9]) if len(parts) > 9 else "",
-                    "Unit_Price": numeric_normalize(parts[7]),
+                    "Quantity": numeric_normalize(row[6]) if len(row) > 6 and row[6] else '1',  # Default to 1
+                    "Weight": numeric_normalize(row[11]) if len(row) > 11 and row[11] else '',
+                    "Unit_Price": numeric_normalize(price),
                     "Discount": "",
-                    "Amount": numeric_normalize(parts[7])
+                    "Amount": numeric_normalize(price)  # Use price as amount for single item
                 }
                 items.append(item)
                 break
     
+    # Fallback to text extraction
+    if not items:
+        lines = combined_text.split('\n')
+        for i, line in enumerate(lines):
+            if 'L-RG' in line and 'USD' in line:
+                # Extract the main item line
+                parts = line.split()
+                if len(parts) >= 8:
+                    item = {
+                        "Style_Code": parts[1] if len(parts) > 1 else '',
+                        "SKU": parts[3] if len(parts) > 3 else '',
+                        "Description": ' '.join(parts[4:7]) if len(parts) > 7 else '',
+                        "Line_ExFactoryDate": "",
+                        "Quantity": "1",
+                        "Weight": numeric_normalize(parts[9]) if len(parts) > 9 else '',
+                        "Unit_Price": numeric_normalize(parts[7]),
+                        "Discount": "",
+                        "Amount": numeric_normalize(parts[7])
+                    }
+                    items.append(item)
+                    break
+                    
     return items
 
 
-def parse_stroili_oro_items(combined_text: str) -> List[Dict[str, Any]]:
+def parse_stroili_oro_items(tables: List) -> List[Dict[str, Any]]:
     """Parse items from Stroili Oro format (PO25-0001-058565.pdf)"""
     items = []
     
-    lines = combined_text.split('\n')
-    in_items_section = False
-    
-    for i, line in enumerate(lines):
-        # Look for the start of items table
-        if 'Referenza Articolo' in line and 'Descrizione' in line:
-            in_items_section = True
+    for table in tables:
+        if not table or len(table) < 2:
             continue
             
-        if in_items_section:
-            # Check for end of items section
-            if 'Totale Pezzi' in line or 'Condizioni di fornitura' in line:
+        # Look for header row
+        header_found = False
+        header_row_idx = -1
+        
+        for i, row in enumerate(table):
+            if not row:
+                continue
+            row_text = ' '.join(str(cell) for cell in row if cell)
+            if 'Referenza Articolo' in row_text and 'Descrizione' in row_text:
+                header_row_idx = i
+                header_found = True
                 break
                 
-            # Look for product lines (start with 9KT- or similar patterns)
-            if re.match(r'^(9KT-|RG-|ER-|NK-)', line.strip()):
-                # Split by multiple spaces to get columns
-                parts = re.split(r'\s{2,}', line.strip())
-                if len(parts) >= 7:
-                    item = {
-                        "Style_Code": parts[0].strip(),
-                        "SKU": "",
-                        "Description": parts[1].strip() if len(parts) > 1 else "",
-                        "Line_ExFactoryDate": normalize_date_iso(parts[9]) if len(parts) > 9 else "",
-                        "Quantity": numeric_normalize(parts[2]) if len(parts) > 2 else "",
-                        "Weight": numeric_normalize(parts[3]) if len(parts) > 3 else "",
-                        "Unit_Price": numeric_normalize(parts[6]) if len(parts) > 6 else "",
-                        "Discount": numeric_normalize(parts[4]) if len(parts) > 4 else "",
-                        "Amount": ""
-                    }
-                    
-                    # Try to find amount in next line if available
-                    if i + 1 < len(lines):
-                        next_line = lines[i + 1].strip()
-                        if next_line and re.search(r'\d+\.\d{2}', next_line):
-                            amount_match = re.search(r'(\d+\.\d{2})', next_line)
-                            if amount_match:
-                                item["Amount"] = amount_match.group(1)
-                    
+        if not header_found:
+            continue
+            
+        # Parse data rows - Stroili Oro has complex multi-line structure
+        i = header_row_idx + 1
+        while i < len(table):
+            row = table[i]
+            if not row or len(row) < 10:
+                i += 1
+                continue
+                
+            referenza = str(row[0]).strip() if row[0] else ''
+            # Check if this is a product row (starts with product code)
+            if referenza and ('9KT' in referenza or 'RG' in referanza or any(c.isalpha() for c in referenza)):
+                
+                # Stroili Oro items span multiple rows, so we need to gather data from subsequent rows
+                descrizione = str(row[1]).strip() if len(row) > 1 and row[1] else ''
+                quantity = str(row[2]).strip() if len(row) > 2 and row[2] else ''
+                peso = str(row[3]).strip() if len(row) > 3 and row[3] else ''
+                unit_price = str(row[6]).strip() if len(row) > 6 and row[6] else ''
+                
+                # Look for amount in next row if available
+                amount = ""
+                if i + 1 < len(table):
+                    next_row = table[i + 1]
+                    if next_row and len(next_row) > 6:
+                        amount_candidate = str(next_row[6]).strip() if next_row[6] else ''
+                        if amount_candidate and any(c.isdigit() for c in amount_candidate):
+                            amount = amount_candidate
+                
+                item = {
+                    "Style_Code": referenza,
+                    "SKU": "",  # Stroili Oro doesn't have separate SKU in visible format
+                    "Description": descrizione,
+                    "Line_ExFactoryDate": str(row[9]).strip() if len(row) > 9 and row[9] else '',
+                    "Quantity": numeric_normalize(quantity),
+                    "Weight": numeric_normalize(peso),
+                    "Unit_Price": numeric_normalize(unit_price),
+                    "Discount": numeric_normalize(row[4]) if len(row) > 4 and row[4] else '',
+                    "Amount": numeric_normalize(amount)
+                }
+                
+                if item["Quantity"]:  # Only add if we have quantity
                     items.append(item)
-    
+                    i += 2  # Skip next row as it's part of the same item
+                else:
+                    i += 1
+            else:
+                i += 1
+                
     return items
 
 
-def parse_items_adaptive(combined_text: str) -> List[Dict[str, Any]]:
+def parse_items_adaptive(combined_text: str, tables: List) -> List[Dict[str, Any]]:
     """Adaptive item parser that detects PDF type and uses appropriate parser"""
+    items = []
     
     # Detect PDF type and use appropriate parser
     if 'HORIZON DISTRIBUTION' in combined_text and 'ORDER FORM' in combined_text:
         logging.info("Detected HORIZON DISTRIBUTION format")
-        return parse_horizon_items(combined_text)
+        items = parse_horizon_items(tables)
     elif 'Stroili Oro' in combined_text and 'ORDINE DI ACQUISTO' in combined_text:
         logging.info("Detected Stroili Oro format")
-        return parse_stroili_oro_items(combined_text)
+        items = parse_stroili_oro_items(tables)
     elif 'THOM FRANCE' in combined_text or 'Orders n°' in combined_text:
         logging.info("Detected THOM FRANCE format")
-        return parse_thom_france_items(combined_text)
+        items = parse_thom_france_items(combined_text, tables)
     else:
-        logging.info("Using generic text parser as fallback")
-        return parse_items_generic(combined_text)
-
-
-def parse_items_generic(combined_text: str) -> List[Dict[str, Any]]:
-    """Generic text-based item parser as fallback"""
-    items = []
-    
-    lines = combined_text.split('\n')
-    
-    for line in lines:
-        line = line.strip()
-        # Look for lines that have product codes and numbers
-        if (re.match(r'^[A-Z]{2,3}-[A-Z0-9]', line) or 
-            re.match(r'^\d+[A-Z]-[A-Z]{2}-', line)) and re.search(r'\d+\.\d{2}', line):
-            
-            # Try to extract components
-            parts = re.split(r'\s{2,}', line)
-            if len(parts) >= 3:
-                # Find quantity - look for integers
-                qty = "1"
-                for part in parts:
-                    if part.isdigit() and 1 <= int(part) <= 1000:
-                        qty = part
-                        break
-                
-                # Find price - look for decimal numbers
-                price = ""
-                for part in parts:
-                    if re.match(r'^\d+\.\d{2}$', part):
-                        price = part
-                        break
-                
-                if price:
-                    item = {
-                        "Style_Code": parts[0],
-                        "SKU": parts[1] if len(parts) > 1 else "",
-                        "Description": ' '.join(parts[2:-3]) if len(parts) > 5 else ' '.join(parts[2:]),
-                        "Line_ExFactoryDate": "",
-                        "Quantity": qty,
-                        "Weight": "",
-                        "Unit_Price": price,
-                        "Discount": "",
-                        "Amount": price if qty == "1" else ""
-                    }
-                    items.append(item)
+        logging.info("Using generic table parser as fallback")
+        # Generic table parser as fallback
+        for table in tables:
+            if table and len(table) > 1:
+                for row in table:
+                    if row and any(cell for cell in row if cell and str(cell).strip()):
+                        # Simple heuristic: row with numbers in certain positions might be items
+                        if len(row) >= 5 and any(numeric_normalize(row[i]) for i in [2, 3, 4] if i < len(row)):
+                            item = {
+                                "Style_Code": str(row[0]).strip() if row[0] else '',
+                                "SKU": str(row[1]).strip() if len(row) > 1 and row[1] else '',
+                                "Description": str(row[2]).strip() if len(row) > 2 and row[2] else '',
+                                "Line_ExFactoryDate": "",
+                                "Quantity": numeric_normalize(row[3]) if len(row) > 3 and row[3] else '',
+                                "Weight": numeric_normalize(row[4]) if len(row) > 4 and row[4] else '',
+                                "Unit_Price": numeric_normalize(row[5]) if len(row) > 5 and row[5] else '',
+                                "Discount": numeric_normalize(row[6]) if len(row) > 6 and row[6] else '',
+                                "Amount": numeric_normalize(row[7]) if len(row) > 7 and row[7] else ''
+                            }
+                            if item["Style_Code"] or item["Quantity"]:
+                                items.append(item)
     
     return items
 
 
 def compute_amount_from_row(it: Dict[str, Any]) -> str:
-    """Calculate amount from quantity and unit price"""
     q = to_float_safe(it.get("Quantity", ""))
     u = to_float_safe(it.get("Unit_Price", ""))
+    disc_raw = it.get("Discount", "")
     
-    if not math.isnan(q) and not math.isnan(u):
-        amount = q * u
-        return f"{amount:.2f}"
-    
-    # Return existing amount if calculation not possible
-    return it.get("Amount", "")
+    if isinstance(disc_raw, str) and '%' in disc_raw:
+        pct = to_float_safe(disc_raw)
+        d_amt = (q * u * pct) if not (math.isnan(q) or math.isnan(u)) else 0.0
+    else:
+        d_amt = to_float_safe(disc_raw)
+        if math.isnan(d_amt):
+            d_amt = 0.0
+            
+    if math.isnan(q) or math.isnan(u):
+        amt_token = numeric_normalize(it.get("Amount", ""))
+        return amt_token if amt_token else ""
+    else:
+        val = q * u - d_amt
+        try:
+            return "{:.2f}".format(round(val + 1e-9, 2))
+        except:
+            return it.get("Amount", "")
 
 
-# ---------- Main extraction function ----------
+# ---------- Main extraction function (required name) ----------
 def extract_thom_po(pdf_path: str, output_excel_path: str = None, debug: bool = False) -> str:
     """
     Extract THOM PO from single PDF and write Excel.
@@ -359,7 +433,7 @@ def extract_thom_po(pdf_path: str, output_excel_path: str = None, debug: bool = 
     if not output_excel_path:
         output_excel_path = fr"D:\RPA\Purchase_Orders_Extracted_{pdf_name}.xlsx"
 
-    logging.info("Reading PDF text...")
+    logging.info("Reading PDF text and tables...")
     combined_text, pages_text, tables = read_pdf_text(pdf_path)
 
     if debug:
@@ -370,11 +444,11 @@ def extract_thom_po(pdf_path: str, output_excel_path: str = None, debug: bool = 
         logging.info("Wrote debug combined_text.txt")
 
     logging.info("Parsing headers...")
-    headers = parse_headers(combined_text)
+    headers = parse_headers(combined_text, pages_text, tables)
     logging.info(f"Parsed headers: PO_No={headers.get('PO_No')}")
 
     logging.info("Parsing items using adaptive parser...")
-    items = parse_items_adaptive(combined_text)
+    items = parse_items_adaptive(combined_text, tables)
     logging.info(f"Found {len(items)} items")
 
     if debug:
