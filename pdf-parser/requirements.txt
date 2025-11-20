@@ -1,0 +1,6 @@
+easyocr
+fitz
+numpy
+pandas
+Pillow
+docling
