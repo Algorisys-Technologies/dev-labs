@@ -456,13 +456,113 @@ class BulgariScraper:
     
 
 
+    # def download_image(self, image_url: str, product_name: str, image_folder: str, unique_id: str, retries: int = 2) -> str:
+    #     """
+    #     Download images for Bulgari without enhancement or conversion
+    #     """
+    #     print("=================== Downloading Image ==================")
+    #     print(f"Downloading image for product: {image_url}")
+    #     print("=================== Downloading Image ==================")
+    #     if not image_url or image_url == "N/A":
+    #         return "N/A"
+
+    #     # Clean filename
+    #     clean_name = self._clean_filename(product_name)
+    #     if len(clean_name) > 50:
+    #         clean_name = clean_name[:50]
+
+    #     logger.info(f"Downloading image for: {product_name}")
+    #     logger.info(f"Original URL: {image_url}")
+
+    #     for attempt in range(retries):
+    #         try:
+    #             logger.info(f"Attempt {attempt + 1} with URL: {image_url}")
+                
+    #             headers = {
+    #                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    #                 "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    #                 "Accept-Language": "en-US,en;q=0.9",
+    #                 "Referer": "https://www.bulgari.com/",
+    #             }
+
+    #             response = requests.get(image_url, headers=headers, timeout=15, stream=True)
+                
+    #             logger.info(f"Response status: {response.status_code}")
+                
+    #             if response.status_code == 200:
+    #                 content_type = response.headers.get('content-type', '')
+    #                 logger.info(f"Content-Type: {content_type}")
+                    
+    #                 if not content_type.startswith('image/'):
+    #                     logger.warning(f"Non-image content type: {content_type}")
+    #                     continue
+
+    #                 # Get file extension from content type
+    #                 file_extension = self._get_file_extension_from_content_type(content_type)
+    #                 image_filename = f"{unique_id}_{clean_name}{file_extension}"
+    #                 image_full_path = os.path.join(image_folder, image_filename)
+
+    #                 # Save image as-is without conversion
+    #                 with open(image_full_path, "wb") as f:
+    #                     for chunk in response.iter_content(chunk_size=8192):
+    #                         if chunk:
+    #                             f.write(chunk)
+
+    #                 # Verify download
+    #                 if os.path.exists(image_full_path):
+    #                     file_size = os.path.getsize(image_full_path)
+    #                     if file_size > 1000:
+    #                         logger.info(f"✅ Successfully downloaded: {product_name} ({file_size} bytes) as {file_extension}")
+    #                         return image_full_path
+    #                     else:
+    #                         logger.warning(f"Downloaded file too small: {file_size} bytes")
+    #                         os.remove(image_full_path)
+    #                 else:
+    #                     logger.warning("File was not created")
+                        
+    #             elif response.status_code == 404:
+    #                 logger.warning(f"Image not found (404): {image_url}")
+    #                 break  # Don't retry if 404
+                    
+    #         except requests.exceptions.Timeout:
+    #             logger.warning(f"Timeout on attempt {attempt + 1}")
+    #         except requests.exceptions.ConnectionError as e:
+    #             logger.warning(f"Connection error on attempt {attempt + 1}: {str(e)}")
+    #         except requests.exceptions.RequestException as e:
+    #             logger.warning(f"Request exception on attempt {attempt + 1}: {e}")
+    #         except Exception as e:
+    #             logger.warning(f"Unexpected error on attempt {attempt + 1}: {e}")
+            
+    #         # Wait before retry
+    #         if attempt < retries - 1:
+    #             time.sleep(1)
+
+    #     logger.error(f"❌ Failed to download: {product_name}")
+    #     return "N/A"
+
+
+    def convert_bulgari_url_to_jpg(self, url: str) -> str:
+        # Replace first f_auto → f_jpg
+        url = url.replace("f_auto", "f_jpg", 1)
+
+        # Remove second f_auto/ if exists
+        url = url.replace("f_auto/", "")
+
+        # Force JPG extension
+        url = re.sub(r"\.(png|jpg|jpeg|avif|webp)$", ".jpg", url)
+
+        return url
+
+
+
     def download_image(self, image_url: str, product_name: str, image_folder: str, unique_id: str, retries: int = 2) -> str:
         """
-        Download images for Bulgari without enhancement or conversion
+        Download images for Bulgari (always JPG). No AVIF conversion needed.
         """
         print("=================== Downloading Image ==================")
         print(f"Downloading image for product: {image_url}")
-        print("=================== Downloading Image ==================")
+        print("========================================================")
+
         if not image_url or image_url == "N/A":
             return "N/A"
 
@@ -474,71 +574,50 @@ class BulgariScraper:
         logger.info(f"Downloading image for: {product_name}")
         logger.info(f"Original URL: {image_url}")
 
+        # 🔥 FORCE JPG URL
+        image_url = self.convert_bulgari_url_to_jpg(image_url)
+
         for attempt in range(retries):
             try:
                 logger.info(f"Attempt {attempt + 1} with URL: {image_url}")
-                
+
                 headers = {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-                    "Accept-Language": "en-US,en;q=0.9",
+                    "User-Agent": "Mozilla/5.0",
+                    "Accept": "image/jpg,image/jpeg,image/*;q=0.8,*/*;q=0.5",
                     "Referer": "https://www.bulgari.com/",
                 }
 
                 response = requests.get(image_url, headers=headers, timeout=15, stream=True)
-                
                 logger.info(f"Response status: {response.status_code}")
-                
-                if response.status_code == 200:
-                    content_type = response.headers.get('content-type', '')
-                    logger.info(f"Content-Type: {content_type}")
-                    
-                    if not content_type.startswith('image/'):
-                        logger.warning(f"Non-image content type: {content_type}")
-                        continue
 
-                    # Get file extension from content type
-                    file_extension = self._get_file_extension_from_content_type(content_type)
-                    image_filename = f"{unique_id}_{clean_name}{file_extension}"
-                    image_full_path = os.path.join(image_folder, image_filename)
+                if response.status_code != 200:
+                    continue
 
-                    # Save image as-is without conversion
-                    with open(image_full_path, "wb") as f:
-                        for chunk in response.iter_content(chunk_size=8192):
-                            if chunk:
-                                f.write(chunk)
+                # Always save as JPG
+                final_filename = f"{unique_id}_{clean_name}.jpg"
+                final_full_path = os.path.join(image_folder, final_filename)
 
-                    # Verify download
-                    if os.path.exists(image_full_path):
-                        file_size = os.path.getsize(image_full_path)
-                        if file_size > 1000:
-                            logger.info(f"✅ Successfully downloaded: {product_name} ({file_size} bytes) as {file_extension}")
-                            return image_full_path
-                        else:
-                            logger.warning(f"Downloaded file too small: {file_size} bytes")
-                            os.remove(image_full_path)
-                    else:
-                        logger.warning("File was not created")
-                        
-                elif response.status_code == 404:
-                    logger.warning(f"Image not found (404): {image_url}")
-                    break  # Don't retry if 404
-                    
-            except requests.exceptions.Timeout:
-                logger.warning(f"Timeout on attempt {attempt + 1}")
-            except requests.exceptions.ConnectionError as e:
-                logger.warning(f"Connection error on attempt {attempt + 1}: {str(e)}")
-            except requests.exceptions.RequestException as e:
-                logger.warning(f"Request exception on attempt {attempt + 1}: {e}")
+                with open(final_full_path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+
+                # Validate image download
+                if os.path.exists(final_full_path) and os.path.getsize(final_full_path) > 1000:
+                    logger.info(f"✅ Successfully downloaded JPG: {final_full_path}")
+                    return final_full_path
+                else:
+                    logger.warning("Downloaded file too small, retrying...")
+                    continue
+
             except Exception as e:
-                logger.warning(f"Unexpected error on attempt {attempt + 1}: {e}")
-            
-            # Wait before retry
-            if attempt < retries - 1:
-                time.sleep(1)
+                logger.warning(f"Attempt {attempt + 1} failed: {e}")
+
+            time.sleep(1)
 
         logger.error(f"❌ Failed to download: {product_name}")
         return "N/A"
+
 
     def _get_file_extension_from_content_type(self, content_type: str) -> str:
         """Get appropriate file extension from content type"""
