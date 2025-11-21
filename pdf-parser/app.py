@@ -14,8 +14,6 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
 from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
-import fitz  # PyMuPDF
-from PIL import Image
 import numpy as np
 import logging
 import pandas as pd
@@ -43,8 +41,8 @@ class TableExtractionService:
         
         # Configure Docling with table extraction enabled
         pipeline_options = PdfPipelineOptions()
-        pipeline_options.do_table_structure = True
-        pipeline_options.table_structure_options.mode = TableFormerMode.ACCURATE
+        pipeline_options.do_table_structure = False
+        pipeline_options.table_structure_options.mode = TableFormerMode.FAST        
         
         self.converter = DocumentConverter(
             allowed_formats=[
@@ -52,8 +50,9 @@ class TableExtractionService:
                 InputFormat.PDF,
             ],
             format_options={
-                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)
-            }
+                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options, backend=PyPdfiumDocumentBackend)
+            },
+            
         )
     
     import os
@@ -341,7 +340,7 @@ if __name__ == "__main__":
     service = TableExtractionService(languages=['en'])
     
     # Extract tables from image/pdf
-    file_path = "Britannia Unaudited Q2 June 2026.pdf"  # Replace with your image/pdf path
+    file_path = "ITC Unaudited Q2 June 2026.pdf"  # Replace with your image/pdf path
     
     # Extract and save as both CSV and JSON
     results = service.extract_tables(
