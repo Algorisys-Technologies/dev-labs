@@ -67,7 +67,7 @@ def extract_metals(text):
 def extract_karat_info(text):
     """Extract karat information from text"""
     if not text:
-        return None
+        return "N/A"
 
     metals = extract_metals(text)
     if metals:
@@ -108,7 +108,7 @@ def extract_karat_info(text):
     if "DIAMOND" in text.upper():
         return "diamond"
 
-    return None
+    return "N/A"
 
 def parse_ct(val):
     """Convert ct string to float, supporting composite fractions like 1-3/4"""
@@ -127,7 +127,7 @@ def parse_ct(val):
 def standardize_diawt_value(value):
     """Standardize diamond weight format (e.g., '0.5ct tw')"""
     if not value:
-        return None
+        return "N/A"
 
     value = str(value).strip().lower()
 
@@ -141,7 +141,8 @@ def standardize_diawt_value(value):
     # Extract the number portion (e.g., 0.5, 3/4, 1-1/2)
     num_match = re.search(r'(\d+-\d+/\d+|\d+/\d+|\d*\.\d+|\d+)', value)
     if not num_match:
-        return None
+        return "N/A"
+
 
     num_part = num_match.group(1)
     return f"{num_part}ct tw" if has_tw else f"{num_part}ct"
@@ -165,7 +166,7 @@ def extract_diamond_weight(text):
     )
 
     if any(x in metal_free_text for x in ['CUBIC ZIRCONIA', 'SAPPHIRE', 'CREATED']):
-        return None
+        return "N/A"
 
     # Match patterns: 1-3/4, 3/4, 0.25, 0,50, 1.25, etc. with ct indicators
     matches = re.findall(
@@ -181,23 +182,27 @@ def extract_diamond_weight(text):
             diamond_cts.append((val.strip(), unit.strip(), ct_val))
 
     if not diamond_cts:
-        return None
+        return "N/A"
 
     # Pick the smallest valid ct
     smallest = min(diamond_cts, key=lambda x: x[2])
     return standardize_diawt_value(f"{smallest[0]} {smallest[1]}")
 
 def extract_price(price_text):
-    """Extract current price from price text"""
+    """Extract price with ANY currency symbol or 3-letter code."""
     if not price_text:
-        return None
-    
-    # Look for the first price (current price)
-    price_match = re.search(r'\$[\d,]+(?:\.\d{2})?', str(price_text))
-    if price_match:
-        return price_match.group(0)
-    
-    return None
+        return "N/A"
+
+    text = str(price_text)
+
+    pattern = r'((?:\$|€|£|₹|¥|[A-Z]{3})\s*[\d,]+(?:\.\d{1,2})?)'
+
+    match = re.search(pattern, text, re.IGNORECASE)
+    if match:
+        return match.group(0).strip()
+
+    return "N/A"
+
 
 def process_row(row):
     """Process individual row data for database insertion"""
@@ -212,7 +217,7 @@ def process_row(row):
         kt = extract_karat_info(row.get('product_name', ''))
         
         # Price extraction
-        price = extract_price(row.get('price', ''))
+        price = row.get('price', '')
         
         # Enhanced diamond weight extraction
         total_dia_wt = extract_diamond_weight(row.get('product_name', ''))

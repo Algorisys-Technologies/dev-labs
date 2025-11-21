@@ -206,8 +206,8 @@ saveToDbBtn.addEventListener('click', async () => {
     };
     
     showProgress(10, 'Sending data to server...');
-    
-    const response = await fetch('http://localhost:5000/api/scrape/save', {
+    // http://192.168.6.159:5009/api/scrape/save
+    const response = await fetch('http://localhost:5008/api/scrape/save', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
