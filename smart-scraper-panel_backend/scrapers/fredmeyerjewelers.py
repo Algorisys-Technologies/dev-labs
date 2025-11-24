@@ -246,30 +246,78 @@ class FredMeyerJewelersParser:
         
         return "N/A"
     
+    # def _extract_price(self, soup) -> str:
+    #     """Extract price information from Fred Meyer Jewelers product"""
+    #     # Current price selectors
+    #     price_selectors = [
+    #         '[data-test="result-current-price"]',  # Current price
+    #         '.x-result-current-price',  # Current price class
+    #         '.x-currency',  # Currency class
+    #         '.x-font-main.x-text-[15px]'  # Price text class
+    #     ]
+        
+    #     for selector in price_selectors:
+    #         price_element = soup.select_one(selector)
+    #         if price_element:
+    #             price_text = price_element.get_text(strip=True)
+    #             extracted_price = self.extract_price_value(price_text)
+    #             if extracted_price != "N/A":
+    #                 return extracted_price
+        
+    #     # Look for price in any text
+    #     price_match = re.search(r'\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?', soup.get_text())
+    #     if price_match:
+    #         return price_match.group(0)
+        
+    #     return "N/A"
+
+
     def _extract_price(self, soup) -> str:
-        """Extract price information from Fred Meyer Jewelers product"""
-        # Current price selectors
-        price_selectors = [
-            '[data-test="result-current-price"]',  # Current price
-            '.x-result-current-price',  # Current price class
-            '.x-currency',  # Currency class
-            '.x-font-main.x-text-[15px]'  # Price text class
+        """Extract current + previous price for Fred Meyer Jewelers"""
+
+        current_selectors = [
+            '[data-test="result-current-price"]',
+            '.x-result-current-price',
         ]
+        previous_selectors = [
+            '[data-test="result-previous-price"]',
+            '.x-result-previous-price',
+        ]
+
+        current_price = None
+        previous_price = None
         
-        for selector in price_selectors:
-            price_element = soup.select_one(selector)
-            if price_element:
-                price_text = price_element.get_text(strip=True)
-                extracted_price = self.extract_price_value(price_text)
-                if extracted_price != "N/A":
-                    return extracted_price
-        
-        # Look for price in any text
-        price_match = re.search(r'\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?', soup.get_text())
-        if price_match:
-            return price_match.group(0)
-        
+        # extract current
+        for selector in current_selectors:
+            el = soup.select_one(selector)
+            if el:
+                text = el.get_text(strip=True)
+                price = self.extract_price_value(text)
+                if price != "N/A":
+                    current_price = price
+                    break
+
+        # extract previous
+        for selector in previous_selectors:
+            el = soup.select_one(selector)
+            if el:
+                text = el.get_text(strip=True)
+                price = self.extract_price_value(text)
+                if price != "N/A":
+                    previous_price = price
+                    break
+
+        if current_price and previous_price:
+            return f"{current_price} | {previous_price}"
+
+        if current_price:
+            return current_price
+
+        if previous_price:
+            return previous_price
+
         return "N/A"
+
     
     def _extract_image(self, soup) -> str:
         """Extract product image URL from Fred Meyer Jewelers product"""
