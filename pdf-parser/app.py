@@ -1,366 +1,823 @@
 """
-Table Extraction Service using Docling and EasyOCR
-Extracts tabular data from PDFs (text or image-based) and images, converts to CSV/JSON
+Flask API for Financial Document Parser Service
 """
-
-import json
-import csv
-import io
 import os
-from pathlib import Path
-from typing import List, Dict, Union, Literal
-import easyocr
-from docling.document_converter import DocumentConverter, PdfFormatOption
-from docling.datamodel.base_models import InputFormat
-from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
-from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
-import numpy as np
 import logging
-import pandas as pd
+from pathlib import Path
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
+import tempfile
+import shutil
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
+
+from parser_core import (
+    process_pdf_document,
+    load_config,
+    get_supported_companies
+)
+from excel_generator import FinancialExcelGenerator, FileManager
+from ai_extractor import AIFinancialExtractor, validate_financial_data
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
-class TableExtractionService:
-    """Service for extracting tables from images using Docling and EasyOCR"""
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+# Configuration
+UPLOAD_FOLDER = Path('uploads')
+OUTPUT_FOLDER = Path('output')
+EXCEL_STORAGE_FOLDER = Path('excel_storage')
+ALLOWED_EXTENSIONS = {'pdf'}
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+
+UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
+OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
+EXCEL_STORAGE_FOLDER.mkdir(parents=True, exist_ok=True)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+app.config['EXCEL_STORAGE_FOLDER'] = EXCEL_STORAGE_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
+
+# Initialize file manager
+file_manager = FileManager(EXCEL_STORAGE_FOLDER)
+
+# Initialize AI extractor (optional - requires OPENAI_API_KEY)
+try:
+    ai_extractor = AIFinancialExtractor()
+    print("AI extractor initialized")
+    _log.info("AI extractor initialized successfully")
+except Exception as e:
+    _log.warning(f"AI extractor not available: {str(e)}")
+    print("AI extractor not available")
+    ai_extractor = None
+
+# Load configuration
+try:
+    config = load_config()
+    _log.info("Configuration loaded successfully")
+except Exception as e:
+    _log.error(f"Failed to load configuration: {str(e)}")
+    config = None
+
+
+def allowed_file(filename):
+    """Check if file extension is allowed."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint."""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'Financial Document Parser API',
+        'config_loaded': config is not None
+    }), 200
+
+
+@app.route('/api/companies', methods=['GET'])
+def get_companies():
+    """Get list of supported companies."""
+    try:
+        companies = get_supported_companies()
+        return jsonify({
+            'success': True,
+            'companies': companies
+        }), 200
+    except Exception as e:
+        _log.error(f"Error getting companies: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/parse', methods=['POST'])
+def parse_document():
+    """
+    Parse financial document with optimized multi-format support.
     
-    def __init__(self, languages: List[str] = None):
-        """
-        Initialize the service
+    Expected form data:
+    - file: PDF file (required)
+    - company_name: Company name (required, e.g., "BRITANNIA", "COLGATE", etc.)
+    - prefer_standalone: Prefer standalone over consolidated statements (optional, default: true)
+    - use_fuzzy_matching: Enable fuzzy label matching fallback (optional, default: true)
+    
+    Returns:
+    - success: bool
+    - message: str
+    - data: Parsed financial data
+    - output_files: Generated file paths
+    - processing_time: Processing duration
+    - table_info: Table selection metadata (total_tables, selected_table, selection_method)
+    """
+    try:
+        # Check if config is loaded
+        if config is None:
+            return jsonify({
+                'success': False,
+                'error': 'Configuration not loaded'
+            }), 500
         
-        Args:
-            languages: List of language codes for OCR (default: ['en'])
-        """
-        self.languages = languages or ['en']
-        self.reader = easyocr.Reader(self.languages, gpu=False)
+        # Check if file is present
+        if 'file' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No file provided'
+            }), 400
         
-        # Configure Docling with table extraction enabled
-        pipeline_options = PdfPipelineOptions()
-        pipeline_options.do_table_structure = False
-        pipeline_options.table_structure_options.mode = TableFormerMode.FAST        
+        file = request.files['file']
         
-        self.converter = DocumentConverter(
-            allowed_formats=[
-                InputFormat.IMAGE,
-                InputFormat.PDF,
-            ],
-            format_options={
-                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options, backend=PyPdfiumDocumentBackend)
-            },
-            
+        # Check if file is selected
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No file selected'
+            }), 400
+        
+        # Check if company name is provided
+        company_name = request.form.get('company_name', '').upper()
+        if not company_name:
+            return jsonify({
+                'success': False,
+                'error': 'Company name not provided'
+            }), 400
+        
+        # Validate company name
+        if company_name not in get_supported_companies():
+            return jsonify({
+                'success': False,
+                'error': f'Unsupported company: {company_name}. Supported: {get_supported_companies()}'
+            }), 400
+        
+        # Check file extension
+        if not allowed_file(file.filename):
+            return jsonify({
+                'success': False,
+                'error': 'Invalid file type. Only PDF files are allowed.'
+            }), 400
+        
+        # Get optional optimization parameters
+        prefer_standalone = request.form.get('prefer_standalone', 'true').lower() == 'true'
+        use_fuzzy_matching = request.form.get('use_fuzzy_matching', 'true').lower() == 'true'
+        
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        temp_dir = Path(tempfile.mkdtemp())
+        file_path = temp_dir / filename
+        file.save(str(file_path))
+        
+        _log.info(f"Processing file: {filename} for company: {company_name}")
+        _log.info(f"Options: prefer_standalone={prefer_standalone}, use_fuzzy_matching={use_fuzzy_matching}")
+        
+        # Create output directory for this request
+        output_dir = OUTPUT_FOLDER / f"{company_name}_{file_path.stem}"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Process document with optimization parameters
+        result = process_pdf_document(
+            pdf_path=file_path,
+            company_name=company_name,
+            output_dir=output_dir,
+            config=config,
+            prefer_standalone=prefer_standalone,
+            use_fuzzy_matching=use_fuzzy_matching
         )
-    
-    import os
+        
+        # Clean up temporary file
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': result['message'],
+                'data': result['json_result'],
+                'output_files': result['output_files'],
+                'processing_time': result.get('processing_time'),
+                'table_info': result.get('table_info', {})
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': result['message']
+            }), 500
+            
+    except Exception as e:
+        _log.error(f"Error processing request: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': f'Internal server error: {str(e)}'
+        }), 500
 
-    def extract_with_easyocr(self, image_path: str):
-        """
-        Extract text from image using EasyOCR
+
+@app.route('/api/download/<path:filename>', methods=['GET'])
+def download_file(filename):
+    """Download generated file."""
+    try:
+        file_path = OUTPUT_FOLDER / filename
         
-        Args:
-            image_path: Path to the image file
-            
-        Returns:
-            List of detected text with bounding boxes
-        """
-        # Check if the file exists
-        if not os.path.exists(image_path):
-            logger.error(f"File not found: {image_path}")
-            return []
-            
+        if not file_path.exists():
+            return jsonify({
+                'success': False,
+                'error': 'File not found'
+            }), 404
         
-        # Check if the file is a valid image format
-        valid_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']
-        if not any(image_path.lower().endswith(ext) for ext in valid_extensions):
-            logger.error(f"Unsupported file format: {image_path}")
-            return []
+        return send_file(
+            file_path,
+            as_attachment=True,
+            download_name=file_path.name
+        )
+    except Exception as e:
+        _log.error(f"Error downloading file: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/results/<company_name>/<document_name>', methods=['GET'])
+def get_results(company_name, document_name):
+    """Get parsing results for a specific document."""
+    try:
+        output_dir = OUTPUT_FOLDER / f"{company_name}_{document_name}"
+        json_file = output_dir / f"{document_name}-financial-data.json"
         
-        try:
-            # Process the image with EasyOCR
-            results = self.reader.readtext(image_path)
-            
-            # Format results
-            formatted_results = []
-            for bbox, text, confidence in results:
-                formatted_results.append({
-                    'bbox': bbox,
-                    'text': text,
-                    'confidence': confidence
-                })
-            
-            return formatted_results
+        if not json_file.exists():
+            return jsonify({
+                'success': False,
+                'error': 'Results not found'
+            }), 404
         
-        except Exception as e:
-            logger.error(f"Error processing image with EasyOCR: {e}", exc_info=True)
-            return []
+        import json
+        with open(json_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        return jsonify({
+            'success': True,
+            'data': data
+        }), 200
+        
+    except Exception as e:
+        _log.error(f"Error getting results: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/update-financial-data', methods=['POST'])
+def update_financial_data():
+    """
+    Update financial data JSON file after editing.
     
-    def extract_with_docling(self, file_path: str) -> Dict:
-        """
-        Extract document structure including tables using Docling
+    Expected JSON body:
+    {
+        "company_name": "BRITANNIA",
+        "document_name": "Britannia Unaudited Q2 June 2026",
+        "financial_data": [...],  # Updated financial data array
+        "create_new": false  # Optional: if true, creates a new edited version
+    }
+    """
+    try:
+        data = request.get_json()
         
-        Args:
-            file_path: Path to the image or PDF file
-            
-        Returns:
-            Extracted document data with tables
-        """
-        result = self.converter.convert(file_path)
-        return result
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided'
+            }), 400
         
-    
-    def parse_table_to_rows(self, table_data) -> List[List[str]]:
-        """
-        Parse table data into rows and columns
+        company_name = data.get('company_name', '').upper()
+        document_name = data.get('document_name', '')
+        financial_data = data.get('financial_data', [])
+        create_new = data.get('create_new', False)
         
-        Args:
-            table_data: Table element from Docling
-            
-        Returns:
-            List of rows, each row is a list of cell values
-        """
-        rows = []
+        if not company_name or not document_name:
+            return jsonify({
+                'success': False,
+                'error': 'Company name and document name are required'
+            }), 400
         
-        # Check if table_data has the expected structure
-        if hasattr(table_data, 'data') and hasattr(table_data.data, 'table_cells'):
-            table_cells = table_data.data.table_cells
-            
-            # Group cells by row index
-            grouped_rows = {}
-            for cell in table_cells:
-                row_idx = cell.start_row_offset_idx
-                col_idx = cell.start_col_offset_idx
-                
-                if row_idx not in grouped_rows:
-                    grouped_rows[row_idx] = {}
-                
-                grouped_rows[row_idx][col_idx] = cell.text
-            
-            # Sort rows and columns to create a 2D list
-            for row_idx in sorted(grouped_rows.keys()):
-                row = []
-                for col_idx in sorted(grouped_rows[row_idx].keys()):
-                    row.append(grouped_rows[row_idx][col_idx])
-                rows.append(row)
+        if not financial_data:
+            return jsonify({
+                'success': False,
+                'error': 'Financial data is required'
+            }), 400
         
-        # Log the parsed rows for debugging
-        logger.debug(f"Parsed rows: {rows}")
+        # Validate company name
+        if company_name not in get_supported_companies():
+            return jsonify({
+                'success': False,
+                'error': f'Unsupported company: {company_name}'
+            }), 400
         
-        return rows
-    
-    def extract_tables(
-        self, 
-        file_path: str,
-        output_format: Literal['csv', 'json', 'both'] = 'both',
-        output_dir: str = None
-    ) -> Dict[str, Union[str, List[Dict]]]:
-        """
-        Main method to extract tables from image and convert to CSV/JSON
-        
-        Args:
-            file_path: Path to the image file
-            output_format: 'csv', 'json', or 'both'
-            output_dir: Directory to save output files (optional)
-            
-        Returns:
-            Dictionary with extracted data in requested formats
-        """
-        results = {
-            'file': file_path,
-            'tables': []
+        # Prepare updated data
+        updated_data = {
+            "company_name": company_name,
+            "financial_data": financial_data
         }
         
-        # First try Docling for structured extraction
+        # Determine output path
+        output_dir = OUTPUT_FOLDER / f"{company_name}_{document_name}"
+        
+        if not output_dir.exists():
+            output_dir.mkdir(parents=True, exist_ok=True)
+        
+        if create_new:
+            # Create a new edited version
+            json_file = output_dir / f"{document_name}-financial-data-edited.json"
+        else:
+            # Overwrite existing file
+            json_file = output_dir / f"{document_name}-financial-data.json"
+        
+        # Save updated JSON
+        import json
+        with open(json_file, 'w', encoding='utf-8') as f:
+            json.dump(updated_data, f, indent=2, ensure_ascii=False)
+        
+        _log.info(f"Updated financial data saved to {json_file}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Financial data updated successfully',
+            'file_path': str(json_file)
+        }), 200
+        
+    except Exception as e:
+        _log.error(f"Error updating financial data: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': f'Internal server error: {str(e)}'
+        }), 500
+
+
+@app.route('/api/generate-excel', methods=['POST'])
+def generate_excel():
+    """
+    Generate Excel file from JSON financial data.
+    
+    Expected JSON body:
+    {
+        "financial_data": [...],  # Financial data array
+        "company_name": "BRITANNIA",  # Optional, defaults from data
+        "save": true  # Optional: save to storage (default: false)
+    }
+    
+    Returns:
+    - Excel file download OR
+    - File ID if save=true
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided'
+            }), 400
+        
+        # Validate input
+        if 'financial_data' not in data or not data['financial_data']:
+            # Check if full JSON format with company_name and financial_data
+            if 'company_name' not in data:
+                return jsonify({
+                    'success': False,
+                    'error': 'financial_data array is required'
+                }), 400
+        
+        # Prepare JSON data
+        json_data = {
+            'company_name': data.get('company_name', 'Financial Statement'),
+            'financial_data': data.get('financial_data', [])
+        }
+        
+        # Generate Excel
+        generator = FinancialExcelGenerator()
+        temp_dir = Path(tempfile.mkdtemp())
+        company_name_safe = json_data['company_name'].replace(' ', '_')
+        excel_file = temp_dir / f"{company_name_safe}_financial_statement.xlsx"
+        
+        success = generator.generate_excel(json_data, excel_file)
+        
+        if not success:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return jsonify({
+                'success': False,
+                'error': 'Failed to generate Excel file'
+            }), 500
+        
+        # Check if we should save to storage
+        save_to_storage = data.get('save', False)
+        
+        if save_to_storage:
+            # Save to storage and return file ID
+            file_id = file_manager.save_file(excel_file, json_data['company_name'], 'excel')
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Excel file generated and saved',
+                'file_id': file_id,
+                'download_url': f'/api/download-generated/{file_id}'
+            }), 200
+        else:
+            # Return file directly
+            try:
+                return send_file(
+                    excel_file,
+                    as_attachment=True,
+                    download_name=excel_file.name,
+                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
+            finally:
+                # Clean up temp file after sending
+                import atexit
+                atexit.register(lambda: shutil.rmtree(temp_dir, ignore_errors=True))
+        
+    except Exception as e:
+        _log.error(f"Error generating Excel: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': f'Internal server error: {str(e)}'
+        }), 500
+
+
+@app.route('/api/generate-csv', methods=['POST'])
+def generate_csv():
+    """
+    Generate CSV file from JSON financial data.
+    
+    Expected JSON body:
+    {
+        "financial_data": [...],  # Financial data array
+        "company_name": "BRITANNIA",  # Optional, defaults from data
+        "save": true  # Optional: save to storage (default: false)
+    }
+    
+    Returns:
+    - CSV file download OR
+    - File ID if save=true
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided'
+            }), 400
+        
+        # Validate input
+        if 'financial_data' not in data or not data['financial_data']:
+            if 'company_name' not in data:
+                return jsonify({
+                    'success': False,
+                    'error': 'financial_data array is required'
+                }), 400
+        
+        # Prepare JSON data
+        json_data = {
+            'company_name': data.get('company_name', 'Financial Statement'),
+            'financial_data': data.get('financial_data', [])
+        }
+        
+        # Generate CSV
+        generator = FinancialExcelGenerator()
+        temp_dir = Path(tempfile.mkdtemp())
+        company_name_safe = json_data['company_name'].replace(' ', '_')
+        csv_file = temp_dir / f"{company_name_safe}_financial_statement.csv"
+        
+        success = generator.generate_csv(json_data, csv_file)
+        
+        if not success:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return jsonify({
+                'success': False,
+                'error': 'Failed to generate CSV file'
+            }), 500
+        
+        # Check if we should save to storage
+        save_to_storage = data.get('save', False)
+        
+        if save_to_storage:
+            # Save to storage and return file ID
+            file_id = file_manager.save_file(csv_file, json_data['company_name'], 'csv')
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            
+            return jsonify({
+                'success': True,
+                'message': 'CSV file generated and saved',
+                'file_id': file_id,
+                'download_url': f'/api/download-generated/{file_id}'
+            }), 200
+        else:
+            # Return file directly
+            try:
+                return send_file(
+                    csv_file,
+                    as_attachment=True,
+                    download_name=csv_file.name,
+                    mimetype='text/csv'
+                )
+            finally:
+                # Clean up temp file after sending
+                import atexit
+                atexit.register(lambda: shutil.rmtree(temp_dir, ignore_errors=True))
+        
+    except Exception as e:
+        _log.error(f"Error generating CSV: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': f'Internal server error: {str(e)}'
+        }), 500
+
+
+@app.route('/api/generate-excel-ai', methods=['POST'])
+def generate_excel_ai():
+    """
+    Generate Excel file using AI extraction from previously parsed results.
+    
+    Expected JSON body:
+    {
+        "company_name": "BRITANNIA",
+        "document_name": "Britannia_Unaudited_Q2_June_2026",  // Output directory name
+        "preferred_format": "html",  // Optional: "html" or "markdown" (default: "html")
+        "save": false  // Optional: save to storage (default: false)
+    }
+    
+    Returns:
+    - Excel file download OR
+    - File ID if save=true
+    """
+    try:
+        # Check if AI extractor is available
+        if ai_extractor is None:
+            return jsonify({
+                'success': False,
+                'error': 'AI extraction not available. Please set OPENAI_API_KEY environment variable.'
+            }), 503
+        
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No data provided'
+            }), 400
+        
+        company_name = data.get('company_name', '').upper()
+        document_name = data.get('document_name', '')
+        preferred_format = data.get('preferred_format', 'html').lower()
+        
+        if not company_name or not document_name:
+            return jsonify({
+                'success': False,
+                'error': 'company_name and document_name are required'
+            }), 400
+        
+        # Validate company name
+        if company_name not in get_supported_companies():
+            return jsonify({
+                'success': False,
+                'error': f'Unsupported company: {company_name}'
+            }), 400
+        
+        # Locate output directory
+        output_dir = OUTPUT_FOLDER / f"{company_name}_{document_name}"
+        print(f"Looking for output directory at: {output_dir}")
+        
+        if not output_dir.exists():
+            return jsonify({
+                'success': False,
+                'error': f'No parsed results found for {company_name}/{document_name}'
+            }), 404
+        
+        _log.info(f"Extracting financial data using AI for {company_name}/{document_name}")
+        
+        # Extract data using AI
         try:
-            docling_result = self.extract_with_docling(file_path)
+            extracted_data = ai_extractor.extract_from_output_dir(
+                output_dir, 
+                company_name,
+                preferred_format=preferred_format
+            )
+            
+            # Validate extracted data
+            validate_financial_data(extracted_data)
+            
+        except FileNotFoundError as e:
+            return jsonify({
+                'success': False,
+                'error': f'No suitable table files found: {str(e)}'
+            }), 404
+        except ValueError as e:
+            return jsonify({
+                'success': False,
+                'error': f'Invalid data extracted: {str(e)}'
+            }), 500
+        
+        # Generate Excel from AI-extracted data
+        generator = FinancialExcelGenerator()
+        temp_dir = Path(tempfile.mkdtemp())
+        company_name_safe = company_name.replace(' ', '_')
+        excel_file = temp_dir / f"{company_name_safe}_AI_financial_statement.xlsx"
+        
+        success = generator.generate_excel(extracted_data, excel_file)
+        
+        if not success:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return jsonify({
+                'success': False,
+                'error': 'Failed to generate Excel file from AI-extracted data'
+            }), 500
+        
+        # Check if we should save to storage
+        save_to_storage = data.get('save', False)
+        
+        if save_to_storage:
+            # Save to storage and return file ID
+            file_id = file_manager.save_file(excel_file, company_name, 'excel')
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Excel file generated using AI and saved',
+                'file_id': file_id,
+                'download_url': f'/api/download-generated/{file_id}',
+                'metadata': extracted_data.get('metadata', {})
+            }), 200
+        else:
+            # Return file directly
+            try:
+                return send_file(
+                    excel_file,
+                    as_attachment=True,
+                    download_name=excel_file.name,
+                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
+            finally:
+                # Clean up temp file after sending
+                import atexit
+                atexit.register(lambda: shutil.rmtree(temp_dir, ignore_errors=True))
+        
+    except Exception as e:
+        _log.error(f"Error generating AI Excel: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': f'Internal server error: {str(e)}'
+        }), 500
 
-            doc_filename = docling_result.input.file.stem
 
-            if output_format in ['json', 'both']:
-                dict_data = docling_result.document.export_to_dict(mode="json")
-                
-                # Filter the dict_data to include only the required keys
-                filtered_data = {
-                    key: dict_data[key] for key in ['schema_name', 'version', 'name', 'origin', 'tables'] if key in dict_data
+@app.route('/api/download-generated/<file_id>', methods=['GET'])
+def download_generated_file(file_id):
+    """
+    Download generated Excel/CSV file by ID.
+    
+    Query Parameters:
+    - download: Auto-download file (default: true)
+    - preview: Return metadata instead of file (default: false)
+    """
+    try:
+        preview = request.args.get('preview', 'false').lower() == 'true'
+        
+        # Get file metadata
+        file_info = file_manager.get_file(file_id)
+        
+        if not file_info:
+            return jsonify({
+                'success': False,
+                'error': 'File not found'
+            }), 404
+        
+        # Return metadata if preview requested
+        if preview:
+            return jsonify({
+                'success': True,
+                'file_info': {
+                    'file_id': file_info['file_id'],
+                    'company_name': file_info['company_name'],
+                    'file_type': file_info['file_type'],
+                    'original_name': file_info['original_name'],
+                    'created_at': file_info['created_at'],
+                    'file_size': file_info['file_size'],
+                    'download_count': file_info['download_count']
                 }
-
-                # Convert the filtered data to JSON
-                json_output = json.dumps(filtered_data, indent=2)
-
-                if output_dir:
-                    json_path = Path(output_dir) / f"{doc_filename}_docling.json"
-                    json_path.parent.mkdir(parents=True, exist_ok=True)
-                    json_path.write_text(json_output)
-                    logger.info(f"Saved Docling output as JSON to {json_path}")
-
-            if output_format in ['csv', 'both']:
-                for idx, table in enumerate(docling_result.document.tables):
-                    table_df: pd.DataFrame = table.export_to_dataframe()
-
-                    if output_dir:
-                        csv_path = Path(output_dir) / f"{doc_filename}_docling_table_{idx + 1}.csv"
-                        csv_path.parent.mkdir(parents=True, exist_ok=True)
-                        table_df.to_csv(csv_path, index=False)
-                        logger.info(f"Saved table {idx} as CSV to {csv_path}")
-
-            if docling_result.document.tables:
-                for idx, table in enumerate(docling_result.document.tables):
-                    rows = self.parse_table_to_rows(table)
-
-                    table_data = {
-                        'table_index': idx,
-                        'rows': rows,
-                        'row_count': len(rows),
-                        'column_count': len(rows[0]) if rows else 0,
-                        'method': 'docling'
-                    }
-
-                    results['tables'].append(table_data)
-
-            # If no tables found with Docling, fallback to EasyOCR
-            if not results['tables']:
-                logger.info("No tables found with Docling, trying EasyOCR...")
-                ocr_results = self.extract_with_easyocr(file_path)
-                
-                # Group OCR results into potential table structure
-                rows = self._group_ocr_into_table(ocr_results)
-                
-                if rows:
-                    table_data = {
-                        'table_index': 0,
-                        'rows': rows,
-                        'row_count': len(rows),
-                        'column_count': len(rows[0]) if rows else 0,
-                        'method': 'easyocr'
-                    }
-                    
-                    if output_format in ['csv', 'both']:
-                        csv_string = self._to_csv(rows)
-                        table_data['csv'] = csv_string
-                        
-                        if output_dir:
-                            csv_path = Path(output_dir) / "table_0.csv"
-                            csv_path.parent.mkdir(parents=True, exist_ok=True)
-                            csv_path.write_text(csv_string)
-                            logger.info(f"Saved table 0 as CSV to {csv_path}")
-                    
-                    if output_format in ['json', 'both']:
-                        json_data = self._to_json(rows)
-                        table_data['json'] = json_data
-                        
-                        if output_dir:
-                            json_path = Path(output_dir) / "table_0.json"
-                            json_path.parent.mkdir(parents=True, exist_ok=True)
-                            json_path.write_text(json.dumps(json_data, indent=2))
-                            logger.info(f"Saved table 0 as JSON to {json_path}")
-                    
-                    results['tables'].append(table_data)
+            }), 200
         
-        except Exception as e:
-            logger.error(f"Error during extraction: {e}", exc_info=True)
-            results['error'] = str(e)
+        # Return file
+        # Handle missing stored_path (legacy files or corrupted metadata)
+        if file_info.get('stored_path'):
+            file_path = Path(file_info['stored_path'])
+        else:
+            # Fallback: reconstruct path from file_id
+            extension = '.xlsx' if file_info['file_type'] == 'excel' else '.csv'
+            file_path = EXCEL_STORAGE_FOLDER / f"{file_info['file_id']}{extension}"
+
+        print( f"Downloading file from path: {file_path}" )  # Debugging line
         
-        return results
+        if not file_path.exists():
+            return jsonify({
+                'success': False,
+                'error': 'File not found on disk'
+            }), 404
+        
+        mimetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
+                   if file_info['file_type'] == 'excel' else 'text/csv'
+        
+        return send_file(
+            file_path,
+            as_attachment=True,
+            download_name=file_info['original_name'],
+            mimetype=mimetype
+        )
+        
+    except Exception as e:
+        _log.error(f"Error downloading file: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/list-generated-files', methods=['GET'])
+def list_generated_files():
+    """
+    List all generated files with optional filtering.
     
-    def _group_ocr_into_table(self, ocr_results: List[Dict]) -> List[List[str]]:
-        """
-        Group OCR results into table structure based on spatial positioning
+    Query Parameters:
+    - company_name: Filter by company name (optional)
+    """
+    try:
+        company_name = request.args.get('company_name')
         
-        Args:
-            ocr_results: List of OCR detections with bounding boxes
-            
-        Returns:
-            List of rows
-        """
-        if not ocr_results:
-            return []
+        files = file_manager.list_files(company_name=company_name)
         
-        # Sort by Y coordinate (top to bottom)
-        sorted_results = sorted(ocr_results, key=lambda x: x['bbox'][0][1])
+        # Remove stored_path from response for security
+        # for file_info in files:
+            # file_info.pop('stored_path', None)
         
-        # Group into rows based on Y coordinate proximity
-        rows = []
-        current_row = []
-        last_y = None
-        y_threshold = 20  # pixels
+        return jsonify({
+            'success': True,
+            'count': len(files),
+            'files': files
+        }), 200
         
-        for item in sorted_results:
-            y_coord = item['bbox'][0][1]
-            
-            if last_y is None or abs(y_coord - last_y) < y_threshold:
-                current_row.append(item)
-            else:
-                if current_row:
-                    # Sort row by X coordinate (left to right)
-                    current_row.sort(key=lambda x: x['bbox'][0][0])
-                    rows.append([item['text'] for item in current_row])
-                current_row = [item]
-            
-            last_y = y_coord
-        
-        # Add last row
-        if current_row:
-            current_row.sort(key=lambda x: x['bbox'][0][0])
-            rows.append([item['text'] for item in current_row])
-        
-        return rows
-    
-    def _to_csv(self, rows: List[List[str]]) -> str:
-        """Convert rows to CSV string"""
-        output = io.StringIO()
-        writer = csv.writer(output)
-        writer.writerows(rows)
-        return output.getvalue()
-    
-    def _to_json(self, rows: List[List[str]]) -> List[Dict]:
-        """Convert rows to JSON (list of dictionaries with headers)"""
-        if not rows:
-            return []
-        
-        # Use first row as headers
-        headers = rows[0]
-        data = []
-        
-        for row in rows[1:]:
-            row_dict = {}
-            for i, header in enumerate(headers):
-                value = row[i] if i < len(row) else ''
-                row_dict[header] = value
-            data.append(row_dict)
-        
-        return data
+    except Exception as e:
+        _log.error(f"Error listing files: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 
-# Example usage
-if __name__ == "__main__":
-    # Initialize service
-    service = TableExtractionService(languages=['en'])
-    
-    # Extract tables from image/pdf
-    file_path = "ITC Unaudited Q2 June 2026.pdf"  # Replace with your image/pdf path
-    
-    # Extract and save as both CSV and JSON
-    results = service.extract_tables(
-        file_path=file_path,
-        output_format='both',
-        output_dir='output_tables'
-    )
-    
-    # Print results
-    print(f"\nFound {len(results['tables'])} table(s)")
-    
-    for table in results['tables']:
-        print(f"\nTable {table['table_index']}:")
-        print(f"  Rows: {table['row_count']}")
-        print(f"  Columns: {table['column_count']}")
+@app.route('/api/delete-generated/<file_id>', methods=['DELETE'])
+def delete_generated_file(file_id):
+    """Delete generated file by ID."""
+    try:
+        success = file_manager.delete_file(file_id)
         
-        if 'csv' in table:
-            print("\nCSV Preview:")
-            print(table['csv'][:500])  # First 500 chars
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'File deleted successfully'
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'File not found'
+            }), 404
         
-        if 'json' in table:
-            print("\nJSON Preview:")
-            print(json.dumps(table['json'][:2], indent=2))  # First 2 rows
+    except Exception as e:
+        _log.error(f"Error deleting file: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    """Handle file too large error."""
+    return jsonify({
+        'success': False,
+        'error': f'File too large. Maximum size is {MAX_FILE_SIZE / (1024 * 1024)}MB'
+    }), 413
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('DEBUG', 'False').lower() == 'true'
+    
+    _log.info(f"Starting Flask API on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=debug)
