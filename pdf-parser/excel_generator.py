@@ -94,7 +94,9 @@ class FinancialExcelGenerator:
     
     def _build_data_map(self, financial_data: List[Dict]) -> None:
         """Build data map from financial_data array for easy lookup."""
-        self.data_map = {}
+        self.data_map = {}  # Clear previous data
+        
+        _log.info(f"Building data map from {len(financial_data)} items")
         
         for item in financial_data:
             key = self._normalize_key(item.get('key', ''))
@@ -104,11 +106,18 @@ class FinancialExcelGenerator:
             if key:
                 self.data_map[key] = values
                 _log.debug(f"Mapped key '{key}' with {len(values)} periods: {list(values.keys())}")
+            else:
+                _log.warning(f"Item missing key: {item.get('particular', 'Unknown')}")
+        
+        _log.info(f"Data map built with {len(self.data_map)} keys: {list(self.data_map.keys())}")
     
     def _get_value(self, key: str, period: str) -> float:
-        """Get numeric value for a key and period."""
+        """Get numeric value for a key and period using exact match + fuzzy fallback."""
+        from fuzzywuzzy import fuzz
+        
         normalized_key = self._normalize_key(key)
         
+        # Strategy 1: Exact match
         if normalized_key in self.data_map:
             values = self.data_map[normalized_key]
             value = values.get(period, '')
@@ -118,7 +127,42 @@ class FinancialExcelGenerator:
                 return float(value)
             
             # Otherwise parse it as a string
-            return self._parse_number(value)
+            parsed_value = self._parse_number(value)
+            if parsed_value == 0 and value:
+                _log.debug(f"Parsed value for key='{normalized_key}', period='{period}': '{value}' → {parsed_value}")
+            return parsed_value
+        
+        # Strategy 2: Fuzzy match on available keys
+        if self.data_map:
+            best_match_key = None
+            best_score = 0
+            
+            for data_key in self.data_map.keys():
+                # Try multiple fuzzy algorithms
+                ratio_score = fuzz.ratio(normalized_key, data_key)
+                partial_score = fuzz.partial_ratio(normalized_key, data_key)
+                token_sort_score = fuzz.token_sort_ratio(normalized_key, data_key)
+                
+                max_score = max(ratio_score, partial_score, token_sort_score)
+                
+                if max_score > best_score:
+                    best_score = max_score
+                    best_match_key = data_key
+            
+            # Use fuzzy match if score is high enough
+            if best_score >= 85:  # 85% similarity threshold
+                _log.debug(f"✓ Fuzzy matched key '{normalized_key}' → '{best_match_key}' (score: {best_score}%)")
+                values = self.data_map[best_match_key]
+                value = values.get(period, '')
+                
+                if isinstance(value, (int, float)):
+                    return float(value)
+                
+                return self._parse_number(value)
+            else:
+                _log.debug(f"✗ No fuzzy match for key '{normalized_key}' (best: '{best_match_key}' score: {best_score}%)")
+        else:
+            _log.debug(f"Key '{normalized_key}' not found - data_map is empty!")
         
         return 0.0
     
@@ -585,69 +629,126 @@ class FinancialExcelGenerator:
             {display_name: key} dictionary
         """
         metric_map = {
-            # Revenue section
+            # Revenue Section - Multiple variations
             'sale of goods': 'sale_of_goods',
             'sale of products': 'sale_of_goods',
+            'sales of goods': 'sale_of_goods',
+            'goods sale': 'sale_of_goods',
+            'product sales': 'sale_of_goods',
             'export sales': 'export_sales',
+            'exports': 'export_sales',
             'service revenue': 'service_revenue',
+            'revenue from services': 'service_revenue',
+            'service income': 'service_revenue',
             'other operating revenue': 'other_operating_revenues',
             'other operating revenues': 'other_operating_revenues',
+            'other operating income': 'other_operating_revenues',
             'revenue from operations': 'revenue_from_operations',
             'total revenue from operations': 'revenue_from_operations',
             'total revenue': 'revenue_from_operations',
+            'operating revenue': 'revenue_from_operations',
             'other income': 'other_income',
+            'non-operating income': 'other_income',
             'total income': 'total_income',
+            'total revenue and income': 'total_income',
             
-            # Expenses
+            # Expenses Section - Multiple variations
             'cost of materials consumed': 'cost_of_materials_consumed',
+            'cost of material consumed': 'cost_of_materials_consumed',
+            'materials consumed': 'cost_of_materials_consumed',
             'cost of materials': 'cost_of_materials_consumed',
+            'material cost': 'cost_of_materials_consumed',
+            'raw material consumed': 'cost_of_materials_consumed',
             'excise duty': 'excise_duty',
+            'excise': 'excise_duty',
             'purchases of stock-in-trade': 'purchases_stock_in_trade',
             'purchases stock in trade': 'purchases_stock_in_trade',
+            'stock in trade purchases': 'purchases_stock_in_trade',
+            'purchases': 'purchases_stock_in_trade',
             'changes in inventories': 'changes_in_inventories',
+            'change in inventories': 'changes_in_inventories',
+            'inventory changes': 'changes_in_inventories',
             'employee benefits expense': 'employee_benefits_expense',
             'employee benefit expense': 'employee_benefits_expense',
+            'employee expenses': 'employee_benefits_expense',
+            'employee cost': 'employee_benefits_expense',
+            'staff costs': 'employee_benefits_expense',
+            'personnel expenses': 'employee_benefits_expense',
             'finance costs': 'finance_costs',
+            'finance cost': 'finance_costs',
+            'interest expense': 'finance_costs',
+            'borrowing costs': 'finance_costs',
             'depreciation and amortisation': 'depreciation_amortisation_expense',
             'depreciation and amortization': 'depreciation_amortisation_expense',
+            'depreciation & amortisation': 'depreciation_amortisation_expense',
+            'depreciation & amortization': 'depreciation_amortisation_expense',
+            'depreciation amortisation': 'depreciation_amortisation_expense',
+            'depreciation': 'depreciation_amortisation_expense',
+            'amortisation': 'depreciation_amortisation_expense',
+            'amortization': 'depreciation_amortisation_expense',
             'other expenses': 'other_expense',
             'other expense': 'other_expense',
+            'miscellaneous expenses': 'other_expense',
             'advertising expense': 'advertising_expense',
+            'advertising cost': 'advertising_expense',
+            'advertisement expense': 'advertising_expense',
             'impairment losses': 'impairment_losses',
+            'impairment loss': 'impairment_losses',
             'total expenses': 'total_expenses',
+            'total expenditure': 'total_expenses',
             
-            # Profit & Tax
+            # Profit & Tax Section - Multiple variations
             'profit before exceptional items and tax': 'profit_before_exceptional_and_tax',
+            'profit before exceptional item and tax': 'profit_before_exceptional_and_tax',
+            'pbt before exceptional items': 'profit_before_exceptional_and_tax',
+            'profit before exceptional and tax': 'profit_before_exceptional_and_tax',
             'exceptional items': 'exceptional_item_expense',
+            'exceptional item': 'exceptional_item_expense',
+            'exceptional item expense': 'exceptional_item_expense',
             'profit before tax': 'profit_before_tax',
+            'pbt': 'profit_before_tax',
+            'pre-tax profit': 'profit_before_tax',
             'current tax': 'current_tax',
+            'current income tax': 'current_tax',
             'deferred tax': 'deferred_tax',
+            'deferred tax expense': 'deferred_tax',
             'total tax expense': 'total_tax_expense',
             'tax expense': 'total_tax_expense',
+            'income tax': 'total_tax_expense',
             'net profit': 'net_profit',
             'profit for the period': 'net_profit',
+            'profit after tax': 'net_profit',
+            'pat': 'net_profit',
+            'net income': 'net_profit',
             
-            # OCI
+            # OCI Section
             'other comprehensive income': 'other_comprehensive_income',
+            'oci': 'other_comprehensive_income',
             'total comprehensive income': 'total_comprehensive_income',
+            'comprehensive income': 'total_comprehensive_income',
             
             # Equity & EPS
             'paid-up equity share capital': 'paid_up_equity_share_capital',
             'equity share capital': 'paid_up_equity_share_capital',
+            'share capital': 'paid_up_equity_share_capital',
+            'paid up capital': 'paid_up_equity_share_capital',
             'other equity': 'other_equity',
+            'reserves': 'other_equity',
             'eps basic': 'eps_basic',
             'eps (basic)': 'eps_basic',
             'basic eps': 'eps_basic',
+            'basic earnings per share': 'eps_basic',
             'eps diluted': 'eps_diluted',
             'eps (diluted)': 'eps_diluted',
             'diluted eps': 'eps_diluted',
+            'diluted earnings per share': 'eps_diluted',
         }
         
         return metric_map
     
     def _match_metric_to_key(self, metric_name: str, metric_map: Dict[str, str]) -> str:
         """
-        Match metric name to key using fuzzy matching.
+        Match metric name to key using multiple matching strategies.
         
         Args:
             metric_name: Display name from Excel
@@ -660,22 +761,61 @@ class FinancialExcelGenerator:
         
         metric_name_lower = metric_name.lower().strip()
         
-        # Try exact match first
+        # Remove common punctuation and extra spaces
+        cleaned_metric = metric_name_lower.replace('(', '').replace(')', '').replace(',', '')
+        cleaned_metric = ' '.join(cleaned_metric.split())  # Normalize whitespace
+        
+        # Strategy 1: Exact match on original
         if metric_name_lower in metric_map:
+            _log.debug(f"✓ Exact match: '{metric_name}' → key '{metric_map[metric_name_lower]}'")
             return metric_map[metric_name_lower]
         
-        # Try fuzzy matching
+        # Strategy 2: Exact match on cleaned version
+        if cleaned_metric in metric_map:
+            _log.debug(f"✓ Cleaned exact match: '{metric_name}' → key '{metric_map[cleaned_metric]}'")
+            return metric_map[cleaned_metric]
+        
+        # Strategy 3: Partial string matching (contains or starts with)
+        # First try startswith for long metric names
+        for display_name, key in metric_map.items():
+            if cleaned_metric.startswith(display_name) or metric_name_lower.startswith(display_name):
+                _log.debug(f"✓ Starts with match: '{metric_name}' starts with '{display_name}' → key '{key}'")
+                return key
+        
+        # Then try contains
+        for display_name, key in metric_map.items():
+            if display_name in cleaned_metric or cleaned_metric in display_name:
+                _log.debug(f"✓ Partial match: '{metric_name}' contains/in '{display_name}' → key '{key}'")
+                return key
+        
+        # Strategy 4: Fuzzy matching with different algorithms
         best_match = None
         best_score = 0
+        best_method = None
         
         for display_name, key in metric_map.items():
-            score = fuzz.ratio(metric_name_lower, display_name)
-            if score > best_score and score > 80:  # 80% threshold
-                best_score = score
+            # Try multiple fuzzy algorithms
+            ratio_score = fuzz.ratio(cleaned_metric, display_name)
+            partial_score = fuzz.partial_ratio(cleaned_metric, display_name)
+            token_sort_score = fuzz.token_sort_ratio(cleaned_metric, display_name)
+            
+            # Use the highest score from all methods
+            max_score = max(ratio_score, partial_score, token_sort_score)
+            
+            if max_score > best_score and max_score >= 75:  # Lowered threshold from 80 to 75
+                best_score = max_score
                 best_match = key
+                if max_score == ratio_score:
+                    best_method = 'ratio'
+                elif max_score == partial_score:
+                    best_method = 'partial'
+                else:
+                    best_method = 'token_sort'
         
         if best_match:
-            _log.debug(f"Matched '{metric_name}' to '{best_match}' (score: {best_score})")
+            _log.info(f"✓ Fuzzy match ({best_method}): '{metric_name}' → key '{best_match}' (score: {best_score})")
+        else:
+            _log.warning(f"✗ No match found for metric: '{metric_name}'")
         
         return best_match
     
@@ -1043,8 +1183,19 @@ class FinancialExcelGenerator:
             # Set column A width
             ws.column_dimensions['A'].width = 60
             
-            # Get standard metrics list (from first company or use default)
-            standard_metrics = self._get_standard_metrics()
+            # Get metrics list - from template if available, otherwise use standard
+            if template_excel_path and template_excel_path.exists():
+                # Try to read metrics from template first
+                template_metrics = self._read_metrics_from_template(ws)
+                if template_metrics:
+                    _log.info(f"Using {len(template_metrics)} metrics from template")
+                    standard_metrics = template_metrics
+                else:
+                    _log.warning("Failed to read metrics from template, using standard metrics")
+                    standard_metrics = self._get_standard_metrics()
+            else:
+                _log.info("No template provided, using standard metrics")
+                standard_metrics = self._get_standard_metrics()
             
             # Extract periods from template Excel if provided, otherwise from data
             all_periods = []
@@ -1161,8 +1312,13 @@ class FinancialExcelGenerator:
                 current_col = 2
                 
                 for company_idx, company_data in enumerate(companies_data):
+                    company_name = company_data.get('company_name', f'Company {company_idx + 1}')
+                    
                     # Build data map for this company
-                    self._build_data_map(company_data.get('financial_data', []))
+                    financial_data = company_data.get('financial_data', [])
+                    _log.info(f"Processing company {company_idx + 1}/{len(companies_data)}: {company_name} with {len(financial_data)} financial items")
+                    _log.info(f"financial_data sample: {financial_data}")  # Log first 2 items for brevity
+                    self._build_data_map(financial_data)
                     
                     # Fill period values for this company
                     for period_idx, period in enumerate(periods_to_show):
@@ -1170,7 +1326,9 @@ class FinancialExcelGenerator:
                         cell = ws[f'{col_letter}{row_idx}']
                         
                         # Get value from data map
+                        _log.info(f"Fetching value for {company_name}, Metric: {metric_key}, Period: {period}")
                         value = self._get_value(metric_key, period)
+                        _log.info(f"Result for {company_name}, {metric_key}, {period}: {value}")
                         
                         if value and value != 0:
                             # Handle numeric values
@@ -1207,8 +1365,82 @@ class FinancialExcelGenerator:
             _log.error(f"Error generating consolidated Excel: {e}", exc_info=True)
             return False
     
+    def _read_metrics_from_template(self, ws) -> List[Dict]:
+        """
+        Read metrics from Excel template (Column A, starting from row 3).
+        
+        Args:
+            ws: Worksheet object
+        
+        Returns:
+            List of metric dicts with 'name', 'key', and 'is_bold'
+        """
+        metrics = []
+        
+        try:
+            # Start from row 3 (rows 1-2 are usually company name and period headers)
+            for row_idx in range(3, ws.max_row + 1):
+                cell = ws.cell(row=row_idx, column=1)  # Column A
+                if cell.value:
+                    metric_name = str(cell.value).strip()
+                    # Skip empty cells and very short text (likely section headers)
+                    if metric_name and len(metric_name) > 2:
+                        # Infer key from metric name
+                        key = self._infer_key_from_metric(metric_name)
+                        
+                        # Check if cell is bold
+                        is_bold = False
+                        if cell.font and cell.font.bold:
+                            is_bold = True
+                        
+                        metrics.append({
+                            'name': metric_name,
+                            'key': key,
+                            'is_bold': is_bold
+                        })
+            
+            _log.info(f"Read {len(metrics)} metrics from template Column A")
+            return metrics
+            
+        except Exception as e:
+            _log.warning(f"Failed to read metrics from template: {str(e)}")
+            return []
+    
+    def _infer_key_from_metric(self, metric_name: str) -> str:
+        """
+        Infer standardized key from metric display name.
+        
+        Args:
+            metric_name: Display name like "Sale of Goods"
+        
+        Returns:
+            Inferred key like "sale_of_goods"
+        """
+        # Convert to lowercase and replace spaces with underscores
+        key = metric_name.lower().strip()
+        
+        # Remove common punctuation
+        key = key.replace('(', '').replace(')', '').replace(',', '')
+        key = key.replace('&', 'and').replace('-', '_')
+        key = key.replace('/', '_').replace('.', '')
+        
+        # Replace multiple spaces with single underscore
+        key = '_'.join(key.split())
+        
+        # Remove leading/trailing underscores
+        key = key.strip('_')
+        
+        # Use metric matching to find best matching standard key
+        metric_map = self._create_metric_key_map()
+        matched_key = self._match_metric_to_key(metric_name, metric_map)
+        
+        if matched_key:
+            return matched_key
+        
+        return key
+    
     def _get_standard_metrics(self) -> List[Dict]:
-        """Get standard list of financial metrics."""
+        """Get standard list of financial metrics (fallback when no template)."""
         return [
             {'name': 'Sale of goods / Income from operations Domestic', 'key': 'sale_of_goods', 'is_bold': False},
             {'name': 'Sale Exports', 'key': 'export_sales', 'is_bold': False},
