@@ -1,5 +1,11 @@
 package services
 
+import (
+	"os"
+	"strconv"
+	"strings"
+)
+
 // TM1Service is the main entry point for the TM1 API
 type TM1Service struct {
 	Rest            *RestService
@@ -70,4 +76,23 @@ func NewTM1Service(address string, port int, ssl bool, user, password, namespace
 	tm1.Loggers = NewLoggerService(rs)
 
 	return tm1, nil
+}
+
+func NewTM1ServiceFromEnv() (*TM1Service, error) {
+	address := os.Getenv("TM1_ADDRESS")
+	portStr := os.Getenv("TM1_PORT")
+	sslStr := os.Getenv("TM1_SSL")
+	user := os.Getenv("TM1_USER")
+	password := os.Getenv("TM1_PASSWORD")
+	namespace := os.Getenv("TM1_NAMESPACE")
+	databaseName := os.Getenv("TM1_DATABASE")
+
+	port, _ := strconv.Atoi(portStr)
+	ssl := strings.ToLower(sslStr) == "true" || sslStr == "1"
+
+	return NewTM1Service(address, port, ssl, user, password, namespace, databaseName)
+}
+
+func (s *TM1Service) Logout() error {
+	return s.Rest.Logout()
 }

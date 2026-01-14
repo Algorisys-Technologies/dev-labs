@@ -136,3 +136,14 @@ func (s *CubeService) Exists(cubeName string) (bool, error) {
 	}
 	return true, nil
 }
+
+func (s *CubeService) UpdateStorageDimensionOrder(cubeName string, dimensionOrder []string) error {
+	url := fmt.Sprintf("/Cubes('%s')/tm1.ReorderDimensions", cubeName)
+	payload := map[string][]string{"DimensionLayout": dimensionOrder}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	_, err = s.rest.POST(url, data)
+	return err
+}

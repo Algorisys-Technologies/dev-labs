@@ -69,3 +69,26 @@ func (s *CellService) ExecuteMDX(mdx string) (map[string]interface{}, error) {
 
 	return response, nil
 }
+
+func (s *CellService) ExecuteView(cubeName, viewName string, private bool) (map[string]interface{}, error) {
+	viewType := "Views"
+	if private {
+		viewType = "PrivateViews"
+	}
+	url := fmt.Sprintf("/Cubes('%s')/%s('%s')/tm1.Execute", cubeName, viewType, viewName)
+	body, err := s.rest.POST(url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var response map[string]interface{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (s *CellService) ExecuteMDXRaw(mdx string) (map[string]interface{}, error) {
+	return s.ExecuteMDX(mdx)
+}

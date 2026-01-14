@@ -135,3 +135,8 @@ func (rs *RestService) doRequest(method, url string, data []byte) ([]byte, error
 
 	return body, nil
 }
+
+func (rs *RestService) Logout() error {
+	_, err := rs.POST("/ActiveSession/tm1.Logout", nil)
+	return err
+}
