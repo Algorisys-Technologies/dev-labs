@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "PropeakCRM",
+    "slug": "PropeakCRM",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/propeaklogo.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/propeaklogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ritikbyte.PropeakCRM"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/propeaklogo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ritikbyte.PropeakCRM"
+    },
+    "web": {
+      "favicon": "./assets/propeaklogo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e73e3dc9-6d25-48a6-9588-687f4253e3bf"
+      }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "gradleVersion": "8.6",
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34
+          }
+        }
+      ]
+    ]
+  }
+}
