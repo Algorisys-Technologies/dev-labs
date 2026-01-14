@@ -1,17 +1,15 @@
 package models
 
 type Dimension struct {
-	Name        string      `json:"Name"`
-	Hierarchies []Hierarchy `json:"Hierarchies"`
+	Name        string       `json:"Name"`
+	UniqueName  string       `json:"UniqueName,omitempty"`
+	Hierarchies []*Hierarchy `json:"Hierarchies"`
 }
 
-type Hierarchy struct {
-	Name          string    `json:"Name"`
-	DimensionName string    `json:"DimensionName"`
-	Elements      []Element `json:"Elements,omitempty"`
-}
-
-type Element struct {
-	Name string `json:"Name"`
-	Type string `json:"Type"` // Numeric, String, Consolidated
+// NewDimension creates a new Dimension instance
+func NewDimension(name string, hierarchies []*Hierarchy) *Dimension {
+	return &Dimension{
+		Name:        name,
+		Hierarchies: hierarchies,
+	}
 }

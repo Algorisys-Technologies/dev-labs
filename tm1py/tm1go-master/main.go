@@ -49,7 +49,7 @@ func main() {
 
 	// Cubes endpoints
 	api.Get("/cubes", func(c *fiber.Ctx) error {
-		names, err := tm1Service.Cubes.GetAllNames()
+		names, err := tm1Service.Cubes.GetAllNames(false)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
@@ -67,7 +67,7 @@ func main() {
 
 	// Dimensions endpoints
 	api.Get("/dimensions", func(c *fiber.Ctx) error {
-		names, err := tm1Service.Dimensions.GetAllNames()
+		names, err := tm1Service.Dimensions.GetAllNames(false)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}

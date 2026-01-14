@@ -82,29 +82,56 @@ func (rs *RestService) Request(method, url string, data []byte) (*http.Response,
 }
 
 func (rs *RestService) GET(url string) ([]byte, error) {
-	resp, err := rs.Request("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("HTTP error: %d", resp.StatusCode)
-	}
-
-	return io.ReadAll(resp.Body)
+	return rs.doRequest("GET", url, nil)
 }
 
 func (rs *RestService) POST(url string, data []byte) ([]byte, error) {
-	resp, err := rs.Request("POST", url, data)
+	return rs.doRequest("POST", url, data)
+}
+
+func (rs *RestService) PATCH(url string, data []byte) ([]byte, error) {
+	return rs.doRequest("PATCH", url, data)
+}
+
+func (rs *RestService) PUT(url string, data []byte) ([]byte, error) {
+	return rs.doRequest("PUT", url, data)
+}
+
+func (rs *RestService) DELETE(url string) ([]byte, error) {
+	return rs.doRequest("DELETE", url, nil)
+}
+
+func (rs *RestService) Exists(url string) (bool, error) {
+	resp, err := rs.Request("GET", url, nil)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 || resp.StatusCode == 204 {
+		return true, nil
+	}
+	if resp.StatusCode == 404 {
+		return false, nil
+	}
+	return false, fmt.Errorf("HTTP error %d", resp.StatusCode)
+}
+
+func (rs *RestService) doRequest(method, url string, data []byte) ([]byte, error) {
+	resp, err := rs.Request(method, url, data)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("HTTP error: %d", resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
 	}
 
-	return io.ReadAll(resp.Body)
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(body))
+	}
+
+	return body, nil
 }
