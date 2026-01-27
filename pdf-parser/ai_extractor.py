@@ -216,6 +216,7 @@ Return ONLY the JSON object. Use formatted_key for all period keys in "values" o
         self.api_endpoint = os.getenv('API_AI_PROVIDER_ENDPOINT')
         if not self.api_endpoint:
             raise ValueError("API AI provider endpoint not provided. Set API_AI_PROVIDER_ENDPOINT environment variable.")
+        self.api_endpoint = self.api_endpoint.rstrip('/') + '/ai/generate'
         self.provider = "openai"
         self.model = "gpt-4o"
         _log.info(f"Initialized AIFinancialExtractor with model: {self.model}")
