@@ -1,0 +1,152 @@
+import configparser
+import unittest
+from pathlib import Path
+
+from TM1py import TM1Service
+from TM1py.Services.RestService import RestService
+
+
+class TestRestService(unittest.TestCase):
+    tm1: TM1Service
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Establishes a connection to TM1 and creates TM! objects to use across all tests
+        """
+
+        # Connection to TM1
+        cls.config = configparser.ConfigParser()
+        cls.config.read(Path(__file__).parent.joinpath("config.ini"))
+        cls.tm1 = TM1Service(**cls.config["tm1srv01"])
+
+    def test_is_connected(self):
+        self.assertTrue(self.tm1._tm1_rest.is_connected())
+
+    def test_wait_time_generator_with_float_timeout(self):
+        # With default params (0.1s initial, 1.0s max, 2x factor): 0.1 -> 0.2 -> 0.4 -> 0.8 -> 1.0 -> 1.0...
+        expected = [0.1, 0.2, 0.4, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+        self.assertEqual(expected, list(self.tm1._tm1_rest.wait_time_generator(10.0)))
+        self.assertEqual(10.5, sum(self.tm1._tm1_rest.wait_time_generator(10.0)))
+
+    def test_wait_time_generator_with_timeout(self):
+        # With default params (0.1s initial, 1.0s max, 2x factor): 0.1 -> 0.2 -> 0.4 -> 0.8 -> 1.0 -> 1.0...
+        expected = [0.1, 0.2, 0.4, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+        self.assertEqual(expected, list(self.tm1._tm1_rest.wait_time_generator(10)))
+        self.assertEqual(10.5, sum(self.tm1._tm1_rest.wait_time_generator(10)))
+
+    def test_wait_time_generator_without_timeout(self):
+        # With default params (0.1s initial, 1.0s max, 2x factor): 0.1 -> 0.2 -> 0.4 -> 0.8 -> 1.0 -> 1.0...
+        generator = self.tm1._tm1_rest.wait_time_generator(None)
+        self.assertEqual(0.1, next(generator))
+        self.assertEqual(0.2, next(generator))
+        self.assertEqual(0.4, next(generator))
+        self.assertEqual(0.8, next(generator))
+        self.assertEqual(1.0, next(generator))
+        self.assertEqual(1.0, next(generator))
+
+    def test_wait_time_generator_custom_max_delay(self):
+        # Test with custom max_delay for long-running operations
+        original_max_delay = self.tm1._tm1_rest._async_polling_max_delay
+        try:
+            self.tm1._tm1_rest._async_polling_max_delay = 30.0
+            # With 0.1s initial, 30s max, 2x factor: 0.1 -> 0.2 -> 0.4 -> 0.8 -> 1.6 -> 3.2 -> 6.4 -> 12.8 -> 25.6 -> 30.0...
+            generator = self.tm1._tm1_rest.wait_time_generator(None)
+            self.assertEqual(0.1, next(generator))
+            self.assertEqual(0.2, next(generator))
+            self.assertEqual(0.4, next(generator))
+            self.assertEqual(0.8, next(generator))
+            self.assertEqual(1.6, next(generator))
+            self.assertEqual(3.2, next(generator))
+            self.assertEqual(6.4, next(generator))
+            self.assertEqual(12.8, next(generator))
+            self.assertEqual(25.6, next(generator))
+            self.assertEqual(30.0, next(generator))
+            self.assertEqual(30.0, next(generator))
+        finally:
+            self.tm1._tm1_rest._async_polling_max_delay = original_max_delay
+
+    def test_wait_time_generator_custom_backoff_factor(self):
+        # Test with custom backoff factor (3x instead of 2x)
+        original_factor = self.tm1._tm1_rest._async_polling_backoff_factor
+        try:
+            self.tm1._tm1_rest._async_polling_backoff_factor = 3.0
+            # With 0.1s initial, 1.0s max, 3x factor: 0.1 -> 0.3 -> 0.9 -> 1.0 -> 1.0...
+            generator = self.tm1._tm1_rest.wait_time_generator(None)
+            self.assertEqual(0.1, next(generator))
+            self.assertAlmostEqual(0.3, next(generator), places=5)
+            self.assertAlmostEqual(0.9, next(generator), places=5)
+            self.assertEqual(1.0, next(generator))
+            self.assertEqual(1.0, next(generator))
+        finally:
+            self.tm1._tm1_rest._async_polling_backoff_factor = original_factor
+
+    def test_wait_time_generator_custom_initial_delay(self):
+        # Test with custom initial delay
+        original_initial = self.tm1._tm1_rest._async_polling_initial_delay
+        try:
+            self.tm1._tm1_rest._async_polling_initial_delay = 0.5
+            # With 0.5s initial, 1.0s max, 2x factor: 0.5 -> 1.0 -> 1.0...
+            generator = self.tm1._tm1_rest.wait_time_generator(None)
+            self.assertEqual(0.5, next(generator))
+            self.assertEqual(1.0, next(generator))
+            self.assertEqual(1.0, next(generator))
+        finally:
+            self.tm1._tm1_rest._async_polling_initial_delay = original_initial
+
+    def test_default_remote_disconnect_parameters(self):
+        # Verify default values for remote disconnect retry parameters
+        self.assertEqual(5, self.tm1._tm1_rest._remote_disconnect_max_retries)
+        self.assertEqual(1.0, self.tm1._tm1_rest._remote_disconnect_retry_delay)
+        self.assertEqual(30.0, self.tm1._tm1_rest._remote_disconnect_max_delay)
+        self.assertEqual(2.0, self.tm1._tm1_rest._remote_disconnect_backoff_factor)
+
+    def test_default_async_polling_parameters(self):
+        # Verify default values for async polling parameters
+        self.assertEqual(0.1, self.tm1._tm1_rest._async_polling_initial_delay)
+        self.assertEqual(1.0, self.tm1._tm1_rest._async_polling_max_delay)
+        self.assertEqual(2.0, self.tm1._tm1_rest._async_polling_backoff_factor)
+
+    def test_build_response_from_async_response_ok(self):
+        response_content = (
+            b"HTTP/1.1 200 OK\r\nContent-Length: 32\r\nConnection: keep-alive\r\nContent-Encoding: "
+            b"gzip\r\nCache-Control: no-cache\r\nContent-Type: text/plain; charset=utf-8\r\n"
+            b"OData-Version: 4.0\r\n\r\n\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x0b34\xd43\xd730000"
+            b"\xd23\x04\x00\xf4\x1c\xa0j\x0c\x00\x00\x00"
+        )
+        response = RestService.build_response_from_binary_response(response_content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("Content-Length"), "32")
+        self.assertEqual(response.headers.get("Connection"), "keep-alive")
+        self.assertEqual(response.headers.get("Content-Encoding"), "gzip")
+        self.assertEqual(response.headers.get("Cache-Control"), "no-cache")
+        self.assertEqual(response.headers.get("Content-Type"), "text/plain; charset=utf-8")
+        self.assertEqual(response.headers.get("OData-Version"), "4.0")
+        self.assertEqual(response.text, "11.7.00002.1")
+
+    def test_build_response_from_async_response_not_found(self):
+        response_content = (
+            b"HTTP/1.1 404 Not Found\r\nContent-Length: 105\r\nConnection: keep-alive\r\n"
+            b"Content-Encoding: gzip\r\nCache-Control: no-cache\r\n"
+            b"Content-Type: application/json; charset=utf-8\r\nOData-Version: 4.0\r\n"
+            b"\r\n\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x0b\x15\xc71\n\x800\x0c\x05\xd0\xab|\xb2t\x11"
+            b"\x07\x17\xc5Sx\x05M\xa3\x14\xdaD\xda:\x94\xe2\xdd\xc5\xb7\xbdN\x92\xb3eZ;\xb1y\xa1\x95"
+            b"\xa6y\xa1\x81\x92\x94\xb2_\xff\x9d\x7fRj\x0e\xbc+\xd4*\x0e\xc1i\x8fz\x04\x05[\x8c\xc25"
+            b"\x98\xc2N\xd4v\x0b\xdc\x96\x8d\xa5\x147\xd2\xfb~Od\xf8E^\x00\x00\x00"
+        )
+        response = RestService.build_response_from_binary_response(response_content)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.headers.get("Content-Length"), "105")
+        self.assertEqual(response.headers.get("Connection"), "keep-alive")
+        self.assertEqual(response.headers.get("Content-Encoding"), "gzip")
+        self.assertEqual(response.headers.get("Cache-Control"), "no-cache")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json; charset=utf-8")
+        self.assertEqual(response.headers.get("OData-Version"), "4.0")
+        self.assertEqual(
+            response.text,
+            '{"error":{"code":"278","message":"\'dummy\' ' "can not be found in collection of type 'Process'.\"}}",
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tm1.logout()
