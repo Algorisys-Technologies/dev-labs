@@ -1,0 +1,8 @@
+python-dotenv==1.2.1
+groq==1.0.0
+manim==0.19.2
+torch==2.1.0
+torchaudio==2.1.0
+chatterbox-tts==0.1.0
+edge-tts==6.1.9
+pydub==0.25.1
