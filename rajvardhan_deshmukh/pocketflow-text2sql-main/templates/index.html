@@ -1,0 +1,35 @@
+@app.get("/", response_class=HTMLResponse)
+def home():
+return """
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PocketFlow Text-to-SQL</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>PocketFlow Text-to-SQL</h1>
+
+        <textarea id="query" placeholder="e.g. show all customers"></textarea>
+
+        <button onclick="runQuery()">Run</button>
+
+        <!-- 🔥 THIS WAS MISSING -->
+        <div id="loader" class="loader hidden"></div>
+
+        <h2>Generated SQL</h2>
+        <pre id="sql"></pre>
+
+        <h2>Result</h2>
+        <div id="result"></div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+
+</html>
+"""

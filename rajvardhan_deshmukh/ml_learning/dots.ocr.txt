@@ -1,0 +1,201 @@
+🔧 All Changes Made for Colab T4
+1. Model Name Issue (dot in name)
+python
+# Original (fails)
+model = AutoModelForCausalLM.from_pretrained("rednote-hilab/dots.ocr", ...)
+# Fix: Download to local folder first
+snapshot_download("rednote-hilab/dots.ocr", local_dir="/content/DotsOCR")
+model = AutoModelForCausalLM.from_pretrained("/content/DotsOCR", ...)
+Reason: Python can't import modules with . in the name
+
+2. Flash Attention → Eager
+python
+# Original (fails on T4)
+attn_implementation="flash_attention_2"
+# Fix (works on all GPUs)
+attn_implementation="eager"
+Reason: Flash Attention only works on Ampere GPUs (A100, A10G). T4 is Turing.
+
+3. Vision Config Override
+python
+# Modify config.json before loading
+config['vision_config']['attn_implementation'] = 'eager'
+Reason: Vision encoder was hardcoded to use flash_attention_2
+
+4. Image Resizing
+python
+# Original image: 1653×2339 (3.8M pixels)
+# Fix: Resize to 1000×1414 (~1.4M pixels)
+MAX_SIZE = 1000
+if max(image.width, image.height) > MAX_SIZE:
+    ratio = MAX_SIZE / max(image.width, image.height)
+    image = image.resize((int(w*ratio), int(h*ratio)))
+Reason: Eager attention uses O(n²) memory. Large images cause OOM.
+
+5. Reduced Max Tokens
+python
+# Original
+max_new_tokens=24000
+# Fix
+max_new_tokens=8000
+Reason: Less output = less GPU memory during generation
+
+6. PDF Handling
+python
+# PDFs need conversion to images first
+import fitz
+doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+image = page.get_pixmap(dpi=200)
+Reason: Model expects images, not PDFs
+
+
+
+
+
+| Problem                  | Original            | Fix                            | Why                              |
+| ------------------------ | ------------------- | ------------------------------ | -------------------------------- |
+| Module import error      | `dots.ocr` name     | Download to `/content/DotsOCR` | Dot breaks Python imports        |
+| Flash Attention error    | `flash_attention_2` | `eager`                        | T4 GPU is not Ampere             |
+| Vision tower flash error | Hardcoded in config | Edit `config.json`             | Vision uses a separate config    |
+| OOM on large image       | 1653 × 2339         | Resize to 1000 × 1414          | Eager attention has O(n²) memory |
+| OOM on long output       | 24000 tokens        | 8000 tokens                    | Less memory required             |
+
+
+
+| Metric         | Ideal (A100)   | Colab T4             |
+| -------------- | -------------- | -------------------- |
+| Attention      | Flash (fast)   | Eager (slower)       |
+| Image size     | Full (3.8M px) | Resized (1.4M px)    |
+| Speed          | ~1–2 min       | ~8 min               |
+| Output quality | Full           | ~90% (smaller image) |
+
+
+
+
+Thought for 1s
+
+Here are all the evaluation metrics used to benchmark dots.ocr:
+
+📊 OCR Metrics
+1. Edit Distance (Levenshtein Distance)
+Score = Number of character edits needed / Total characters
+Lower is better (0 = perfect)
+
+What It Measures	Example
+Character-level accuracy	"Hello" vs "Hallo" = 1 edit
+dots.ocr scores:
+
+English: 0.032 (3.2% error)
+Chinese: 0.066 (6.6% error)
+2. BLEU Score
+Measures n-gram overlap between predicted and ground truth text
+Higher is better (100 = perfect)
+
+Used for: General text quality
+
+📐 Layout Detection Metrics
+3. mAP (Mean Average Precision)
+Measures how accurately bboxes match ground truth
+Higher is better (100% = perfect)
+
+Component	Meaning
+IoU (Intersection over Union)	Bbox overlap
+Precision	% of detected boxes that are correct
+Recall	% of actual boxes that were detected
+📋 Table Recognition Metrics
+4. TEDS (Tree Edit Distance Similarity)
+Compares HTML table structure as trees
+TEDS = 1 - (Tree Edit Distance / Max Tree Size)
+Higher is better (100% = perfect)
+
+What It Measures	Example
+Table structure accuracy	Row/column alignment
+Cell content	Text in cells
+dots.ocr score: 88.6% TEDS
+
+➗ Formula Recognition Metrics
+5. CDM (Character Detection Metric)
+Measures LaTeX formula accuracy at character level
+Higher is better
+
+dots.ocr score: 76.9%
+
+6. ExpRate (Expression Recognition Rate)
+% of formulas that are 100% correct
+Higher is better
+
+📖 Reading Order Metrics
+7. NED (Normalized Edit Distance)
+Measures if text elements are in correct reading order
+NED = Edit operations / Total elements
+Lower is better (0 = perfect order)
+
+dots.ocr score: 0.040 (4% error)
+
+
+
+
+| Metric        | Question It Answers                |
+| ------------- | ---------------------------------- |
+| Edit Distance | “How many typos are there?”        |
+| TEDS          | “Is the table structure correct?”  |
+| CDM           | “Is the math formula correct?”     |
+| NED           | “Is the reading order correct?”    |
+| mAP           | “Are the bounding boxes accurate?” |
+
+
+| Task             | Metric          | dots.ocr  | GPT-4o | Best Competitor |
+| ---------------- | --------------- | --------- | ------ | --------------- |
+| Text OCR (EN)    | Edit Distance ↓ | **0.032** | 0.044  | 0.044           |
+| Text OCR (CN)    | Edit Distance ↓ | **0.066** | 0.093  | 0.078           |
+| Table            | TEDS ↑          | **88.6%** | 76.8%  | 82.3%           |
+| Formula          | CDM ↑           | **76.9%** | 67.9%  | 74.8%           |
+| Reading Order    | NED ↓           | **0.040** | 0.069  | 0.052           |
+| Layout Detection | mAP ↑           | **83.2%** | –      | 79.4%           |
+
+
+
+| Parameter      | Default | What It Does                            |
+| -------------- | ------- | --------------------------------------- |
+| max_new_tokens | 24000   | Maximum output length (tokens)          |
+| temperature    | 0.1     | Randomness (lower = more deterministic) |
+| top_p          | 0.9–1.0 | Nucleus sampling threshold              |
+| do_sample      | False   | Use sampling or greedy decoding         |
+
+
+
+| Parameter    | Default    | What It Does                               |
+| ------------ | ---------- | ------------------------------------------ |
+| min_pixels   | 3136       | Minimum image size (56 × 56)               |
+| max_pixels   | 11,289,600 | Maximum image size (~3360 × 3360)          |
+| IMAGE_FACTOR | 28         | Image dimensions must be divisible by this |
+| dpi          | 200        | PDF rendering resolution                   |
+
+
+
+| Parameter           | Options                        | What It Does                   |
+| ------------------- | ------------------------------ | ------------------------------ |
+| torch_dtype         | bfloat16, float32              | Precision (memory vs accuracy) |
+| attn_implementation | flash_attention_2, sdpa, eager | Attention algorithm            |
+| device_map          | auto, cpu, cuda:0              | Where to load the model        |
+| trust_remote_code   | True                           | Allow custom model code        |
+
+
+| Parameter           | Value | What It Does                |
+| ------------------- | ----- | --------------------------- |
+| embed_dim           | 1536  | Hidden dimension            |
+| num_hidden_layers   | 42    | Transformer blocks          |
+| num_attention_heads | 12    | Attention heads             |
+| patch_size          | 14    | Patch size (14 × 14 pixels) |
+| spatial_merge_size  | 2     | Merge 2 × 2 patches → 1     |
+| intermediate_size   | 6144  | FFN hidden size             |
+| rms_norm_eps        | 1e-6  | LayerNorm epsilon           |
+
+
+| Parameter               | Value    | What It Does        |
+| ----------------------- | -------- | ------------------- |
+| hidden_size             | 2048     | Hidden dimension    |
+| num_hidden_layers       | 24       | Transformer layers  |
+| num_attention_heads     | 16       | Attention heads     |
+| vocab_size              | ~150,000 | Vocabulary size     |
+| max_position_embeddings | 32768    | Max sequence length |
