@@ -1,0 +1,29 @@
+ABOUT US
+
+Algorisys Technologies is a Software Development, IT Business Consulting, and Training Service Provider. The organisation is headquartered in Mumbai, India, and caters to various large corporates and SME customers through its range of cost-effective products and solutions. Algorisys Technologies has more than 700 man years of hands-on experience in developing IT solutions, Mobile Applications, Systems around Core Banking, Custom Analytics Solutions using opensource/Net Technology and Analytics Solution using IBM & Qlik Products.
+
+PRODUCTS
+
+Our product range includes:
+
+- CUCKOO
+- iinGeme: Anywhere Banking solution for NBFC
+- prDPeak: Agile Kanban based task management system
+- Skills Engine: Aided CRM and exam management platform
+
+SERVICES
+
+Our services include:
+
+- Custom Software Development: We specialize in programming, testing, bug fixing, and maintaining applications. We also offer web-based application and mobile app development across various technologies.
+- Analytics: We help in the discovery, interpretation, and communication of meaningful patterns in data. Especially with recorded information, we apply statistics, computer programming, and research to quantify performance.
+- Training: We offer training in the areas of developing oneself and others related to computer competence. Our training also includes lab simulations, performance evaluation, and custom training in various technologies like IBM, Cognos, etc.
+
+CONTACT US
+
+Algorisys Technologies Pvt. Ltd
+Om [vest Business Park, 2nd Floor, Opposite Shreyas Cinema, LBS Rd, Ghatkopar West, Mumbai, Maharashtra 400086
+Phone: 022 223222
+Fax: 022 435 77 33
+
+You can also send us a message using the form on our website.

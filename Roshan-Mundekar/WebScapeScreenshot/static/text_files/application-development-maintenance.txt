@@ -1,0 +1,28 @@
+"About Us:
+
+We are a specialized team dedicated to end-to-end application development and maintenance. We help enterprises manage sophisticated business applications that are robust, scalable, and extensive. Our expertise lies in handling application projects in both standard and open-source technology. We assume complete responsibility for analysis, design, implementation, testing, and integration of systems.
+
+Services:
+
+1. Enterprise Application Development
+2. Mobile Application Development
+3. Rapid Business Prototyping
+4. Cloud Computing Applications
+
+Our Development Services include the use of the following technologies:
+
+Server Side Technologies:
+- Microsoft .NET
+- NodeJS
+- Ruby on Rails
+- PHP
+
+Front-end Technologies:
+- jQuery
+- AngularJS
+- Responsive Design
+- React
+
+Mobile Technologies:
+- React Native
+- Ionic"
