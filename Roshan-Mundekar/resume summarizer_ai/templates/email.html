@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <title>ALGO-AI TECH</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-info py-0 fixed-top">
+        <a class="navbar-brand" href="/">ALGO-AI TECH</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="side-bar">
+                <li class="active">
+                    <a href="/">
+                        <i class="fas fa-tachometer-alt fa-fw"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="/index">
+                        <i class="fas fa-paste fa-fw"></i>
+                        Resume summarizer
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/email">
+                        <i class="fas fa-file fa-fw"></i>
+                        Email Summary
+                    </a>
+                </li>
+            </ul>
+ 
+        </div>
+    </nav>
+
+    <section class="content">
+        <h1>Email-Summarizer</h1>
+        <div class="card mt-4 mb-5">
+            <div class="card-body">
+                <form id="emailForm" method="POST"> 
+                    <div class="form-group row">
+                        <label class="col-sm-12 col-form-label"><b>Subject</b></label>
+                        <div class="col-sm-12">
+                            <input type="text" name="subject" id="subject" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><b>Email Body Part Here</b></label>
+                        <textarea class="form-control" name="emaildata" id="emaildata" rows="10" required></textarea>
+                    </div>
+                   
+                    <button type="submit" class="btn btn-primary rounded-0 px-4">Submit</button>
+                    <a href="/" class="btn btn-secondary rounded-0 px-4">Back</a>
+                </form>
+                <div id="summary" class="mt-4"></div> <!-- Summary output area -->
+            </div>
+        </div>
+    
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#emailForm').on('submit', function(event) {
+                    event.preventDefault(); // Prevent the form from submitting the default way
+            
+                    // Show a loading alert using SweetAlert
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Please wait while we summarize your email.',
+                        didOpen: () => {
+                            Swal.showLoading(); // Show the loading spinner
+                        }
+                    });
+            
+                    $.ajax({
+                        url: '/check',
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            // Close the loading alert
+                            Swal.close();
+            
+                            // Format the response data into HTML
+                            $('#summary').html(`
+                                <h2 class="font-bold text-lg">Summary:</h2>
+                                <div class="mt-2 p-4 bg-gray-50 rounded-md border border-gray-300">
+                                    <p><strong>Summary:</strong> ${response.summary.summary}</p>
+                                    <p><strong>Sender:</strong> ${response.summary.sender}</p>
+                                    <p><strong>Role:</strong> ${response.summary.role}</p>
+                                    <p><strong>Tone:</strong> ${response.summary.tone}</p>
+                                    <p><strong>Spam Status:</strong> ${response.summary.spam}</p>
+                                </div>
+                            `);
+                        },
+                        error: function() {
+                            // Close the loading alert
+                            Swal.close();
+            
+                            $('#summary').html('<p class="text-red-500">An error occurred. Please try again.</p>');
+                        }
+                    });
+                });
+            });
+            </script>
+            
+    </section>
+    
+   
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <script src="../static/js/jquery-3.3.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+    <script src="../static/js/custom.js"></script>
+</body>
+
+</html>

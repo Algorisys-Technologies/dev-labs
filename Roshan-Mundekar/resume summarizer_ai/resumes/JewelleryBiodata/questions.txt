@@ -1,0 +1,29 @@
+Here are 10 simple questions based on the provided JSON data:
+
+What is Paisley Moore's current job title?
+Which company is Paisley Moore currently working at?
+In which city is Paisley Moore currently employed?
+How long has Paisley Moore been working as a Jewelry Design Specialist?
+Name one responsibility that Paisley had at Luxuriance Jewelers.
+How did Paisley Moore improve team productivity at Luxuriance Jewelers?
+Which design software tools does Paisley Moore have experience with?
+What significant result was achieved by Paisley at Stellar Accessories Co. in Q4?
+How did Paisley’s initiative in material innovation affect customer satisfaction at Elegant Designs Inc.?
+Which soft skill did Paisley use to lead a material innovation initiative?
+
+
+
+
+pip show openai
+Name: openai
+Version: 1.51.0
+Summary: The official Python library for the openai API
+Home-page: https://github.com/openai/openai-python
+Author: 
+Author-email: OpenAI <support@openai.com>
+License: 
+Location: c:\users\roshan\anaconda3\envs\openaiemail\lib\site-packages
+Requires: anyio, distro, httpx, jiter, pydantic, sniffio, tqdm, typing-extensions
+Required-by: langchain-openai
+Note: you may need to restart the kernel to use updated packages.
+
