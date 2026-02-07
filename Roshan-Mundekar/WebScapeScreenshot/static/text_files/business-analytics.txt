@@ -1,0 +1,25 @@
+**About Us: Busm sAnalylics**
+
+We are a team that specializes in providing next-generation business intelligence solutions. Our primary goal is to interpret your intent and guide you to faster results. Our engaging experience empowers business users to create and personalize dashboards and reports on their own, providing a proven and scalable solution available on premises or in the cloud.
+
+**Products:**
+
+1. **IBM Cognos Analytics**
+IBM Cognos Analytics offers smarter, self-service capabilities so you can quickly and confidently identify and act on insights. For more details on cloud and on-premise options, talk to the Agonsys Team.
+
+2. **QlikSense**
+QlikSense is a self-service and guided analytics solution that drives insight discovery with data visualization. With Qlik Sense, everyone in your organization can easily create flexible, interactive visualizations and make meaningful decisions. The QlikSense product line includes:
+
+    - QlikSense Desktop
+    - QlikSense Enterprise
+    - QlikSense Cloud
+
+3. **IBM Planning Analytics**
+IBM Planning Analytics is your planning, budgeting, forecasting, analysis, and scorecarding solution. It automates and encourages your essential planning, budgeting, forecasting, and analysis processes. It provides flexible, multidimensional modeling that allows you to truly represent your business and delivers self-service analytics for all of your business users. For more details on cloud and on-premise options, talk to the Agonsys Team.
+
+4. **IBM Watson Analytics**
+IBM Watson Analytics uncovers new insights quickly with guided data analysis and automatic data visualization. Whether you need to quickly spot a trend or you have a team that needs to visualize report data in a dashboard, Watson Analytics has you covered. For more details on cloud and on-premise options, talk to the Agonsys Team.
+
+**Services:**
+
+Our services include providing comprehensive solutions and support for all the products mentioned above. We ensure that our clients can confidently identify and act on insights, create flexible, interactive visualizations, automate planning processes, and uncover new insights quickly.

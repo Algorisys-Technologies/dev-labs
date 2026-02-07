@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <title>ALGO-AI TECH</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-info py-0 fixed-top">
+        <a class="navbar-brand" href="../index.html">ALGO-AI TECH</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <ul class="side-bar">
+                <li class="active">
+                    <a href="/">
+                        <i class="fas fa-tachometer-alt fa-fw"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="/index">
+                        <i class="fas fa-paste fa-fw"></i>
+                        Resume summarizer
+                    </a>
+                </li>
+                <!-- <li>
+                    <a href="create.html">
+                        <i class="fas fa-columns fa-fw"></i>
+                        Form
+                    </a>
+                </li>
+
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-table fa-fw"></i>
+                        Table
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        <i class="fas fa-file fa-fw"></i>
+                        Blank Page
+                    </a>
+                </li> -->
+            </ul>
+
+            <!-- <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-cog fa-fw fa-lg"></i>
+                        Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-lock fa-fw fa-lg"></i>
+                        Change Password
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-envelope fa-lg"></i>
+                        <span class="badge badge-pill badge-danger position-absolute">5</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="badge badge-pill badge-warning position-absolute">1</span>
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ml-5">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                        <img src="https://randomuser.me/api/portraits/men/94.jpg" alt="John Doe" width="40"
+                            class="border mp-1 rounded-circle">
+                        John Doe
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="#"><i class="fas fa-user fa-fw"></i> Profile</a>
+                        <a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> Logout</a>
+                    </div>
+                </li>
+            </ul> -->
+
+        </div>
+    </nav>
+
+    <section class="content">
+
+        <h1>SUMMARIES RESUME HERE</h1>
+
+        <div class="card mt-4 mb-5">
+
+            <div class="card-body">
+                <div class="w-full min-h-screen  pb-8">
+                    <div class="container mx-auto px-4 flex flex-col justify-center items-center text-black">
+                        <div class="w-full max-w-7xl">
+                            <div id="dictionaryValues" class="border border-black p-8  rounded-md shadow-md">
+                            </div>
+
+                            <!-- If there is data, display it using the JavaScript function -->
+                            {% if data %}
+                            <script>
+                                function displayDictionaryValues(data) {
+                                    var dictionaryValuesDiv = document.getElementById("dictionaryValues");
+                                    var html = generateHTML(data);
+                                    dictionaryValuesDiv.innerHTML = html;
+                                }
+                            
+                                function generateHTML(data) {
+                                    var html = "";
+                                    for (var key in data) {
+                                        if (data.hasOwnProperty(key)) {
+                                            html += "<div class='mb-4'>";
+                                            html += "<p class='font-bold text-lg'>" + formatKey(key) + ":</p>";
+                                            
+                                            if (Array.isArray(data[key])) {
+                                                html += "<ul class='list-disc pl-5'>";
+                                                data[key].forEach(item => {
+                                                    if (typeof item === 'object') {
+                                                        html += "<li>" + generateHTML(item) + "</li>";
+                                                    } else {
+                                                        html += "<li>" + item + "</li>";
+                                                    }
+                                                });
+                                                html += "</ul>";
+                                            } else if (typeof data[key] === 'object') {
+                                                html += "<div class='pl-5'>" + generateHTML(data[key]) + "</div>";
+                                            } else {
+                                                html += "<p class='text-gray-700'>" + data[key] + "</p>";
+                                            }
+                                            
+                                            html += "</div>";
+                                        }
+                                    }
+                                    return html;
+                                }
+                            
+                                function formatKey(key) {
+                                    return key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.slice(1);
+                                }
+                            
+                                // Display data in the div
+                                displayDictionaryValues({{ data | tojson }});
+                            </script>
+                            
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/index" class="btn btn-secondary rounded-0 px-4">Back</a>
+
+
+            </div>
+        </div>
+
+
+
+    </section>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+    <script src="../static/js/custom.js"></script>
+</body>
+
+</html>

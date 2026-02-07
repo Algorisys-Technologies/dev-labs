@@ -1,0 +1,31 @@
+User (Browser)
+   |
+   | Natural Language Query
+   v
+Frontend UI (HTML + JS)
+   |
+   | POST /query
+   v
+FastAPI Backend
+   |
+   | Shared Store (dict)
+   v
+Pocket Flow
+   |
+   | 1. Get DB Schema
+   | 2. Generate SQL (LLM)
+   | 3. Validate / Retry if needed
+   | 4. Execute SQL
+   |
+   v
+MySQL Database
+   |
+   | Raw Results
+   v
+Serializer (dates, decimals → JSON-safe)
+   |
+   v
+FastAPI JSON Response
+   |
+   v
+Frontend Table Output

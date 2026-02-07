@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <title>ALGO-AI TECH</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-info py-0 fixed-top">
+        <a class="navbar-brand" href="/">ALGO-AI TECH</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <ul class="side-bar">
+                <li class="active">
+                    <a href="/">
+                        <i class="fas fa-tachometer-alt fa-fw"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="/index">
+                        <i class="fas fa-paste fa-fw"></i>
+                        Resume summarizer
+                    </a>
+                </li>
+                <!-- <li>
+                    <a href="create.html">
+                        <i class="fas fa-columns fa-fw"></i>
+                        Form
+                    </a>
+                </li>
+
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-table fa-fw"></i>
+                        Table
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        <i class="fas fa-file fa-fw"></i>
+                        Blank Page
+                    </a>
+                </li> -->
+            </ul>
+
+            <!-- <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-cog fa-fw fa-lg"></i>
+                        Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-lock fa-fw fa-lg"></i>
+                        Change Password
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-envelope fa-lg"></i>
+                        <span class="badge badge-pill badge-danger position-absolute">5</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="#">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="badge badge-pill badge-warning position-absolute">1</span>
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ml-5">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                        <img src="https://randomuser.me/api/portraits/men/94.jpg" alt="John Doe" width="40"
+                            class="border mp-1 rounded-circle">
+                        John Doe
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="#"><i class="fas fa-user fa-fw"></i> Profile</a>
+                        <a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> Logout</a>
+                    </div>
+                </li>
+            </ul> -->
+
+        </div>
+    </nav>
+
+    <section class="content">
+        <h1 class="text-2xl font-bold mb-4">ADD RESUME HERE</h1>
+    
+        <div class="card mt-4 mb-5 border border-gray-300 rounded-lg shadow-sm">
+    
+            <div class="card-body p-4">
+                <form id="fileUploadForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><b>Add Multiple Resumes Here</b></label>
+                        
+                        <!-- Drop zone and file input -->
+                        <div id="dropZone" class="border-2 border-dashed border-gray-300 p-6 rounded-lg text-center bg-gray-50 cursor-pointer">
+                            <p class="text-gray-600">Drag & drop files here, or click to select files</p>
+                            <input id="fileInput" type="file" class="hidden" name="files[]" accept=".pdf,.doc,.docx" multiple>
+                        </div>
+    
+                        <p class="mt-2 text-xs text-gray-500">Upload multiple resumes (PDF, DOC, DOCX). Max: 10 files.</p>
+                    </div>
+    
+                    <!-- Submit Button -->
+                    <button type="submit" class="mt-4 btn btn-primary bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <script src="../static/js/jquery-3.3.1.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            var fileInput = document.getElementById('fileInput');
+            var dropZone = document.getElementById('dropZone');
+    
+            // Drag and drop functionality
+            dropZone.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                dropZone.classList.add('border-blue-500', 'bg-blue-50');
+            });
+    
+            dropZone.addEventListener('dragleave', function (e) {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+    
+            dropZone.addEventListener('drop', function (e) {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    
+                var files = e.dataTransfer.files;
+                fileInput.files = files;
+            });
+    
+            // Open file dialog when clicking on the drop zone
+            dropZone.addEventListener('click', function () {
+                fileInput.click();
+            });
+    
+            // Handle form submission
+            $("#fileUploadForm").submit(function (event) {
+                event.preventDefault();
+    
+                var form = $('#fileUploadForm')[0];
+                var data = new FormData(form);
+    
+                $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: "/addresume", // Update this URL to match your backend endpoint
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    timeout: 600000,
+                    success: function (response) {
+                        Swal.fire({
+                            title: "File Upload",
+                            text: "Files uploaded successfully",
+                            icon: "success",
+                            confirmButtonText: 'Okay'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/index'; // Redirect to home page
+                            }
+                        });
+                    },
+                    error: function (e) {
+                        console.log("ERROR : ", e);
+                        Swal.fire({
+                            title: "Error",
+                            text: "An error occurred while uploading files",
+                            icon: "error",
+                            confirmButtonText: 'Okay'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+    <script src="../static/js/custom.js"></script>
+</body>
+
+</html>

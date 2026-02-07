@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+venv311/
+ENV/
+env/
+.venv/
+
+# Environment variables
+.env
+.env.local
+
+# Manim output and generated files
+medias/
+audio/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project-specific
+llm_outputs.txt
+output.txt
+log.txt
+
+# Generated files (timestamped outputs)
+*_20*.py
+*.mp4
+*.wav
+
+
+# OS
+.DS_Store
+Thumbs.db

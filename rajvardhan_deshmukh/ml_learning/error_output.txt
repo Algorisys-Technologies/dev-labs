@@ -1,0 +1,187 @@
+======================================================================
+TRAINING, TESTING & CROSS-VALIDATION ERRORS - EXPLAINED
+======================================================================
+
+Total data points: 20 (10 dogs, 10 cats)
+
+Hypothesis: θ = [1, -1, 1]
+Equation: -1·X₁ + 1·X₂ + 1 = 0  →  X₂ = X₁ - 1
+
+======================================================================
+PART 1: TRAINING ERROR
+======================================================================
+
+CONCEPT:
+--------
+Training error measures how well our model fits the data it was trained on.
+
+    E_train = (# mistakes on training data) / (# training samples)
+
+PROBLEM: Training error can be DECEPTIVELY LOW!
+- A model can "memorize" the training data perfectly
+- But fail completely on new data (this is called OVERFITTING)
+
+ANALOGY: 
+- Like a student who memorizes exam answers without understanding
+- They ace the practice test but fail the real exam
+
+Training on ALL 20 points:
+  Predictions: [ 1  1  1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1]
+  Actual:      [ 1  1  1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1]
+  Mistakes:    0
+  Training Error: 0.00%
+
+======================================================================
+PART 2: TEST ERROR (Train/Test Split)
+======================================================================
+
+CONCEPT:
+--------
+Split data into two parts:
+  - TRAINING SET: Used to fit/select the model
+  - TEST SET: Used ONLY for final evaluation (never seen during training)
+
+    E_test = (# mistakes on test data) / (# test samples)
+
+ADVANTAGE: Gives honest estimate of real-world performance
+PROBLEM: We "waste" some data that could help training
+
+COMMON SPLITS: 80/20, 70/30, or 60/40
+
+Split: 80% train (16 points), 20% test (4 points)
+
+Training set indices: [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17]
+Test set indices: [8, 9, 18, 19]
+
+--- Training Set Performance ---
+  Training predictions: [ 1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1]
+  Training actual:      [ 1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1]
+  Training mistakes:    0
+  Training Error:       0.00%
+
+--- Test Set Performance ---
+  Test points: [[2.6 7.2]
+ [3.5 7.5]
+ [7.8 2. ]
+ [6.2 3.2]]
+  Test predictions: [ 1  1 -1 -1]
+  Test actual:      [ 1  1 -1 -1]
+  Test mistakes:    0
+  Test Error:       0.00%
+
+>>> COMPARISON: Train Error = 0.00%, Test Error = 0.00%
+
+======================================================================
+PART 3: K-FOLD CROSS-VALIDATION
+======================================================================
+
+CONCEPT:
+--------
+Problem with single train/test split:
+  - Result depends on WHICH points end up in test set
+  - Some splits might be "lucky" or "unlucky"
+
+Solution: K-FOLD CROSS-VALIDATION
+  1. Split data into K equal parts (called "folds")
+  2. For each fold:
+     - Use that fold as test set
+     - Use remaining K-1 folds as training set
+     - Calculate test error
+  3. Average all K test errors → Cross-Validation Error
+
+EXAMPLE WITH K=5:
+  Fold 1: [TEST][train][train][train][train] → Error₁
+  Fold 2: [train][TEST][train][train][train] → Error₂
+  Fold 3: [train][train][TEST][train][train] → Error₃
+  Fold 4: [train][train][train][TEST][train] → Error₄
+  Fold 5: [train][train][train][train][TEST] → Error₅
+  
+  E_cv = (Error₁ + Error₂ + Error₃ + Error₄ + Error₅) / 5
+
+ADVANTAGE: Every point gets tested exactly once!
+           Uses all data efficiently.
+
+
+Performing 5-fold cross-validation on 20 samples...
+Each fold has 4 samples
+
+Fold 1:
+  Train indices: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+  Test indices:  [0, 1, 2, 3]
+  Test predictions: [1 1 1 1]
+  Test actual:      [1 1 1 1]
+  Fold Error:       0.00% (0/4 mistakes)
+
+Fold 2:
+  Train indices: [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+  Test indices:  [4, 5, 6, 7]
+  Test predictions: [1 1 1 1]
+  Test actual:      [1 1 1 1]
+  Fold Error:       0.00% (0/4 mistakes)
+
+Fold 3:
+  Train indices: [0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19]
+  Test indices:  [8, 9, 10, 11]
+  Test predictions: [ 1  1 -1 -1]
+  Test actual:      [ 1  1 -1 -1]
+  Fold Error:       0.00% (0/4 mistakes)
+
+Fold 4:
+  Train indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19]
+  Test indices:  [12, 13, 14, 15]
+  Test predictions: [-1 -1 -1 -1]
+  Test actual:      [-1 -1 -1 -1]
+  Fold Error:       0.00% (0/4 mistakes)
+
+Fold 5:
+  Train indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+  Test indices:  [16, 17, 18, 19]
+  Test predictions: [-1 -1 -1 -1]
+  Test actual:      [-1 -1 -1 -1]
+  Fold Error:       0.00% (0/4 mistakes)
+
+--------------------------------------------------
+Individual fold errors: ['0.00%', '0.00%', '0.00%', '0.00%', '0.00%']
+CROSS-VALIDATION ERROR (average): 0.00%
+
+======================================================================
+SUMMARY: ALL ERROR TYPES COMPARED
+======================================================================
+
++----------------------+----------+----------------------------------------+
+| Error Type           | Value    | What it tells us                       |
++----------------------+----------+----------------------------------------+
+| Training Error       |  0.00%  | How well model fits training data      |
+| Test Error (80/20)   |  0.00%  | Performance on held-out data           |
+| Cross-Val Error (5F) |  0.00%  | Robust estimate using all data         |
++----------------------+----------+----------------------------------------+
+
+KEY INSIGHTS:
+-------------
+1. Training Error can be ZERO even for bad models (overfitting)
+2. Test Error depends on which data goes in test set
+3. Cross-Validation Error is most reliable - averages over all splits
+
+WHEN TO USE WHAT:
+-----------------
+- Training Error: Quick check during development
+- Test Error: Final evaluation with large datasets  
+- Cross-Validation: When data is limited, need reliable estimate
+
+THE RELATIONSHIP:
+-----------------
+Usually: E_train ≤ E_cv ≤ E_test (on new unseen data)
+
+If E_train << E_test: Model is OVERFITTING (memorizing, not learning)
+If E_train ≈ E_test:  Model is generalizing well!
+
+
+======================================================================
+VISUALIZATION
+======================================================================
+
+Visualization saved to 'error_types_comparison.png'
+
+======================================================================
+END OF TUTORIAL
+======================================================================

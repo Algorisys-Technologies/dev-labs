@@ -1,0 +1,400 @@
+================================================================================
+                    YT-AGENT: COMPLETE PROJECT DOCUMENTATION
+                    AI-Powered Educational Video Generator
+================================================================================
+
+This document provides a comprehensive explanation of the YT-Agent project.
+
+================================================================================
+                              TABLE OF CONTENTS
+================================================================================
+
+1. PROJECT OVERVIEW
+2. HOW IT WORKS (Simple Explanation)
+3. PROJECT STRUCTURE (Modular Architecture)
+4. THE WORKFLOW PIPELINE
+5. PER-LINE AUDIO SYNCHRONIZATION (Key Feature)
+6. KEY CONCEPTS EXPLAINED
+7. DATA FLOW
+8. LLM PROMPTS
+9. TROUBLESHOOTING
+10. EXTENDING THE PROJECT
+
+================================================================================
+                           1. PROJECT OVERVIEW
+================================================================================
+
+WHAT IS YT-AGENT?
+-----------------
+YT-Agent is an AI-powered system that creates educational videos automatically.
+You give it a topic (like "XG Boost"), and it:
+1. Plans out engineering-level content
+2. Writes per-element narration scripts
+3. Generates separate audio files for perfect sync
+4. Creates animation code
+5. Produces a final video
+
+WHY WAS IT BUILT?
+-----------------
+- Creating educational videos manually takes hours
+- Audio-video synchronization is tedious
+- This system automates the entire process using AI
+
+WHAT TECHNOLOGIES ARE USED?
+---------------------------
+- Python: The programming language
+- Manim: Mathematical Animation library (like 3Blue1Brown videos)
+- Groq: Fast LLM API for text generation
+- Edge TTS: Fast text-to-speech (Microsoft voices)
+- Chatterbox: High-quality AI text-to-speech
+- PocketFlow: Simple workflow engine
+
+
+================================================================================
+                    2. HOW IT WORKS (Simple Explanation)
+================================================================================
+
+1. YOU SAY WHAT YOU WANT
+   "I want a video about XG Boost"
+   → UserInputNode stores your request
+
+2. AI PLANS THE CONTENT
+   AI reads your topic and creates an outline with:
+   - Mathematical foundations
+   - Implementation details
+   - System optimizations
+   → InitialLLMNode creates the plan
+
+3. AI WRITES PER-ELEMENT SCRIPTS
+   For each scene, AI writes 5 separate narration lines:
+   - TITLE_AUDIO: "Let's explore XG Boost"
+   - DEFINITION_AUDIO: "XG Boost is a gradient boosting algorithm..."
+   - POINT1_AUDIO: "First, the loss function..."
+   - POINT2_AUDIO: "Second, regularization..."
+   - POINT3_AUDIO: "Finally, tree building..."
+   → ScenePlannerNode creates scene scripts
+
+4. TTS GENERATES AUDIO FILES
+   For each scene, 5 audio files are created:
+   - audio/scene_1_title.wav
+   - audio/scene_1_definition.wav
+   - audio/scene_1_point1.wav
+   - audio/scene_1_point2.wav
+   - audio/scene_1_point3.wav
+   → VoiceOverNode creates audio with actual durations
+
+5. YOU CHECK THE PLAN
+   You see the plan and can:
+   - Approve it ✓
+   - Request changes
+   - Quit
+   → ReviewNode lets you control quality
+
+6. AI WRITES ANIMATION CODE
+   AI generates Manim code that:
+   - Plays audio BEFORE each visual element
+   - Waits the exact audio duration
+   - Perfect sync guaranteed
+   → ManimCoderNode creates the code
+
+7. RENDER THE VIDEO
+   You run Manim to create the final video
+   → Final MP4 with perfect audio sync!
+
+
+================================================================================
+                3. PROJECT STRUCTURE (Modular Architecture)
+================================================================================
+
+```
+yt-agent/
+├── main.py              # Entry point
+├── flow.py              # Builds the node pipeline
+├── pocketflow.py        # Lightweight workflow engine
+├── prompts.py           # All LLM prompt templates
+│
+├── nodes/               # PIPELINE NODES (modular)
+│   ├── __init__.py      # Exports all node classes
+│   ├── base.py          # BaseAppNode (common methods)
+│   ├── user_input.py    # UserInputNode
+│   ├── initial_llm.py   # InitialLLMNode
+│   ├── scene_planner.py # ScenePlannerNode
+│   ├── voice_over.py    # VoiceOverNode (per-line audio)
+│   ├── review.py        # ReviewNode (human-in-the-loop)
+│   ├── manim_coder.py   # ManimCoderNode + helper functions
+│   └── output.py        # OutputNode
+│
+├── utilities/           # SHARED UTILITY FUNCTIONS
+│   ├── __init__.py      # Exports all utilities
+│   ├── llm.py           # call_llm, call_llm_json, call_llm_text
+│   ├── parsing.py       # extract_json, extract_code, parse_narrations
+│   └── tts.py           # generate_audio, generate_audio_edge
+│
+├── audio/               # Generated audio files (5 per scene)
+├── medias/              # Rendered video outputs
+├── .env                 # API keys (not in git)
+└── requirements.txt     # Python dependencies
+```
+
+
+================================================================================
+                         4. THE WORKFLOW PIPELINE
+================================================================================
+
+VISUAL REPRESENTATION:
+
+┌─────────────────┐
+│  UserInputNode  │ ← You type: "XG Boost"
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│ InitialLLMNode  │ ← AI creates JSON outline (engineering-level)
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│ScenePlannerNode │ ← AI writes 5 narration lines per scene
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│  VoiceOverNode  │ ← TTS generates 5 audio files per scene
+└────────┬────────┘    (scene_N_title.wav, scene_N_definition.wav, etc.)
+         ↓
+┌─────────────────┐
+│   ReviewNode    │ ← User approves or requests changes
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│ ManimCoderNode  │ ← AI writes code with per-element audio sync
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│   OutputNode    │ ← Shows summary and render command
+└─────────────────┘
+
+
+================================================================================
+              5. PER-LINE AUDIO SYNCHRONIZATION (Key Feature)
+================================================================================
+
+THE PROBLEM (OLD APPROACH)
+--------------------------
+Before: 1 audio file per scene (15-20 seconds)
+        → Animation finishes before audio, or vice versa
+        → Poor synchronization
+
+THE SOLUTION (CURRENT APPROACH)
+-------------------------------
+Now: 5 audio files per scene (2-4 seconds each)
+     → Each visual element has its own audio
+     → Animation waits for exact audio duration
+     → Perfect sync!
+
+HOW IT WORKS
+------------
+
+Scene Plan generates:
+  TITLE_AUDIO: "Let's explore XG Boost"
+  DEFINITION_AUDIO: "XGBoost is a gradient boosting..."
+  POINT1_AUDIO: "First, the loss function..."
+  POINT2_AUDIO: "Second, regularization..."
+  POINT3_AUDIO: "Finally, tree building..."
+
+VoiceOverNode creates:
+  audio/scene_1_title.wav      (2.1 seconds)
+  audio/scene_1_definition.wav (3.5 seconds)
+  audio/scene_1_point1.wav     (2.3 seconds)
+  audio/scene_1_point2.wav     (2.1 seconds)
+  audio/scene_1_point3.wav     (2.8 seconds)
+
+ManimCoderNode generates:
+```python
+# Each visual element has its own audio
+self.add_sound("audio/scene_1_title.wav")
+self.play(Write(title), run_time=1)
+self.wait(1.1)  # Audio: 2.1s - 1s animation = 1.1s
+
+self.add_sound("audio/scene_1_definition.wav")
+self.play(Write(definition), run_time=2)
+self.wait(1.5)  # Audio: 3.5s - 2s animation = 1.5s
+```
+
+
+================================================================================
+                        6. KEY CONCEPTS EXPLAINED
+================================================================================
+
+SHARED DICTIONARY
+-----------------
+The "shared" dictionary passes data between nodes:
+- Each node reads data it needs from shared
+- Each node writes data for the next node
+
+Key entries:
+- shared["user_query"]      = Topic string
+- shared["draft_output"]    = JSON outline
+- shared["scene_plan"]      = Full scene plan text
+- shared["narrations"]      = List of dicts with per-element audio text
+- shared["voice_over_files"]= Dict of audio file paths per element
+- shared["audio_durations"] = Dict of actual durations per element
+- shared["manim_code"]      = Generated Python code
+- shared["output_file"]     = Filename of generated code
+
+AUDIO CACHING
+-------------
+VoiceOverNode is smart about regenerating audio:
+- Each narration text is hashed (like a fingerprint)
+- Hash is saved in .cache_scene_N_element.txt
+- If narration changes, hash changes → regenerate
+- If narration same, hash same → skip (use cached)
+
+TTS ENGINE OPTIONS
+------------------
+Option 1: Edge TTS (FAST)
+  - Speed: ~2 seconds per file
+  - Quality: Good
+  - Requires: Internet connection
+  - Voices: en-US-GuyNeural, en-US-AriaNeural, etc.
+
+Option 2: Chatterbox (HIGH QUALITY)
+  - Speed: ~15 seconds per file
+  - Quality: Excellent (AI voice)
+  - Requires: GPU with 8GB+ VRAM
+
+
+================================================================================
+                            7. DATA FLOW
+================================================================================
+
+INPUT:
+- User topic (string)
+- API key (from .env)
+
+INTERMEDIATE DATA (in shared dict):
+- user_query       → from UserInputNode
+- draft_output     → from InitialLLMNode (JSON)
+- scene_plan       → from ScenePlannerNode (text)
+- narrations       → from ScenePlannerNode (list of dicts)
+- voice_over_files → from VoiceOverNode (dict of paths)
+- audio_durations  → from VoiceOverNode (dict of floats)
+- manim_code       → from ManimCoderNode (Python code)
+- output_file      → from ManimCoderNode (filename)
+
+GENERATED FILES:
+- audio/scene_N_title.wav
+- audio/scene_N_definition.wav
+- audio/scene_N_point1.wav
+- audio/scene_N_point2.wav
+- audio/scene_N_point3.wav
+- audio/.cache_scene_N_element.txt (cache hashes)
+- audio/audio_transcripts.txt (all narrations)
+- {topic}_{timestamp}.py (Manim code)
+
+OUTPUT:
+- medias/videos/.../video.mp4 (rendered video)
+
+
+================================================================================
+                            8. LLM PROMPTS
+================================================================================
+
+prompts.py contains 4 main prompts:
+
+1. INITIAL_PROMPT
+   - Role: Senior engineer and technical educator
+   - Input: User topic
+   - Output: JSON with engineering-level outline
+   - Key: "No surface-level explanations, go DEEP"
+
+2. SCENE_PLANNER_PROMPT
+   - Role: Scene planner for engineering content
+   - Input: JSON outline
+   - Output: Scene plan with 5 narration lines per scene
+   - Key: TITLE_AUDIO, DEFINITION_AUDIO, POINT1-3_AUDIO
+
+3. MANIM_CODER_PROMPT
+   - Role: Manim code generator
+   - Input: Scene plan
+   - Output: Python code with per-element audio
+   - Key: self.add_sound() BEFORE each animation
+
+4. CODE_VALIDATOR_PROMPT
+   - Role: Code fixer
+   - Input: Generated code
+   - Output: Fixed code
+   - Key: Common fixes (ShowCreation→Create, scaling, etc.)
+
+
+================================================================================
+                           9. TROUBLESHOOTING
+================================================================================
+
+"manim is not recognized"
+→ Activate virtual environment: .\venv311\Scripts\Activate.ps1
+
+"GROQ_API_KEY environment variable is not set"
+→ Create .env file with: GROQ_API_KEY=your_key
+→ Get your key from: https://console.groq.com/keys
+
+"Audio not synced / overlapping"
+→ Delete audio/ folder contents and regenerate
+→ Run: Remove-Item -Path "audio\*" -Force
+→ Then: python main.py
+
+"NameError: CI_CD_Scenes is not defined" (or similar)
+→ LLM generated invalid code - this is now auto-fixed
+→ Regenerate the video or update manim_coder.py
+
+"OSError: could not find scene_N_point4.wav"
+→ LLM generated >3 key points - this is now auto-fixed
+→ Either regenerate or manually remove 4th+ key points
+
+"Multiple class definitions in generated file"
+→ LLM generated separate classes per scene - now auto-fixed
+→ Regenerate the video with updated manim_coder.py
+
+"Scenes have duplicate content"
+→ Updated prompts now enforce unique content
+→ Regenerate the scene plan
+
+"Text too small or cut off"
+→ Check font_size in generated code (should be 22+)
+→ Auto-fix adds scale_to_fit_width(12) for definitions
+
+"No audio after scene 1"
+→ Delete medias/videos/... folder to clear cache
+→ Re-render the video
+
+
+================================================================================
+                        10. EXTENDING THE PROJECT
+================================================================================
+
+TO ADD A NEW NODE:
+1. Create file in nodes/ (e.g., nodes/my_node.py)
+2. Import BaseAppNode: from nodes.base import BaseAppNode
+3. Define exec() method with your logic
+4. Add to nodes/__init__.py exports
+5. Connect in flow.py
+
+TO ADD A NEW UTILITY:
+1. Create file in utilities/ (e.g., utilities/my_util.py)
+2. Add export to utilities/__init__.py
+3. Import where needed
+
+TO CHANGE TTS ENGINE:
+1. Edit nodes/voice_over.py
+2. Modify the generate_audio call
+
+TO CHANGE VIDEO STYLE:
+1. Edit MANIM_CODER_PROMPT in prompts.py
+2. Update the template with your preferred style
+
+TO ADD MATHEMATICAL VISUALIZATIONS:
+1. Expand allowed objects in MANIM_CODER_PROMPT
+2. Add examples with Axes, FunctionGraph, NumberPlane
+3. Update fix_text_overflow() to not remove them
+
+
+================================================================================
+                              END OF DOCUMENTATION
+================================================================================
