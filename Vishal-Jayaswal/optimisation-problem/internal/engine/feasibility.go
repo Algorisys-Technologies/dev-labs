@@ -8,6 +8,77 @@ import (
 	"optimisation-problem/internal/models"
 )
 
+func CheckFeasibilitySimple(orders []models.Order, factoryMaster map[string]models.Factory2) (bool, []models.Overload) {
+	// 1. Static Window Check (Filing Only)
+	var overloads []models.Overload
+	for _, o := range orders {
+		f, ok := factoryMaster[o.Factory]
+		if !ok {
+			continue
+		}
+		filingDays := int(o.PolishingStartDate.Sub(o.FilingStartDate).Hours() / 24)
+		if filingDays < 1 {
+			filingDays = 1
+		}
+		maxFilManHoursCapacity := float64(filingDays) * f.DailyFilManHours
+		if o.FilWorkingHrs > maxFilManHoursCapacity {
+			overloads = append(overloads, models.Overload{
+				Factory: o.Factory,
+				Process: "Filing window infeasible",
+				Date:    o.PolishingStartDate,
+				Excess:  o.FilWorkingHrs - maxFilManHoursCapacity,
+			})
+		}
+	}
+	if len(overloads) > 0 {
+		return false, overloads
+	}
+
+	// 2. Daily Simulation (Filing Only)
+	remainingFilHrs := make(map[string]float64)
+	factoryWiseOrders := make(map[string][]*models.Order)
+	for i := range orders {
+		o := &orders[i]
+		remainingFilHrs[o.OrderNo] = o.FilWorkingHrs
+		factoryWiseOrders[o.Factory] = append(factoryWiseOrders[o.Factory], o)
+	}
+
+	for factoryName, f := range factoryMaster {
+		fOrders := factoryWiseOrders[factoryName]
+		if len(fOrders) == 0 {
+			continue
+		}
+
+		minDate := fOrders[0].FilingStartDate
+		maxDate := fOrders[0].PolishingStartDate
+		for _, o := range fOrders {
+			if o.FilingStartDate.Before(minDate) {
+				minDate = o.FilingStartDate
+			}
+			if o.PolishingStartDate.After(maxDate) {
+				maxDate = o.PolishingStartDate
+			}
+		}
+
+		for currentDate := minDate; currentDate.Before(maxDate); currentDate = currentDate.AddDate(0, 0, 1) {
+			activeFil := []*models.Order{}
+			for _, o := range fOrders {
+				if (currentDate.Equal(o.FilingStartDate) || currentDate.After(o.FilingStartDate)) &&
+					currentDate.Before(o.PolishingStartDate) &&
+					remainingFilHrs[o.OrderNo] > 0 {
+					activeFil = append(activeFil, o)
+				}
+			}
+
+			if DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, f.DailyFilManHours) {
+				return false, []models.Overload{{Factory: factoryName, Process: "Filing overload", Date: currentDate}}
+			}
+		}
+	}
+
+	return true, nil
+}
+
 func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Factory) (bool, []models.Overload) {
 
 	// Fast "sanity check" before running the daily shared-capacity simulation to ensure individual orders are theoretically possible

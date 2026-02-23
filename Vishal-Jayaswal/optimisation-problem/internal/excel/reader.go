@@ -91,11 +91,11 @@ func ReadOrdersFromExcel(filename string) ([]models.Order, error) {
 		filHrs, err4 := strconv.ParseFloat(strings.TrimSpace(row[161]), 64)
 		polHrs, err5 := strconv.ParseFloat(strings.TrimSpace(row[162]), 64)
 		fqcStart, err6 := utils.ParseDate(row[65])
-		fqcHrs, err7 := strconv.ParseFloat(strings.TrimSpace(row[163]), 64)
+		fqcHrs, err7 := strconv.ParseFloat(strings.TrimSpace(row[165]), 64)
 
 		if err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil || err7 != nil {
 			return nil, fmt.Errorf("invalid numeric data in Orders row %d: (Col3: %q, Col4: %q, Col5: %q, Col6: %q, Col7: %q, Col8: %q)",
-				i+1, row[56], row[64], row[70], row[161], row[162], row[163])
+				i+1, row[56], row[64], row[70], row[161], row[162], row[165])
 		}
 
 		orders = append(orders, models.Order{

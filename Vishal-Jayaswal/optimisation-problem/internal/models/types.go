@@ -12,6 +12,16 @@ type Factory struct {
 	AddPolManHours float64 // hours per day
 	AddFQCManHours float64 // hours per day
 }
+type Factory2 struct {
+	Name             string
+	DailyFilManHours float64 // hours per day
+	DailyPolManHours float64 // hours per day
+	DailyFQCManHours float64 // hours per day
+
+	AddFilManHours float64 // hours per day
+	AddPolManHours float64 // hours per day
+	AddFQCManHours float64 // hours per day
+}
 
 type Order struct {
 	OrderNo            string

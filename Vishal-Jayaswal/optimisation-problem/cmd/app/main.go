@@ -21,24 +21,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Check initial feasibility
+	// 1️⃣ Initial Feasibility Check
 	fmt.Println("🔍  Checking initial feasibility...")
 	ok, overloads := engine.CheckFeasibility(orders, factoryMaster)
 	if ok {
 		fmt.Println("✅  All orders are FEASIBLE")
 		return
-	} else {
-		fmt.Println("❌  Orders are infeasible:")
-		for _, o := range overloads {
-			fmt.Printf("    → %s: %s on %s\n", o.Factory, o.Process, o.Date.Format("02/01/2006"))
-		}
 	}
 
-	// Try to improve feasibility
-	ok = engine.ImproveFeasibility(orders, factoryMaster, overloads)
-	if ok {
-		fmt.Println("🎉  Feasibility restored")
-	} else {
-		fmt.Println("💥  Could not restore feasibility")
+	fmt.Println("❌  Orders are infeasible:")
+	for _, o := range overloads {
+		fmt.Printf("    → %s: %s on %s\n", o.Factory, o.Process, o.Date.Format("02/01/2006"))
 	}
+	// fmt.Println()
+
+	// // 2️⃣ Attempt to Restore Feasibility
+	// fmt.Println("🛠️  Attempting to restore feasibility...")
+	// if restored := engine.ImproveFeasibility(orders, factoryMaster, overloads); restored {
+	// 	fmt.Println("🎉  Feasibility restored!")
+	// } else {
+	// 	fmt.Println("💥  Could not restore feasibility.")
+	// }
 }

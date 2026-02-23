@@ -140,7 +140,7 @@ func DistributeWithSlackEDF(
 	// Allocate capacity
 	for _, d := range demands {
 		if processCapacity <= 0 {
-			return true
+			break
 		}
 
 		rem := remainingHrs[d.Order.OrderNo]
