@@ -37,4 +37,5 @@ type Demand struct {
 	Order         *Order
 	RequiredToday float64
 	Deadline      time.Time
+	Slack         float64
 }

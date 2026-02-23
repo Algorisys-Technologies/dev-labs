@@ -8,6 +8,24 @@ import (
 	"optimisation-problem/internal/models"
 )
 
+func DistributeWork(active []*models.Order, remaining map[string]float64, totalRemaining, capacity float64) {
+	if totalRemaining == 0 || capacity == 0 {
+		return
+	}
+
+	if totalRemaining <= capacity {
+		for _, o := range active {
+			remaining[o.OrderNo] = 0
+		}
+		return
+	}
+
+	for _, o := range active {
+		share := (remaining[o.OrderNo] / totalRemaining) * capacity
+		remaining[o.OrderNo] -= share
+	}
+}
+
 func DistributeEvenWithEDF(
 	activeOrders []*models.Order,
 	remainingHrs map[string]float64,
@@ -68,20 +86,69 @@ func DistributeEvenWithEDF(
 	return false
 }
 
-func DistributeWork(active []*models.Order, remaining map[string]float64, totalRemaining, capacity float64) {
-	if totalRemaining == 0 || capacity == 0 {
-		return
+// Prioritize work using the Least Slack Time (LST) algorithm to identify scheduling bottlenecks.
+func DistributeWithSlackEDF(
+	activeOrders []*models.Order,
+	remainingHrs map[string]float64,
+	currentDate time.Time,
+	processEndDate func(*models.Order) time.Time,
+	processCapacity float64,
+) (overload bool) {
+
+	if len(activeOrders) == 0 {
+		return false
 	}
 
-	if totalRemaining <= capacity {
-		for _, o := range active {
-			remaining[o.OrderNo] = 0
+	demands := []models.Demand{}
+
+	for _, o := range activeOrders {
+		remaining := remainingHrs[o.OrderNo]
+		if remaining <= 0 {
+			continue
 		}
-		return
+
+		deadline := processEndDate(o)
+		daysLeft := int(deadline.Sub(currentDate).Hours() / 24)
+		if daysLeft < 1 {
+			daysLeft = 1
+		}
+
+		// Optional smoothing metric
+		requiredToday := remaining / float64(daysLeft)
+
+		// Slack calculation
+		slack := float64(daysLeft)*processCapacity - remaining
+
+		// ❗ Detect impossible schedule
+		if slack < 0 {
+			return true
+		}
+
+		demands = append(demands, models.Demand{
+			Order:         o,
+			RequiredToday: requiredToday,
+			Deadline:      deadline,
+			Slack:         slack,
+		})
 	}
 
-	for _, o := range active {
-		share := (remaining[o.OrderNo] / totalRemaining) * capacity
-		remaining[o.OrderNo] -= share
+	// Sort by slack (ascending order)
+	sort.Slice(demands, func(i, j int) bool {
+		return demands[i].Slack < demands[j].Slack
+	})
+
+	// Allocate capacity
+	for _, d := range demands {
+		if processCapacity <= 0 {
+			return true
+		}
+
+		rem := remainingHrs[d.Order.OrderNo]
+		work := math.Min(rem, processCapacity)
+
+		remainingHrs[d.Order.OrderNo] -= work
+		processCapacity -= work
 	}
+
+	return false
 }

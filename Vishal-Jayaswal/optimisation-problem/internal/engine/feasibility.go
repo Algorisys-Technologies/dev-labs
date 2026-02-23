@@ -63,9 +63,11 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 		}
 
 		for currentDate := minDate; !currentDate.After(maxDate); currentDate = currentDate.AddDate(0, 0, 1) {
+			// --- Filing ---
 			activeFil := []*models.Order{}
 			totalRemainingFilHrs := 0.0
 
+			// Find all filing orders that are active on the current date and find their total remaining work
 			for _, o := range fOrders {
 				if currentDate.Before(o.FilingStartDate) ||
 					!currentDate.Before(o.PolishingStartDate) ||
@@ -77,13 +79,15 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 			}
 
 			filCapacity := f.FilManHours
-			if DistributeEvenWithEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, filCapacity) {
+			if DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, filCapacity) {
 				return false, []models.Overload{{Factory: factoryName, Process: "Filing overload", Date: currentDate}}
 			}
 
+			// --- Polishing ---
 			activePol := []*models.Order{}
 			totalRemainingPolHrs := 0.0
 
+			// Find all polishing orders that are active on the current date and find their total remaining work
 			for _, o := range fOrders {
 				if currentDate.Before(o.PolishingStartDate) ||
 					!currentDate.Before(o.FQCStartDate) ||
@@ -95,7 +99,7 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 			}
 
 			polCapacity := f.PolManHours
-			if DistributeEvenWithEDF(activePol, remainingPolHrs, currentDate, func(o *models.Order) time.Time { return o.FQCStartDate }, polCapacity) {
+			if DistributeWithSlackEDF(activePol, remainingPolHrs, currentDate, func(o *models.Order) time.Time { return o.FQCStartDate }, polCapacity) {
 				return false, []models.Overload{{Factory: factoryName, Process: "Polishing overload", Date: currentDate}}
 			}
 		}
@@ -128,7 +132,7 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 		}
 
 		fqcCapacity := fqcFactory.FQCManHours
-		if DistributeEvenWithEDF(activeFQC, remainingFQCHrs, currentDate, func(o *models.Order) time.Time { return o.OrderEndDate }, fqcCapacity) {
+		if DistributeWithSlackEDF(activeFQC, remainingFQCHrs, currentDate, func(o *models.Order) time.Time { return o.OrderEndDate }, fqcCapacity) {
 			return false, []models.Overload{{Factory: "FQC", Process: "FQC overload", Date: currentDate}}
 		}
 	}
