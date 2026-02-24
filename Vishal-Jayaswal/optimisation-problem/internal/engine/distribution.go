@@ -132,6 +132,24 @@ func DistributeWithSlackEDF(
 		})
 	}
 
+	// Deadline window feasibility
+	sort.Slice(demands, func(i, j int) bool {
+		return demands[i].Deadline.Before(demands[j].Deadline)
+	})
+	cumulativeWork := 0.0
+	for _, d := range demands {
+		cumulativeWork += remainingHrs[d.Order.OrderNo]
+
+		days := int(d.Deadline.Sub(currentDate).Hours() / 24)
+		if days < 1 {
+			days = 1
+		}
+
+		if cumulativeWork > float64(days)*processCapacity {
+			return true
+		}
+	}
+
 	// Sort by slack (ascending order)
 	sort.Slice(demands, func(i, j int) bool {
 		return demands[i].Slack < demands[j].Slack
