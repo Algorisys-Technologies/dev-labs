@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"optimisation-problem/internal/models"
@@ -303,24 +302,5 @@ func ImproveFeasibility(orders []models.Order, factories map[string]models.Facto
 }
 
 func IncreaseManpower(factories map[string]models.Factory, overloads []models.Overload) {
-	for _, o := range overloads {
-		f := factories[o.Factory]
 
-		switch o.Process {
-		case "Filing":
-			add := math.Min(o.Excess, f.AddFilManHours)
-			f.FilManHours += add
-			fmt.Printf("➕ Added %.2f filing hours at %s\n", add, o.Factory)
-		case "Polishing":
-			add := math.Min(o.Excess, f.AddPolManHours)
-			f.PolManHours += add
-			fmt.Printf("➕ Added %.2f polishing hours at %s\n", add, o.Factory)
-		case "FQC":
-			add := math.Min(o.Excess, f.AddFQCManHours)
-			f.FQCManHours += add
-			fmt.Printf("➕ Added %.2f FQC hours at %s\n", add, o.Factory)
-		}
-
-		factories[o.Factory] = f
-	}
 }

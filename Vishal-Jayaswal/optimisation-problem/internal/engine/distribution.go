@@ -86,7 +86,7 @@ func DistributeEvenWithEDF(
 	return false
 }
 
-// Prioritize work using the Least Slack Time (LST) algorithm to identify scheduling bottlenecks.
+// DistributeWithSlackEDF validates schedule feasibility by checking cumulative work against chronological deadline windows and prioritizes allocation using the Least Slack Time (LST) algorithm.
 func DistributeWithSlackEDF(
 	activeOrders []*models.Order,
 	remainingHrs map[string]float64,
