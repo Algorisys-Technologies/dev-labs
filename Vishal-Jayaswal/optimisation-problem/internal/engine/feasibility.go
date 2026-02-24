@@ -2,6 +2,8 @@ package engine
 
 import (
 	"fmt"
+	"maps"
+	"math"
 	"time"
 
 	"optimisation-problem/internal/models"
@@ -23,9 +25,9 @@ func CheckFeasibilitySimple(orders []models.Order, factoryMaster map[string]mode
 		if o.FilWorkingHrs > maxFilManHoursCapacity {
 			overloads = append(overloads, models.Overload{
 				Factory: o.Factory,
-				Process: "Filing window infeasible",
+				Process: "Filing",
 				Date:    o.PolishingStartDate,
-				Excess:  o.FilWorkingHrs - maxFilManHoursCapacity,
+				Deficit: (o.FilWorkingHrs - maxFilManHoursCapacity) / float64(filingDays),
 			})
 		}
 	}
@@ -69,8 +71,8 @@ func CheckFeasibilitySimple(orders []models.Order, factoryMaster map[string]mode
 				}
 			}
 
-			if DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, f.DailyFilManHours) {
-				return false, []models.Overload{{Factory: factoryName, Process: "Filing overload", Date: currentDate}}
+			if ok, def := DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, f.DailyFilManHours); ok {
+				return false, []models.Overload{{Factory: factoryName, Process: "Filing", Date: currentDate, Deficit: def}}
 			}
 		}
 	}
@@ -80,10 +82,9 @@ func CheckFeasibilitySimple(orders []models.Order, factoryMaster map[string]mode
 
 func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Factory) (bool, []models.Overload) {
 
-	// Fast "sanity check" before running the daily shared-capacity simulation to ensure individual orders are theoretically possible
-	windowOverloads := CheckPerOrderWindowFeasibility(orders, factoryMaster)
-	if len(windowOverloads) > 0 {
-		return false, windowOverloads
+	// Initial Validation: Ensure all orders have valid working windows (Start < End)
+	if overloads := ValidateOrderWindows(orders); len(overloads) > 0 {
+		return false, overloads
 	}
 
 	var overloads []models.Overload
@@ -135,7 +136,6 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 		for currentDate := minDate; !currentDate.After(maxDate); currentDate = currentDate.AddDate(0, 0, 1) {
 			// --- Filing ---
 			activeFil := []*models.Order{}
-			totalRemainingFilHrs := 0.0
 
 			// Find all filing orders that are active on the current date and find their total remaining work
 			for _, o := range fOrders {
@@ -145,17 +145,15 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 					continue
 				}
 				activeFil = append(activeFil, o)
-				totalRemainingFilHrs += remainingFilHrs[o.OrderNo]
 			}
 
 			filCapacity := f.FilManHours
-			if DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, filCapacity) {
-				return false, []models.Overload{{Factory: factoryName, Process: "Filing overload", Date: currentDate}}
+			if ok, def := DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, filCapacity); ok {
+				return false, []models.Overload{{Factory: factoryName, Process: "Filing", Date: currentDate, Deficit: def}}
 			}
 
 			// --- Polishing ---
 			activePol := []*models.Order{}
-			totalRemainingPolHrs := 0.0
 
 			// Find all polishing orders that are active on the current date and find their total remaining work
 			for _, o := range fOrders {
@@ -165,12 +163,11 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 					continue
 				}
 				activePol = append(activePol, o)
-				totalRemainingPolHrs += remainingPolHrs[o.OrderNo]
 			}
 
 			polCapacity := f.PolManHours
-			if DistributeWithSlackEDF(activePol, remainingPolHrs, currentDate, func(o *models.Order) time.Time { return o.FQCStartDate }, polCapacity) {
-				return false, []models.Overload{{Factory: factoryName, Process: "Polishing overload", Date: currentDate}}
+			if ok, def := DistributeWithSlackEDF(activePol, remainingPolHrs, currentDate, func(o *models.Order) time.Time { return o.FQCStartDate }, polCapacity); ok {
+				return false, []models.Overload{{Factory: factoryName, Process: "Polishing", Date: currentDate, Deficit: def}}
 			}
 		}
 	}
@@ -190,7 +187,6 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 
 	for currentDate := minDateFQC; !currentDate.After(maxDateFQC); currentDate = currentDate.AddDate(0, 0, 1) {
 		activeFQC := []*models.Order{}
-		totalFQCRemaining := 0.0
 
 		for i := range orders {
 			o := &orders[i]
@@ -198,109 +194,114 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 				continue
 			}
 			activeFQC = append(activeFQC, o)
-			totalFQCRemaining += remainingFQCHrs[o.OrderNo]
 		}
 
 		fqcCapacity := fqcFactory.FQCManHours
-		if DistributeWithSlackEDF(activeFQC, remainingFQCHrs, currentDate, func(o *models.Order) time.Time { return o.OrderEndDate }, fqcCapacity) {
-			return false, []models.Overload{{Factory: "FQC", Process: "FQC overload", Date: currentDate}}
-		}
-	}
-
-	for _, o := range orders {
-		if remainingFilHrs[o.OrderNo] > 0.01 {
-			fmt.Printf("Order %s incomplete: Filing short\n", o.OrderNo)
-			return false, overloads
-		}
-		if remainingPolHrs[o.OrderNo] > 0.01 {
-			fmt.Printf("Order %s incomplete: Polishing short\n", o.OrderNo)
-			return false, overloads
-		}
-		if remainingFQCHrs[o.OrderNo] > 0.01 {
-			fmt.Printf("Order %s incomplete: FQC short\n", o.OrderNo)
-			return false, overloads
+		if ok, def := DistributeWithSlackEDF(activeFQC, remainingFQCHrs, currentDate, func(o *models.Order) time.Time { return o.OrderEndDate }, fqcCapacity); ok {
+			return false, []models.Overload{{Factory: "FQC", Process: "FQC", Date: currentDate, Deficit: def}}
 		}
 	}
 
 	return true, overloads
 }
 
-// Fast "sanity check" before running the daily shared-capacity simulation
-func CheckPerOrderWindowFeasibility(orders []models.Order, factoryMaster map[string]models.Factory) []models.Overload {
+func ValidateOrderWindows(orders []models.Order) []models.Overload {
 	var overloads []models.Overload
-	fqcFactory := factoryMaster["FQC"]
-
 	for _, o := range orders {
-		f := factoryMaster[o.Factory]
-
-		filingDays := int(o.PolishingStartDate.Sub(o.FilingStartDate).Hours() / 24)
-		if filingDays < 0 {
-			filingDays = 0
+		if !o.FilingStartDate.Before(o.PolishingStartDate) {
+			overloads = append(overloads, models.Overload{Factory: o.Factory, Process: "Filing", Date: o.FilingStartDate, Deficit: 999})
 		}
-		maxFilCapacity := float64(filingDays) * f.FilManHours
-
-		if o.FilWorkingHrs > maxFilCapacity {
-			overloads = append(overloads, models.Overload{
-				Factory: o.Factory,
-				Process: "Filing window infeasible",
-				Date:    o.PolishingStartDate,
-				Excess:  o.FilWorkingHrs - maxFilCapacity,
-			})
+		if !o.PolishingStartDate.Before(o.FQCStartDate) {
+			overloads = append(overloads, models.Overload{Factory: o.Factory, Process: "Polishing", Date: o.PolishingStartDate, Deficit: 999})
 		}
-
-		polishingDays := int(o.FQCStartDate.Sub(o.PolishingStartDate).Hours() / 24)
-		if polishingDays < 0 {
-			polishingDays = 0
-		}
-		maxPolCapacity := float64(polishingDays) * f.PolManHours
-
-		if o.PolWorkingHrs > maxPolCapacity {
-			overloads = append(overloads, models.Overload{
-				Factory: o.Factory,
-				Process: "Polishing window infeasible",
-				Date:    o.FQCStartDate,
-				Excess:  o.PolWorkingHrs - maxPolCapacity,
-			})
-		}
-
-		fqcDays := int(o.OrderEndDate.Sub(o.FQCStartDate).Hours() / 24)
-		if fqcDays < 0 {
-			fqcDays = 0
-		}
-		maxFQCCapacity := float64(fqcDays) * fqcFactory.FQCManHours
-
-		if o.FQCWorkingHrs > maxFQCCapacity {
-			overloads = append(overloads, models.Overload{
-				Factory: "FQC",
-				Process: "FQC window infeasible",
-				Date:    o.OrderEndDate,
-				Excess:  o.FQCWorkingHrs - maxFQCCapacity,
-			})
+		if !o.FQCStartDate.Before(o.OrderEndDate) {
+			overloads = append(overloads, models.Overload{Factory: "FQC", Process: "FQC", Date: o.FQCStartDate, Deficit: 999})
 		}
 	}
-
 	return overloads
 }
 
 func ImproveFeasibility(orders []models.Order, factories map[string]models.Factory, overloads []models.Overload) bool {
-	fmt.Println("⚙️ Attempting to improve feasibility...")
+	fmt.Println("⚙️ Iteratively increasing manpower to resolve all bottlenecks...")
 
-	// 1. Increase Manpower
-	IncreaseManpower(factories, overloads)
+	// Snapshot initial capacity to show total added workers later
+	initial := make(map[string]models.Factory)
+	maps.Copy(initial, factories)
 
-	ok, _ := CheckFeasibility(orders, factories)
-	if ok {
-		fmt.Println("✅ Feasible after manpower increase")
-		return true
+	for i := 1; i <= 100; i++ {
+		ok, currentOverloads := CheckFeasibility(orders, factories)
+		if ok {
+			fmt.Printf("✅ Feasibility restored after %d iteration(s)!\n", i-1)
+			PrintManpowerSummary(initial, factories)
+			return true
+		}
+
+		IncreaseManpower(factories, currentOverloads)
 	}
-	fmt.Println("❌ Still infeasible after manpower increase")
 
-	// 2. Factory Reallocation
-	// 3. Overtime
-
+	fmt.Println("❌ Still infeasible after 100 iterations.")
+	PrintManpowerSummary(initial, factories)
 	return false
 }
 
 func IncreaseManpower(factories map[string]models.Factory, overloads []models.Overload) {
+	for _, o := range overloads {
+		if o.Deficit < 0.001 {
+			continue
+		}
+		f := factories[o.Factory]
 
+		// Add exactly what is needed to bridge the gap in the simulation
+		capacityToAdd := o.Deficit
+
+		switch o.Process {
+		case "Filing":
+			f.FilManHours += capacityToAdd
+			fmt.Printf("+ Filing: +%.2f hrs/day bottleneck at %s\n", capacityToAdd, o.Factory)
+
+		case "Polishing":
+			f.PolManHours += capacityToAdd
+			fmt.Printf("+ Polishing: +%.2f hrs/day bottleneck at %s\n", capacityToAdd, o.Factory)
+
+		case "FQC":
+			f.FQCManHours += capacityToAdd
+			fmt.Printf("+ FQC: +%.2f hrs/day bottleneck at %s\n", capacityToAdd, o.Factory)
+		}
+
+		factories[o.Factory] = f
+	}
+}
+
+func PrintManpowerSummary(initial, final map[string]models.Factory) {
+	const hoursInShift = 8.0
+	fmt.Println("\n📊 MANPOWER SUMMARY (Headcount Required)")
+	fmt.Println("--------------------------------------------------")
+	fmt.Printf("%-15s %-10s %-10s %-10s %-10s\n", "Factory", "Process", "Initial", "Required", "Added")
+
+	for name := range initial {
+		f0 := initial[name]
+		f1 := final[name]
+
+		// We round INITIAL to nearest (assuming it was integer start)
+		// but use CEIL for REQUIRED to ensure we cover the calculated deficit.
+		if f1.FilManHours > f0.FilManHours {
+			w0 := math.Round(f0.FilManHours / hoursInShift)
+			w1 := math.Ceil(f1.FilManHours / hoursInShift)
+			fmt.Printf("%-15s %-10s %-10.0f %-10.0f (+%.0f)\n",
+				name, "Filing", w0, w1, w1-w0)
+		}
+		if f1.PolManHours > f0.PolManHours {
+			w0 := math.Round(f0.PolManHours / hoursInShift)
+			w1 := math.Ceil(f1.PolManHours / hoursInShift)
+			fmt.Printf("%-15s %-10s %-10.0f %-10.0f (+%.0f)\n",
+				name, "Polishing", w0, w1, w1-w0)
+		}
+		if f1.FQCManHours > f0.FQCManHours {
+			w0 := math.Round(f0.FQCManHours / hoursInShift)
+			w1 := math.Ceil(f1.FQCManHours / hoursInShift)
+			fmt.Printf("%-15s %-10s %-10.0f %-10.0f (+%.0f)\n",
+				name, "FQC", w0, w1, w1-w0)
+		}
+	}
+	fmt.Println("--------------------------------------------------")
 }

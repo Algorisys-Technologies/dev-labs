@@ -93,10 +93,10 @@ func DistributeWithSlackEDF(
 	currentDate time.Time,
 	processEndDate func(*models.Order) time.Time,
 	processCapacity float64,
-) (overload bool) {
+) (overload bool, deficit float64) {
 
 	if len(activeOrders) == 0 {
-		return false
+		return false, 0
 	}
 
 	demands := []models.Demand{}
@@ -121,7 +121,9 @@ func DistributeWithSlackEDF(
 
 		// ❗ Detect impossible schedule
 		if slack < 0 {
-			return true
+			// Add a small safety buffer (0.01) to "cross" the feasibility line
+			deficit := (remaining/float64(daysLeft) - processCapacity) * 1.01
+			return true, deficit + 0.01
 		}
 
 		demands = append(demands, models.Demand{
@@ -146,7 +148,9 @@ func DistributeWithSlackEDF(
 		}
 
 		if cumulativeWork > float64(days)*processCapacity {
-			return true
+			// Add a small safety buffer (0.01) to "cross" the feasibility line
+			deficit := (cumulativeWork/float64(days) - processCapacity) * 1.01
+			return true, deficit + 0.01
 		}
 	}
 
@@ -168,5 +172,5 @@ func DistributeWithSlackEDF(
 		processCapacity -= work
 	}
 
-	return false
+	return false, 0
 }

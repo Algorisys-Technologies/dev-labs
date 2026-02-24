@@ -34,8 +34,8 @@ func main() {
 	} else {
 		fmt.Println("❌ TEST FAILED: Dummy orders are INFEASIBLE.")
 		for _, o := range overloads {
-			fmt.Printf("    → %s: %s on %s (Excess: %.2f hrs)\n",
-				o.Factory, o.Process, o.Date.Format("02-01-2006"), o.Excess)
+			fmt.Printf("    → %s: %s on %s (Deficit: %.2f hrs)\n",
+				o.Factory, o.Process, o.Date.Format("02-01-2006"), o.Deficit)
 		}
 	}
 }

@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// 2️⃣ Attempt to Restore Feasibility
-	fmt.Println("🛠️  Attempting to restore feasibility...")
+	fmt.Println("\n🛠️  Attempting to restore feasibility...")
 	if restored := engine.ImproveFeasibility(orders, factoryMaster, overloads); restored {
 		fmt.Println("🎉  Feasibility restored!")
 	} else {
