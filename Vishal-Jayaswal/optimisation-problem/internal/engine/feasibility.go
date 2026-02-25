@@ -28,6 +28,7 @@ func CheckFeasibilitySimple(orders []models.Order, factoryMaster map[string]mode
 				Process: "Filing",
 				Date:    o.PolishingStartDate,
 				Deficit: (o.FilWorkingHrs - maxFilManHoursCapacity) / float64(filingDays),
+				OrderNo: o.OrderNo,
 			})
 		}
 	}
@@ -71,8 +72,8 @@ func CheckFeasibilitySimple(orders []models.Order, factoryMaster map[string]mode
 				}
 			}
 
-			if ok, def := DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, f.DailyFilManHours); ok {
-				return false, []models.Overload{{Factory: factoryName, Process: "Filing", Date: currentDate, Deficit: def}}
+			if ok, def, oNo := DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, f.DailyFilManHours); ok {
+				return false, []models.Overload{{Factory: factoryName, Process: "Filing", Date: currentDate, Deficit: def, OrderNo: oNo}}
 			}
 		}
 	}
@@ -148,8 +149,8 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 			}
 
 			filCapacity := f.FilManHours
-			if ok, def := DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, filCapacity); ok {
-				return false, []models.Overload{{Factory: factoryName, Process: "Filing", Date: currentDate, Deficit: def}}
+			if ok, def, oNo := DistributeWithSlackEDF(activeFil, remainingFilHrs, currentDate, func(o *models.Order) time.Time { return o.PolishingStartDate }, filCapacity); ok {
+				return false, []models.Overload{{Factory: factoryName, Process: "Filing", Date: currentDate, Deficit: def, OrderNo: oNo}}
 			}
 
 			// --- Polishing ---
@@ -166,8 +167,8 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 			}
 
 			polCapacity := f.PolManHours
-			if ok, def := DistributeWithSlackEDF(activePol, remainingPolHrs, currentDate, func(o *models.Order) time.Time { return o.FQCStartDate }, polCapacity); ok {
-				return false, []models.Overload{{Factory: factoryName, Process: "Polishing", Date: currentDate, Deficit: def}}
+			if ok, def, oNo := DistributeWithSlackEDF(activePol, remainingPolHrs, currentDate, func(o *models.Order) time.Time { return o.FQCStartDate }, polCapacity); ok {
+				return false, []models.Overload{{Factory: factoryName, Process: "Polishing", Date: currentDate, Deficit: def, OrderNo: oNo}}
 			}
 		}
 	}
@@ -197,8 +198,8 @@ func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Fac
 		}
 
 		fqcCapacity := fqcFactory.FQCManHours
-		if ok, def := DistributeWithSlackEDF(activeFQC, remainingFQCHrs, currentDate, func(o *models.Order) time.Time { return o.OrderEndDate }, fqcCapacity); ok {
-			return false, []models.Overload{{Factory: "FQC", Process: "FQC", Date: currentDate, Deficit: def}}
+		if ok, def, oNo := DistributeWithSlackEDF(activeFQC, remainingFQCHrs, currentDate, func(o *models.Order) time.Time { return o.OrderEndDate }, fqcCapacity); ok {
+			return false, []models.Overload{{Factory: "FQC", Process: "FQC", Date: currentDate, Deficit: def, OrderNo: oNo}}
 		}
 	}
 
@@ -209,13 +210,13 @@ func ValidateOrderWindows(orders []models.Order) []models.Overload {
 	var overloads []models.Overload
 	for _, o := range orders {
 		if !o.FilingStartDate.Before(o.PolishingStartDate) {
-			overloads = append(overloads, models.Overload{Factory: o.Factory, Process: "Filing", Date: o.FilingStartDate, Deficit: 999})
+			overloads = append(overloads, models.Overload{Factory: o.Factory, Process: "Filing", Date: o.FilingStartDate, Deficit: 999, OrderNo: o.OrderNo})
 		}
 		if !o.PolishingStartDate.Before(o.FQCStartDate) {
-			overloads = append(overloads, models.Overload{Factory: o.Factory, Process: "Polishing", Date: o.PolishingStartDate, Deficit: 999})
+			overloads = append(overloads, models.Overload{Factory: o.Factory, Process: "Polishing", Date: o.PolishingStartDate, Deficit: 999, OrderNo: o.OrderNo})
 		}
 		if !o.FQCStartDate.Before(o.OrderEndDate) {
-			overloads = append(overloads, models.Overload{Factory: "FQC", Process: "FQC", Date: o.FQCStartDate, Deficit: 999})
+			overloads = append(overloads, models.Overload{Factory: "FQC", Process: "FQC", Date: o.FQCStartDate, Deficit: 999, OrderNo: o.OrderNo})
 		}
 	}
 	return overloads
@@ -228,7 +229,7 @@ func ImproveFeasibility(orders []models.Order, factories map[string]models.Facto
 	initial := make(map[string]models.Factory)
 	maps.Copy(initial, factories)
 
-	for i := 1; i <= 100; i++ {
+	for i := 1; i <= 2000; i++ {
 		ok, currentOverloads := CheckFeasibility(orders, factories)
 		if ok {
 			fmt.Printf("✅ Feasibility restored after %d iteration(s)!\n", i-1)
@@ -304,4 +305,45 @@ func PrintManpowerSummary(initial, final map[string]models.Factory) {
 		}
 	}
 	fmt.Println("--------------------------------------------------")
+}
+
+func ResolveByRemovingOrders(orders []models.Order, factoryMaster map[string]models.Factory) ([]string, bool) {
+	fmt.Println("🚀 Identifying orders to remove to restore feasibility...")
+
+	currentOrders := make([]models.Order, len(orders))
+	copy(currentOrders, orders)
+
+	var removedOrders []string
+
+	for {
+		ok, overloads := CheckFeasibility(currentOrders, factoryMaster)
+		if ok {
+			return removedOrders, true
+		}
+
+		// Take the first overload's OrderID as the candidate for removal
+		culprit := overloads[0].OrderNo
+		if culprit == "" {
+			fmt.Println("⚠️ Overload detected but no specific order identified. Stopping.")
+			return removedOrders, false
+		}
+
+		fmt.Printf("❌ Bottleneck detected! Suggested removal: Order %s\n", culprit)
+		removedOrders = append(removedOrders, culprit)
+
+		// Filter out the culprit order
+		newOrders := []models.Order{}
+		for _, o := range currentOrders {
+			if o.OrderNo != culprit {
+				newOrders = append(newOrders, o)
+			}
+		}
+		currentOrders = newOrders
+
+		if len(currentOrders) == 0 {
+			break
+		}
+	}
+
+	return removedOrders, false
 }

@@ -40,6 +40,7 @@ type Overload struct {
 	Date    time.Time
 	Process string  // "Filing", "Polishing", "FQC"
 	Deficit float64 // hrs/day needed
+	OrderNo string
 }
 
 // Demand represents the daily work required for an order to stay on schedule and its deadline.
