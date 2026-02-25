@@ -48,5 +48,4 @@ type Demand struct {
 	RequiredToday float64
 	Deadline      time.Time
 	Slack         float64
-	DaysLeft      int
 }

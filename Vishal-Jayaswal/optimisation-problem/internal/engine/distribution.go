@@ -50,12 +50,7 @@ func DistributeEvenWithEDF(
 		}
 
 		requiredHrs := remainingHrs[o.OrderNo] / float64(remainingDays)
-		demands = append(demands, models.Demand{
-			Order:         o,
-			RequiredToday: requiredHrs,
-			Deadline:      endDate,
-			DaysLeft:      remainingDays,
-		})
+		demands = append(demands, models.Demand{Order: o, RequiredToday: requiredHrs, Deadline: endDate})
 		totalRequiredHrs += requiredHrs
 	}
 
@@ -136,7 +131,6 @@ func DistributeWithSlackEDF(
 			RequiredToday: requiredToday,
 			Deadline:      deadline,
 			Slack:         slack,
-			DaysLeft:      daysLeft,
 		})
 	}
 
@@ -148,9 +142,14 @@ func DistributeWithSlackEDF(
 	for _, d := range demands {
 		cumulativeWork += remainingHrs[d.Order.OrderNo]
 
-		if cumulativeWork > float64(d.DaysLeft)*processCapacity {
+		days := int(d.Deadline.Sub(currentDate).Hours() / 24)
+		if days < 1 {
+			days = 1
+		}
+
+		if cumulativeWork > float64(days)*processCapacity {
 			// Add a small safety buffer (0.01) to "cross" the feasibility line
-			deficit := (cumulativeWork/float64(d.DaysLeft) - processCapacity) * 1.01
+			deficit := (cumulativeWork/float64(days) - processCapacity) * 1.01
 			return true, deficit + 0.01
 		}
 	}
