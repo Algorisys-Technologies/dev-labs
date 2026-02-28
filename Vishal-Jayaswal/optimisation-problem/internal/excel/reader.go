@@ -1,9 +1,6 @@
 package excel
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -13,12 +10,47 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+const (
+	// Conversion Constants
+	MinsPerPoint = 10.0
+	HrsPerShift  = 8.0
+
+	// Order Sheet Columns
+	ColOrderNo    = 0
+	ColBagNo      = 2
+	ColFactory    = 24
+	ColOrderType  = 4
+	ColOrderStart = 26
+
+	// Waxing
+	ColWaxEnd = 39
+	ColWaxPts = 17
+
+	// Waxsetting
+	ColWaxSetEnd = 40
+	ColWaxSetPts = 18
+
+	// SRD Split
+	ColSRDEnd = 44
+	ColSRDPts = 19
+
+	// Filing
+	ColFilEnd = 46
+	ColFilPts = 15
+
+	// Polishing
+	ColPolEnd = 54
+	ColPolPts = 16
+)
+
+func PointsToHours(points float64) float64 {
+	return (points * MinsPerPoint) / 60.0
+}
+
 func ReadFactoriesFromExcel(filename string) (map[string]models.Factory, error) {
 	file, err := excelize.OpenFile(filename)
 	if err != nil {
-		wd, _ := os.Getwd()
-		abs, _ := filepath.Abs(filename)
-		return nil, fmt.Errorf("failed to open %s: %v (CWD: %s, Full Path: %s)", filename, err, wd, abs)
+		return nil, err
 	}
 	defer file.Close()
 
@@ -30,34 +62,44 @@ func ReadFactoriesFromExcel(filename string) (map[string]models.Factory, error) 
 	factories := make(map[string]models.Factory)
 
 	for i, row := range rows {
-		if i == 0 || len(row) < 3 {
+		if i == 0 || len(row) < 4 {
 			continue
 		}
 
-		if row[0] == "Total" {
+		name := strings.TrimSpace(row[0])
+		if utils.IsNull(name) || strings.EqualFold(name, "Total") {
 			continue
 		}
 
-		filerCount, err1 := strconv.ParseFloat(strings.TrimSpace(row[1]), 64)
-		polisherCount, err2 := strconv.ParseFloat(strings.TrimSpace(row[2]), 64)
-		fqcCount, err3 := strconv.ParseFloat(strings.TrimSpace(row[3]), 64)
+		// Capacity is worker count from Excel. 1 worker = 8 hours.
+		workspaceWorkers, _ := strconv.ParseFloat(strings.TrimSpace(row[1]), 64)
+		filingWorkers, _ := strconv.ParseFloat(strings.TrimSpace(row[2]), 64)
+		polishingWorkers, _ := strconv.ParseFloat(strings.TrimSpace(row[3]), 64)
 
-		addFilerCount, err4 := strconv.ParseFloat(strings.TrimSpace(row[4]), 64)
-		addPolisherCount, err5 := strconv.ParseFloat(strings.TrimSpace(row[5]), 64)
-		addFqcCount, err6 := strconv.ParseFloat(strings.TrimSpace(row[6]), 64)
-
-		if err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil {
-			return nil, fmt.Errorf("invalid numeric data in Factories row %d: (Col1: %q, Col2: %q, Col3: %q, Col4: %q, Col5: %q, Col6: %q)", i+1, row[1], row[2], row[3], row[4], row[5], row[6])
+		capMap := make(map[string]float64)
+		if filingWorkers > 0 {
+			capMap["filing"] = filingWorkers * HrsPerShift
+		}
+		if polishingWorkers > 0 {
+			capMap["polishing"] = polishingWorkers * HrsPerShift
 		}
 
-		factories[row[0]] = models.Factory{
-			Name:           strings.TrimSpace(row[0]),
-			FilManHours:    filerCount * 8,
-			PolManHours:    polisherCount * 8,
-			FQCManHours:    fqcCount * 8,
-			AddFilManHours: addFilerCount * 8,
-			AddPolManHours: addPolisherCount * 8,
-			AddFQCManHours: addFqcCount * 8,
+		if workspaceWorkers > 0 {
+			lowerName := strings.ToLower(name)
+			if strings.Contains(lowerName, "waxing") {
+				capMap["waxing"] = workspaceWorkers * HrsPerShift
+			} else if strings.Contains(lowerName, "waxsetting") {
+				capMap["waxsetting"] = workspaceWorkers * HrsPerShift
+			} else if strings.Contains(lowerName, "srd_split") {
+				capMap["srd_split"] = workspaceWorkers * HrsPerShift
+			} else {
+				capMap["Manpower"] = workspaceWorkers * HrsPerShift
+			}
+		}
+
+		factories[name] = models.Factory{
+			Name:            name,
+			ProcessCapacity: capMap,
 		}
 	}
 
@@ -67,13 +109,11 @@ func ReadFactoriesFromExcel(filename string) (map[string]models.Factory, error) 
 func ReadOrdersFromExcel(filename string) ([]models.Order, error) {
 	file, err := excelize.OpenFile(filename)
 	if err != nil {
-		wd, _ := os.Getwd()
-		abs, _ := filepath.Abs(filename)
-		return nil, fmt.Errorf("failed to open %s: %v (CWD: %s, Full Path: %s)", filename, err, wd, abs)
+		return nil, err
 	}
 	defer file.Close()
 
-	rows, err := file.GetRows("BASE DATA")
+	rows, err := file.GetRows("Sheet1")
 	if err != nil {
 		return nil, err
 	}
@@ -85,29 +125,71 @@ func ReadOrdersFromExcel(filename string) ([]models.Order, error) {
 			continue
 		}
 
-		filingStart, err1 := utils.ParseDate(row[56])
-		polishingStart, err2 := utils.ParseDate(row[64])
-		orderEnd, err3 := utils.ParseDate(row[70])
-		filHrs, err4 := strconv.ParseFloat(strings.TrimSpace(row[161]), 64)
-		polHrs, err5 := strconv.ParseFloat(strings.TrimSpace(row[162]), 64)
-		fqcStart, err6 := utils.ParseDate(row[65])
-		fqcHrs, err7 := strconv.ParseFloat(strings.TrimSpace(row[165]), 64)
+		// Ensure row has enough columns for all process indices (highest is ColPolEnd at 54)
+		if len(row) <= ColPolEnd {
+			continue
+		}
 
-		if err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil || err7 != nil {
-			return nil, fmt.Errorf("invalid numeric data in Orders row %d: (Col3: %q, Col4: %q, Col5: %q, Col6: %q, Col7: %q, Col8: %q)",
-				i+1, row[56], row[64], row[70], row[161], row[162], row[165])
+		orderNo := strings.TrimSpace(row[ColOrderNo])
+		bagNo := strings.TrimSpace(row[ColBagNo])
+		factory := strings.TrimSpace(row[ColFactory])
+		orderType := strings.ToLower(strings.TrimSpace(row[ColOrderType]))
+
+		processes := make(map[string]models.ProcessInfo)
+
+		// 1. Determine seed start date (Order Start Date)
+		rawStart := row[ColOrderStart]
+		currentStart, _ := utils.ParseDate(rawStart)
+
+		// 2. Define the process sequence with their respective Excel columns
+		type procCfg struct {
+			name   string
+			endCol int
+			ptsCol int
+		}
+		sequence := []procCfg{
+			{"waxing", ColWaxEnd, ColWaxPts},
+			{"waxsetting", ColWaxSetEnd, ColWaxSetPts},
+			{"srd_split", ColSRDEnd, ColSRDPts},
+			{"filing", ColFilEnd, ColFilPts},
+			{"polishing", ColPolEnd, ColPolPts},
+		}
+
+		for _, cfg := range sequence {
+			// Skip if end date is missing or explicitly marked "NULL"
+			val := row[cfg.endCol]
+			if len(row) <= cfg.endCol || utils.IsNull(val) {
+				continue
+			}
+
+			endDate, err := utils.ParseDate(val)
+			if err != nil {
+				continue
+			}
+
+			var pts float64
+			if len(row) > cfg.ptsCol {
+				raw := strings.TrimSpace(row[cfg.ptsCol])
+				pts, _ = strconv.ParseFloat(raw, 64)
+			}
+
+			processes[cfg.name] = models.ProcessInfo{
+				Name:       cfg.name,
+				StartDate:  currentStart,
+				EndDate:    endDate,
+				WorkingHrs: PointsToHours(pts),
+			}
+
+			// Next process can start on the same day the current one ends (overlap allowed)
+			currentStart = endDate
 		}
 
 		orders = append(orders, models.Order{
-			OrderNo:            strings.TrimSpace(row[89]),
-			Factory:            strings.TrimSpace(row[87]),
-			FilingStartDate:    filingStart,
-			PolishingStartDate: polishingStart,
-			FQCStartDate:       fqcStart,
-			OrderEndDate:       orderEnd,
-			FilWorkingHrs:      filHrs,
-			PolWorkingHrs:      polHrs,
-			FQCWorkingHrs:      fqcHrs,
+			OrderNo:   orderNo,
+			BagNo:     bagNo,
+			Factory:   factory,
+			OrderType: orderType,
+			Processes: processes,
 		})
 	}
 

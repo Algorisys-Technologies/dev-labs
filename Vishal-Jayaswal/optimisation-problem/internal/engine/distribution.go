@@ -15,14 +15,15 @@ func DistributeWork(active []*models.Order, remaining map[string]float64, totalR
 
 	if totalRemaining <= capacity {
 		for _, o := range active {
-			remaining[o.OrderNo] = 0
+			remaining[o.GetBagKey()] = 0
 		}
 		return
 	}
 
 	for _, o := range active {
-		share := (remaining[o.OrderNo] / totalRemaining) * capacity
-		remaining[o.OrderNo] -= share
+		key := o.GetBagKey()
+		share := (remaining[key] / totalRemaining) * capacity
+		remaining[key] -= share
 	}
 }
 
@@ -44,12 +45,12 @@ func DistributeEvenWithEDF(
 
 	for _, o := range activeOrders {
 		endDate := processEndDate(o)
-		remainingDays := int(endDate.Sub(currentDate).Hours() / 24)
+		remainingDays := int(endDate.Sub(currentDate).Hours()/24) + 1
 		if remainingDays <= 0 {
 			remainingDays = 1
 		}
 
-		requiredHrs := remainingHrs[o.OrderNo] / float64(remainingDays)
+		requiredHrs := remainingHrs[o.GetBagKey()] / float64(remainingDays)
 		demands = append(demands, models.Demand{Order: o, RequiredToday: requiredHrs, Deadline: endDate})
 		totalRequiredHrs += requiredHrs
 	}
@@ -59,7 +60,7 @@ func DistributeEvenWithEDF(
 	}
 
 	for _, d := range demands {
-		remainingHrs[d.Order.OrderNo] -= d.RequiredToday
+		remainingHrs[d.Order.GetBagKey()] -= d.RequiredToday
 		processCapacity -= d.RequiredToday
 	}
 
@@ -73,12 +74,13 @@ func DistributeEvenWithEDF(
 				break
 			}
 
-			if remainingHrs[d.Order.OrderNo] <= 0 {
+			key := d.Order.GetBagKey()
+			if remainingHrs[key] <= 0 {
 				continue
 			}
 
-			extra := math.Min(remainingHrs[d.Order.OrderNo], processCapacity)
-			remainingHrs[d.Order.OrderNo] -= extra
+			extra := math.Min(remainingHrs[key], processCapacity)
+			remainingHrs[key] -= extra
 			processCapacity -= extra
 		}
 	}
@@ -102,13 +104,14 @@ func DistributeWithSlackEDF(
 	demands := []models.Demand{}
 
 	for _, o := range activeOrders {
-		remaining := remainingHrs[o.OrderNo]
+		key := o.GetBagKey()
+		remaining := remainingHrs[key]
 		if remaining <= 0 {
 			continue
 		}
 
 		deadline := processEndDate(o)
-		daysLeft := int(deadline.Sub(currentDate).Hours() / 24)
+		daysLeft := int(deadline.Sub(currentDate).Hours()/24) + 1
 		if daysLeft < 1 {
 			daysLeft = 1
 		}
@@ -123,7 +126,7 @@ func DistributeWithSlackEDF(
 		if slack < 0 {
 			// Add a small safety buffer (0.01) to "cross" the feasibility line
 			deficit := (remaining/float64(daysLeft) - processCapacity) * 1.01
-			return true, deficit + 0.01, o.OrderNo
+			return true, deficit + 0.01, o.GetBagKey()
 		}
 
 		demands = append(demands, models.Demand{
@@ -140,9 +143,9 @@ func DistributeWithSlackEDF(
 	})
 	cumulativeWork := 0.0
 	for _, d := range demands {
-		cumulativeWork += remainingHrs[d.Order.OrderNo]
+		cumulativeWork += remainingHrs[d.Order.GetBagKey()]
 
-		days := int(d.Deadline.Sub(currentDate).Hours() / 24)
+		days := int(d.Deadline.Sub(currentDate).Hours()/24) + 1
 		if days < 1 {
 			days = 1
 		}
@@ -150,7 +153,7 @@ func DistributeWithSlackEDF(
 		if cumulativeWork > float64(days)*processCapacity {
 			// Add a small safety buffer (0.01) to "cross" the feasibility line
 			deficit := (cumulativeWork/float64(days) - processCapacity) * 1.01
-			return true, deficit + 0.01, d.Order.OrderNo
+			return true, deficit + 0.01, d.Order.GetBagKey()
 		}
 	}
 
@@ -165,10 +168,11 @@ func DistributeWithSlackEDF(
 			break
 		}
 
-		rem := remainingHrs[d.Order.OrderNo]
+		key := d.Order.GetBagKey()
+		rem := remainingHrs[key]
 		work := math.Min(rem, processCapacity)
 
-		remainingHrs[d.Order.OrderNo] -= work
+		remainingHrs[key] -= work
 		processCapacity -= work
 	}
 

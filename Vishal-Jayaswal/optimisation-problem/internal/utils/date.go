@@ -2,24 +2,24 @@ package utils
 
 import (
 	"fmt"
-	"strings"
 	"time"
 )
 
 func ParseDate(value string) (time.Time, error) {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return time.Time{}, fmt.Errorf("empty date string")
+	if IsNull(value) {
+		return time.Time{}, fmt.Errorf("empty or NULL date string")
 	}
 
 	layouts := []string{
-		"02-01-06",   // dd-mm-yy
-		"02-01-2006", // dd-mm-yyyy
-		"02/01/06",   // dd/mm/yy
-		"02/01/2006", // dd/mm/yyyy
-		"2006-01-02", // yyyy-mm-dd
-		"01-02-06",   // mm-dd-yy
-		"01-02-2006", // mm-dd-yyyy
+		"1/2/06 15:04",     // m/d/yy hh:mm (e.g. 2/18/26 00:00)
+		"1/2/06",           // m/d/yy
+		"01/02/06",         // mm/dd/yy (Fallback e.g. 02/09/26)
+		"01/02/06 15:04",   // mm/dd/yy hh:mm
+		"01-02-06",         // mm-dd-yy
+		"02/01/06",         // dd/mm/yy
+		"02-01-06",         // dd-mm-yy
+		"2006-01-02",       // yyyy-mm-dd
+		"2006-01-02 15:04", // yyyy-mm-dd hh:mm
 		time.RFC3339,
 	}
 

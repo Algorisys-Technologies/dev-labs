@@ -6,75 +6,38 @@ import (
 
 	"optimisation-problem/internal/engine"
 	"optimisation-problem/internal/excel"
-	"optimisation-problem/internal/models"
 )
 
 func main() {
-	// Read orders
-	orders, err := excel.ReadOrdersFromExcel("data/test-ppc-base-data.xlsx")
+	// 1. Read input data
+	orders, err := excel.ReadOrdersFromExcel("data3/ppc-base-data.xlsx")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("❌ Error reading orders: %v", err)
 	}
 
-	// Read factory capacity
-	factoryMaster, err := excel.ReadFactoriesFromExcel("data/factory-capacity.xlsx")
+	factoryMaster, err := excel.ReadFactoriesFromExcel("data3/factory-capacity.xlsx")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("❌ Error reading factories: %v", err)
 	}
 
-	// 1️⃣ IDENTIFY BOTTLENECKS
+	// 2. Initial feasibility check
 	fmt.Println("🔍 [STEP 1] Checking initial feasibility and identifying bottlenecks...")
 	ok, overloads := engine.CheckFeasibility(orders, factoryMaster)
 	if ok {
-		fmt.Println("✅ All orders are already FEASIBLE. No action needed.")
-		return
-	}
-
-	fmt.Println("❌ Initial system is INFEASIBLE. Primary bottlenecks detected:")
-	for _, o := range overloads {
-		fmt.Printf("    → %s: %s on %s (Responsible Order: %s)\n", o.Factory, o.Process, o.Date.Format("02/01/2006"), o.OrderNo)
-	}
-
-	// 2️⃣ REMOVAL STRATEGY & VERIFICATION
-	fmt.Println("\n✂️ [STEP 2] Strategy: Remove orders to restore feasibility...")
-	toRemove, success := engine.ResolveByRemovingOrders(orders, factoryMaster)
-	if success && len(toRemove) > 0 {
-		fmt.Printf("� Identified %d orders for removal: %v\n", len(toRemove), toRemove)
-
-		// Create the feasible subset
-		var feasibleOrders []models.Order
-		toRemoveMap := make(map[string]bool)
-		for _, id := range toRemove {
-			toRemoveMap[id] = true
-		}
-		for _, o := range orders {
-			if !toRemoveMap[o.OrderNo] {
-				feasibleOrders = append(feasibleOrders, o)
-			}
-		}
-
-		fmt.Println("🧪 VERIFYING feasibility of the remaining subset...")
-		subsetOk, _ := engine.CheckFeasibility(feasibleOrders, factoryMaster)
-		if subsetOk {
-			fmt.Printf("✅ SUCCESS! The system is now feasible with %d orders remaining.\n", len(feasibleOrders))
-		} else {
-			fmt.Println("⚠️ ERROR: Verification failed. The subset is still not feasible.")
-		}
+		fmt.Println("✅ All orders are FEASIBLE with current capacity.")
 	} else {
-		fmt.Println("❌ Could not find a feasible subset by removing orders.")
+		fmt.Printf("❌ Initial system is INFEASIBLE. One or more capacity bottlenecks identified (stopped at first failure):\n")
+		printLimit := 10
+		if len(overloads) < printLimit {
+			printLimit = len(overloads)
+		}
+		fmt.Printf("Displaying first %d bottlenecks:\n", printLimit)
+		for i := 0; i < printLimit; i++ {
+			o := overloads[i]
+			fmt.Printf("    → %s: %s on %s (Bag: %s, Order: %s)\n", o.Factory, o.Process, o.Date.Format("02/01/2006"), o.BagNo, o.OrderNo)
+		}
 	}
 
-	// 3️⃣ MANPOWER ALTERNATIVE
-	fmt.Println("\n� [STEP 3] Strategy: Keep ALL orders and add manpower...")
-	// Create a copy of the factory map to avoid mutating the original capacity for this simulation
-	manpowerFactories := make(map[string]models.Factory)
-	for k, v := range factoryMaster {
-		manpowerFactories[k] = v
-	}
-
-	if engine.ImproveFeasibility(orders, manpowerFactories, overloads) {
-		fmt.Println("🎉 System made feasible by adding the headcount shown above.")
-	} else {
-		fmt.Println("💥 Could not restore feasibility even with extreme manpower increases.")
-	}
+	// 3. Strategy B: Keep all orders and improve feasibility
+	engine.ImproveFeasibility(orders, factoryMaster)
 }
