@@ -20,24 +20,27 @@ func main() {
 		log.Fatalf("❌ Error reading factories: %v", err)
 	}
 
-	// 2. Initial feasibility check
-	fmt.Println("🔍 [STEP 1] Checking initial feasibility and identifying bottlenecks...")
+	// 2. Initial feasibility check (Comprehensive Analysis)
+	fmt.Println("🔍 [STEP 1] Performing holistic feasibility analysis across all processes and dates...")
 	ok, overloads := engine.CheckFeasibility(orders, factoryMaster)
 	if ok {
 		fmt.Println("✅ All orders are FEASIBLE with current capacity.")
 	} else {
-		fmt.Printf("❌ Initial system is INFEASIBLE. One or more capacity bottlenecks identified (stopped at first failure):\n")
-		printLimit := 10
+		fmt.Printf("❌ Initial system is INFEASIBLE. Identified %d specific capacity bottlenecks:\n", len(overloads))
+		printLimit := 15
 		if len(overloads) < printLimit {
 			printLimit = len(overloads)
 		}
-		fmt.Printf("Displaying first %d bottlenecks:\n", printLimit)
 		for i := 0; i < printLimit; i++ {
 			o := overloads[i]
-			fmt.Printf("    → %s: %s on %s (Bag: %s, Order: %s)\n", o.Factory, o.Process, o.Date.Format("02/01/2006"), o.BagNo, o.OrderNo)
+			fmt.Printf("    → %-20s [%-12s] on %10s: Add %6.2f mins (Bag: %s, Order: %s)\n",
+				o.Factory, o.Process, o.Date.Format("02/01/2006"), o.Deficit, o.BagNo, o.OrderNo)
+		}
+		if len(overloads) > printLimit {
+			fmt.Printf("    ... and %d more bottlenecks.\n", len(overloads)-printLimit)
 		}
 	}
 
 	// 3. Strategy B: Keep all orders and improve feasibility
-	engine.ImproveFeasibility(orders, factoryMaster)
+	// engine.ImproveFeasibility(orders, factoryMaster)
 }

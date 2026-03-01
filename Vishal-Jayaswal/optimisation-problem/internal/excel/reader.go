@@ -13,7 +13,7 @@ import (
 const (
 	// Conversion Constants
 	MinsPerPoint = 10.0
-	HrsPerShift  = 8.0
+	MinsPerShift = 8.0 * 60.0
 
 	// Order Sheet Columns
 	ColOrderNo    = 0
@@ -43,8 +43,8 @@ const (
 	ColPolPts = 16
 )
 
-func PointsToHours(points float64) float64 {
-	return (points * MinsPerPoint) / 60.0
+func PointsToMins(points float64) float64 {
+	return points * MinsPerPoint
 }
 
 func ReadFactoriesFromExcel(filename string) (map[string]models.Factory, error) {
@@ -71,29 +71,29 @@ func ReadFactoriesFromExcel(filename string) (map[string]models.Factory, error) 
 			continue
 		}
 
-		// Capacity is worker count from Excel. 1 worker = 8 hours.
+		// Capacity is worker count from Excel. 1 worker = 8 hours = 480 mins.
 		workspaceWorkers, _ := strconv.ParseFloat(strings.TrimSpace(row[1]), 64)
 		filingWorkers, _ := strconv.ParseFloat(strings.TrimSpace(row[2]), 64)
 		polishingWorkers, _ := strconv.ParseFloat(strings.TrimSpace(row[3]), 64)
 
 		capMap := make(map[string]float64)
 		if filingWorkers > 0 {
-			capMap["filing"] = filingWorkers * HrsPerShift
+			capMap["filing"] = filingWorkers * MinsPerShift
 		}
 		if polishingWorkers > 0 {
-			capMap["polishing"] = polishingWorkers * HrsPerShift
+			capMap["polishing"] = polishingWorkers * MinsPerShift
 		}
 
 		if workspaceWorkers > 0 {
 			lowerName := strings.ToLower(name)
 			if strings.Contains(lowerName, "waxing") {
-				capMap["waxing"] = workspaceWorkers * HrsPerShift
+				capMap["waxing"] = workspaceWorkers * MinsPerShift
 			} else if strings.Contains(lowerName, "waxsetting") {
-				capMap["waxsetting"] = workspaceWorkers * HrsPerShift
+				capMap["waxsetting"] = workspaceWorkers * MinsPerShift
 			} else if strings.Contains(lowerName, "srd_split") {
-				capMap["srd_split"] = workspaceWorkers * HrsPerShift
+				capMap["srd_split"] = workspaceWorkers * MinsPerShift
 			} else {
-				capMap["Manpower"] = workspaceWorkers * HrsPerShift
+				capMap["Manpower"] = workspaceWorkers * MinsPerShift
 			}
 		}
 
@@ -113,7 +113,9 @@ func ReadOrdersFromExcel(filename string) ([]models.Order, error) {
 	}
 	defer file.Close()
 
-	rows, err := file.GetRows("Sheet1")
+	// rows, err := file.GetRows("Sheet1") // Entire year data
+	// rows, err := file.GetRows("Sheet2") // Only february start date data
+	rows, err := file.GetRows("Sheet3") // Only march start date data
 	if err != nil {
 		return nil, err
 	}
@@ -174,10 +176,10 @@ func ReadOrdersFromExcel(filename string) ([]models.Order, error) {
 			}
 
 			processes[cfg.name] = models.ProcessInfo{
-				Name:       cfg.name,
-				StartDate:  currentStart,
-				EndDate:    endDate,
-				WorkingHrs: PointsToHours(pts),
+				Name:        cfg.name,
+				StartDate:   currentStart,
+				EndDate:     endDate,
+				WorkingMins: PointsToMins(pts),
 			}
 
 			// Next process can start on the same day the current one ends (overlap allowed)

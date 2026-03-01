@@ -6,15 +6,15 @@ import (
 )
 
 type ProcessInfo struct {
-	Name       string
-	WorkingHrs float64
-	StartDate  time.Time
-	EndDate    time.Time
+	Name        string
+	WorkingMins float64
+	StartDate   time.Time
+	EndDate     time.Time
 }
 
 type Factory struct {
 	Name            string
-	ProcessCapacity map[string]float64 // name -> total Working Hours per day
+	ProcessCapacity map[string]float64 // name -> total Working Minutes per day
 }
 
 type Order struct {
@@ -41,12 +41,13 @@ func ParseBagKey(key string) (string, string) {
 }
 
 type Overload struct {
-	Factory string
-	Date    time.Time
-	Process string
-	Deficit float64 // Working Hours needed
-	OrderNo string
-	BagNo   string
+	Factory      string
+	Date         time.Time
+	Process      string
+	Deficit      float64 // Working Minutes needed
+	OrderNo      string
+	BagNo        string
+	AffectedBags int
 }
 
 type Demand struct {
