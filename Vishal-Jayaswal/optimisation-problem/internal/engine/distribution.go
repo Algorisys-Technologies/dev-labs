@@ -21,6 +21,10 @@ func DistributeWithSlackEDF(
 		return false, 0, ""
 	}
 
+	// Epsilon tolerance to guard against float64 precision issues
+	// (e.g. 1.2 workers = 575.9999... min, not exactly 576)
+	const eps = 1e-6
+
 	demands := []models.Demand{}
 
 	for _, o := range activeOrders {
@@ -39,11 +43,11 @@ func DistributeWithSlackEDF(
 		// Optional smoothing metric
 		requiredToday := remaining / float64(daysLeft)
 
-		// Slack calculation
+		// Slack calculation (negative => this bag alone cannot meet its deadline)
 		slack := float64(daysLeft)*processCapacity - remaining
 
 		// ❗ Detect impossible schedule
-		if slack < 0 {
+		if slack < -eps {
 			// Mathematical deficit required
 			deficit := (remaining / float64(daysLeft)) - processCapacity
 			return true, deficit, o.GetBagKey()
@@ -70,18 +74,16 @@ func DistributeWithSlackEDF(
 			days = 1
 		}
 
-		if cumulativeWork > float64(days)*processCapacity {
+		if cumulativeWork > float64(days)*processCapacity+eps {
 			deficit := (cumulativeWork / float64(days)) - processCapacity
 			return true, deficit, d.Order.GetBagKey()
 		}
 	}
 
-	// Sort by slack (ascending order)
-	sort.Slice(demands, func(i, j int) bool {
-		return demands[i].Slack < demands[j].Slack
-	})
-
-	// Allocate capacity
+	// Allocate capacity using Earliest Deadline First (EDF).
+	// demands is already sorted by Deadline from the cumulative check above.
+	// EDF guarantees bags with the tightest deadline are served first, preventing
+	// a bag from expiring unfinished when multiple bags share the same factory.
 	for _, d := range demands {
 		if processCapacity <= 0 {
 			break
