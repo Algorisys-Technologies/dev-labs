@@ -115,7 +115,8 @@ func ReadOrdersFromExcel(filename string) ([]models.Order, error) {
 
 	// rows, err := file.GetRows("Sheet1") // Entire year data
 	// rows, err := file.GetRows("Sheet2") // Only february start date data
-	rows, err := file.GetRows("Sheet3") // Only march start date data
+	// rows, err := file.GetRows("Sheet3") // Only march start date data
+	rows, err := file.GetRows("Sheet4") // February start date data with factories altered to include all factories
 	if err != nil {
 		return nil, err
 	}

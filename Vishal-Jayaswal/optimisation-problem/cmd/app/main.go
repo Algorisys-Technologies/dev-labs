@@ -21,7 +21,7 @@ func main() {
 	}
 
 	// 2. Initial feasibility check (Comprehensive Analysis)
-	fmt.Println("🔍 [STEP 1] Performing holistic feasibility analysis across all processes and dates...")
+	fmt.Println("🔍 Performing feasibility check across all processes and dates...")
 	ok, overloads := engine.CheckFeasibility(orders, factoryMaster)
 	if ok {
 		fmt.Println("✅ All orders are FEASIBLE with current capacity.")
@@ -41,6 +41,8 @@ func main() {
 		}
 	}
 
-	// 3. Strategy B: Keep all orders and improve feasibility
-	// engine.ImproveFeasibility(orders, factoryMaster)
+	// 3. Strategy C: Keep all orders, find day-specific manpower additions
+	if !ok {
+		engine.ResolveByAddingManpower(orders, factoryMaster, 480.0)
+	}
 }

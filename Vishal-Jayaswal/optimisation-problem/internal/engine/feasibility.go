@@ -2,13 +2,15 @@ package engine
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"optimisation-problem/internal/models"
 )
 
-// var ProcessSequence = []string{"waxing", "waxsetting", "srd_split", "filing", "polishing"}
-var ProcessSequence = []string{"filing"}
+var ProcessSequence = []string{"waxing", "waxsetting", "srd_split", "filing", "polishing"}
+
+// var ProcessSequence = []string{"filing"}
 
 func CheckFeasibility(orders []models.Order, factoryMaster map[string]models.Factory) (bool, []models.Overload) {
 	// 1. Process sequence validation (Timeline errors like StartDate > EndDate must be fixed first)
@@ -307,6 +309,143 @@ func ValidateOrderWindows(orders []models.Order) []models.Overload {
 		}
 	}
 	return overloads
+}
+
+// ManpowerAddition describes how many workers need to be added on a specific day
+// for a given factory/process combination to restore feasibility.
+type ManpowerAddition struct {
+	Factory string
+	Process string
+	Date    time.Time
+	Workers int     // extra workers needed on this day
+	Mins    float64 // raw deficit in minutes (for reference)
+}
+
+// ResolveByAddingManpower calculates the minimum day-specific manpower additions
+// required to make the full schedule feasible.
+//
+// Logic:
+//   - Each Overload record from AnalyzeRequiredManpower already contains the
+//     exact `Deficit` (in minutes) for a specific Factory/Process/Date.
+//   - Workers needed on that day = ceil( Deficit / minutesPerWorkerPerDay )
+//   - We build an augmented factory master with those extra minutes injected
+//     only on the days that need them (via day-keyed virtual capacity).
+//
+// NOTE: Because AnalyzeRequiredManpower simulates the entire horizon in order,
+// the per-day augmented capacity approach below injects additions globally
+// (raises the baseline capacity) but tracks them by date for reporting.
+// A full day-keyed simulation would require refactoring AnalyzeRequiredManpower
+// to accept a per-day capacity map — that is the recommended next step.
+func ResolveByAddingManpower(
+	orders []models.Order,
+	factoryMaster map[string]models.Factory,
+	minutesPerWorkerPerDay float64,
+) []ManpowerAddition {
+	if minutesPerWorkerPerDay <= 0 {
+		minutesPerWorkerPerDay = 480.0 // default: 8-hour shift
+	}
+
+	fmt.Println("\n👷 Computing day-specific manpower additions...")
+
+	// Step 1: Analyze all bottleneck days
+	bot := AnalyzeRequiredManpower(orders, factoryMaster)
+	if len(bot) == 0 {
+		fmt.Println("✅ No manpower adjustments needed. Schedule is already feasible!")
+		return nil
+	}
+
+	fmt.Printf("   Found %d bottleneck day(s) across the schedule.\n", len(bot))
+
+	// Step 2: Convert each bottleneck → workers needed on that specific day
+	plan := make([]ManpowerAddition, 0, len(bot))
+	for _, o := range bot {
+		workers := int(math.Ceil(o.Deficit / minutesPerWorkerPerDay))
+		if workers < 1 {
+			workers = 1
+		}
+		plan = append(plan, ManpowerAddition{
+			Factory: o.Factory,
+			Process: o.Process,
+			Date:    o.Date,
+			Workers: workers,
+			Mins:    o.Deficit,
+		})
+	}
+
+	// Step 3: Print day-specific plan
+	fmt.Println("\n--- DAY-SPECIFIC MANPOWER ADDITION PLAN ---")
+	fmt.Printf("  %-12s | %-25s | %-12s | %-9s | %-14s\n",
+		"Date", "Factory [Process]", "Deficit(mins)", "Workers+", "Culprit Bag")
+	fmt.Println("  " + repeatStr("-", 80))
+	for i, a := range plan {
+		bagLabel := bot[i].BagNo
+		if bagLabel == "" {
+			bagLabel = bot[i].OrderNo
+		}
+		fmt.Printf("  %-12s | %-25s | %12.1f | %9d | %-14s\n",
+			a.Date.Format("02/01/2006"),
+			a.Factory+" ["+a.Process+"]",
+			a.Mins,
+			a.Workers,
+			bagLabel,
+		)
+	}
+
+	// Step 4: Build augmented factory master (peak-day safe: add the MAXIMUM
+	// additional capacity seen for each factory/process across all bottleneck days).
+	// This is a conservative constant addition; a day-keyed simulation gives the
+	// exact minimum — see the note in the function doc.
+	type fpKey struct{ F, P string }
+	peakExtra := make(map[fpKey]float64)
+	for _, a := range plan {
+		k := fpKey{a.Factory, a.Process}
+		extraMins := float64(a.Workers) * minutesPerWorkerPerDay
+		if extraMins > peakExtra[k] {
+			peakExtra[k] = extraMins
+		}
+	}
+
+	augmented := make(map[string]models.Factory)
+	for k, v := range factoryMaster {
+		newCap := make(map[string]float64)
+		for p, c := range v.ProcessCapacity {
+			newCap[p] = c
+		}
+		augmented[k] = models.Factory{Name: v.Name, ProcessCapacity: newCap}
+	}
+	for fk, extra := range peakExtra {
+		f := augmented[fk.F]
+		if f.ProcessCapacity == nil {
+			f.Name = fk.F
+			f.ProcessCapacity = make(map[string]float64)
+		}
+		f.ProcessCapacity[fk.P] += extra
+		augmented[fk.F] = f
+	}
+
+	// Step 5: Verification pass
+	fmt.Println("\n🔎 [VERIFICATION] Testing schedule with suggested day-specific additions...")
+	remaining := AnalyzeRequiredManpower(orders, augmented)
+	if len(remaining) == 0 {
+		fmt.Println("✅ SUCCESS: Day-specific additions make the schedule 100% FEASIBLE.")
+	} else {
+		fmt.Printf("⚠️  PARTIAL: %d bottleneck(s) remain after additions.\n", len(remaining))
+		for _, r := range remaining {
+			fmt.Printf("   → %s [%s] on %s: still needs %.1f more mins\n",
+				r.Factory, r.Process, r.Date.Format("02/01/2006"), r.Deficit)
+		}
+		fmt.Println("   Tip: Run ResolveByAddingManpower again on the remaining bottlenecks.")
+	}
+
+	return plan
+}
+
+func repeatStr(s string, n int) string {
+	result := ""
+	for i := 0; i < n; i++ {
+		result += s
+	}
+	return result
 }
 
 func ResolveByRemovingOrders(orders []models.Order, factoryMaster map[string]models.Factory) ([]string, bool) {

@@ -81,9 +81,6 @@ func DistributeWithSlackEDF(
 	}
 
 	// Allocate capacity using Earliest Deadline First (EDF).
-	// demands is already sorted by Deadline from the cumulative check above.
-	// EDF guarantees bags with the tightest deadline are served first, preventing
-	// a bag from expiring unfinished when multiple bags share the same factory.
 	for _, d := range demands {
 		if processCapacity <= 0 {
 			break
