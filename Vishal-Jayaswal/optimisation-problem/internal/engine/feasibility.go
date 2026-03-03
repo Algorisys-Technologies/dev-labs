@@ -45,26 +45,13 @@ func ImproveFeasibility(orders []models.Order, factoryMaster map[string]models.F
 	}
 
 	// 3. Group and Analyze by Process/Source
-	type procKey struct {
-		F string
-		P string
-	}
-	type procStat struct {
-		TotalMins     float64
-		PeakMins      float64
-		DaysAffected  int
-		CumulativeDef map[time.Time]float64
-		MinDate       time.Time
-		MaxDate       time.Time
-	}
-
-	summary := make(map[procKey]*procStat)
+	summary := make(map[models.ProcKey]*models.ProcStat)
 	for _, o := range orders {
 		for pName, pInfo := range o.Processes {
 			source := resolveCapacitySource(pName, &o)
-			pk := procKey{source, pName}
+			pk := models.ProcKey{F: source, P: pName}
 			if summary[pk] == nil {
-				summary[pk] = &procStat{
+				summary[pk] = &models.ProcStat{
 					CumulativeDef: make(map[time.Time]float64),
 					MinDate:       pInfo.StartDate,
 					MaxDate:       pInfo.EndDate,
@@ -81,7 +68,7 @@ func ImproveFeasibility(orders []models.Order, factoryMaster map[string]models.F
 	}
 
 	for _, adj := range adjustments {
-		pk := procKey{adj.Factory, adj.Process}
+		pk := models.ProcKey{F: adj.Factory, P: adj.Process}
 		stat := summary[pk]
 		if stat == nil {
 			continue

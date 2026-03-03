@@ -57,3 +57,17 @@ type Demand struct {
 	Deadline      time.Time
 	Slack         float64
 }
+
+type ProcKey struct {
+	F string
+	P string
+}
+
+type ProcStat struct {
+	TotalMins     float64
+	PeakMins      float64
+	DaysAffected  int
+	CumulativeDef map[time.Time]float64
+	MinDate       time.Time
+	MaxDate       time.Time
+}
