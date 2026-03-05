@@ -108,14 +108,14 @@ echo ""
 
 echo "==> Cloning frontend @ $LATEST_TAG ..."
 if [ ! -d "$WORK_DIR/frontend_src/.git" ]; then
-    git clone --depth 1 --branch "$LATEST_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src"
+    git clone -q --depth 1 --branch "$LATEST_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src" 2>/dev/null
 else
     echo "    (already cloned during .env check, skipping)"
 fi
 
 echo ""
 echo "==> Cloning backend @ $LATEST_TAG ..."
-git clone --depth 1 --branch "$LATEST_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_src"
+git clone -q --depth 1 --branch "$LATEST_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_src" 2>/dev/null
 
 # ─── Frontend .env check ─────────────────────────────────────────────────────
 
@@ -130,7 +130,7 @@ if [ ! -f "$FRONTEND_ENV" ]; then
     echo "Required variables (from .env.example in the frontend repo):"  >&2
     # Clone just enough to read .env.example if not already cloned
     if [ ! -f "$WORK_DIR/frontend_src/.env.example" ]; then
-        git clone --depth 1 --branch "$LATEST_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src" >/dev/null 2>&1 || true
+        git clone -q --depth 1 --branch "$LATEST_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src" >/dev/null 2>&1 || true
     fi
     if [ -f "$WORK_DIR/frontend_src/.env.example" ]; then
         grep '^VITE_' "$WORK_DIR/frontend_src/.env.example" | sed 's/^/  /' >&2
@@ -204,37 +204,104 @@ cp    "$WORK_DIR/frontend_src/package-lock.json" "$OUTPUT_DIR/frontend/"
 
 # Backend: compiled binaries + supporting files
 cp -r "$WORK_DIR/backend_src/bin"               "$OUTPUT_DIR/backend/"
-cp -r "$WORK_DIR/backend_src/prisma"            "$OUTPUT_DIR/backend/"
 cp    "$WORK_DIR/backend_src/.env.example"      "$OUTPUT_DIR/backend/"
+
+# ─── Prisma: only new migrations ─────────────────────────────────────────────
+
+echo ""
+echo "==> Determining new prisma migrations since previous release ..."
+mkdir -p "$OUTPUT_DIR/backend/prisma"
+
+# Copy top-level prisma files (schema.prisma, etc.) — always included
+find "$WORK_DIR/backend_src/prisma" -maxdepth 1 -type f \
+    -exec cp {} "$OUTPUT_DIR/backend/prisma/" \;
+
+# Find the tag immediately before the current one in the backend repo
+PREV_TAG=$(
+    git ls-remote --tags --sort="-version:refname" "$BACKEND_REPO" \
+    | grep -v '\^{}' \
+    | grep 'refs/tags/v' \
+    | awk '{print $2}' \
+    | sed 's|refs/tags/||' \
+    | awk -v tag="$LATEST_TAG" 'found{print; exit} $0==tag{found=1}'
+)
+
+if [ -z "$PREV_TAG" ]; then
+    echo "    No previous tag found — including all migrations."
+    [ -d "$WORK_DIR/backend_src/prisma/migrations" ] && \
+        cp -r "$WORK_DIR/backend_src/prisma/migrations" "$OUTPUT_DIR/backend/prisma/"
+else
+    echo "    Previous tag: $PREV_TAG  →  current tag: $LATEST_TAG"
+    git clone -q --depth 1 --branch "$PREV_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_prev" 2>/dev/null || true
+
+    # Collect migration dirs that existed in the previous release
+    declare -A PREV_MIGRATION_SET
+    if [ -d "$WORK_DIR/backend_prev/prisma/migrations" ]; then
+        while IFS= read -r dir; do
+            PREV_MIGRATION_SET["$(basename "$dir")"]=1
+        done < <(find "$WORK_DIR/backend_prev/prisma/migrations" \
+                      -mindepth 1 -maxdepth 1 -type d)
+    fi
+
+    # Copy only migrations that did not exist in the previous release
+    mkdir -p "$OUTPUT_DIR/backend/prisma/migrations"
+    NEW_COUNT=0
+    if [ -d "$WORK_DIR/backend_src/prisma/migrations" ]; then
+        while IFS= read -r dir; do
+            name="$(basename "$dir")"
+            if [ -z "${PREV_MIGRATION_SET[$name]+_}" ]; then
+                cp -r "$dir" "$OUTPUT_DIR/backend/prisma/migrations/"
+                echo "    + $name"
+                (( NEW_COUNT++ )) || true
+            fi
+        done < <(find "$WORK_DIR/backend_src/prisma/migrations" \
+                      -mindepth 1 -maxdepth 1 -type d | sort)
+    fi
+
+    if [ "$NEW_COUNT" -eq 0 ]; then
+        echo "    No new migrations in this release."
+    else
+        echo "    $NEW_COUNT new migration(s) included."
+    fi
+fi
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
 
+# Count files in each section for a concise summary
+FRONTEND_FILES=$(find "$OUTPUT_DIR/frontend/build" -type f 2>/dev/null | wc -l | tr -d ' ')
+
+MIGRATIONS=$(find "$OUTPUT_DIR/backend/prisma/migrations" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+
 echo ""
-echo "┌─────────────────────────────────────────────────────┐"
-if command -v tree >/dev/null 2>&1; then
-    # Use 'tree' for a clear hierarchical view if it is available.
-    (cd "$OUTPUT_DIR" && tree)
+echo "┌─────────────────────────────────────────────────────────────┐"
+echo "│  Deployment package ready                                   │"
+echo "└─────────────────────────────────────────────────────────────┘"
+echo ""
+echo "  Location : $OUTPUT_DIR"
+echo "  Tag      : $LATEST_TAG"
+echo "  Platform : $PLATFORM"
+echo ""
+echo "  frontend/"
+echo "    build/            ($FRONTEND_FILES files)"
+echo "    .env.example"
+echo "    .nvmrc"
+echo "    package.json"
+echo "    package-lock.json"
+echo ""
+echo "  backend/"
+if [ "$PLATFORM" = "all" ]; then
+    echo "    bin/              (linux_amd64 + windows_amd64)"
 else
-    # Fallback: list files with indentation based on path depth.
-    # We sort the paths and then indent each item according to the
-    # number of '/' components in the path relative to $OUTPUT_DIR.
-    find "$OUTPUT_DIR" -print | sort | \
-        awk 'BEGIN { FS = "/" } {
-            depth = NF - 1
-            indent = ""
-            for (i = 1; i <= depth; i++) {
-                indent = indent "  "
-            }
-            item = $NF
-            if (item != "") {
-                print indent item
-            }
-        }'
+    GOOS="${BUILD_PLATFORM%%/*}"; GOARCH="${BUILD_PLATFORM##*/}"
+    BIN_COUNT=$(find "$OUTPUT_DIR/backend/bin" -type f 2>/dev/null | wc -l | tr -d ' ')
+    echo "    bin/${GOOS}_${GOARCH}/  ($BIN_COUNT binaries)"
 fi
-echo ""
-echo "  $OUTPUT_DIR"
-echo ""
-echo "Package contents:"
-find "$OUTPUT_DIR" | sed "s|$OUTPUT_DIR||" | sort | sed 's|/[^/]*$|&|' | \
-    awk 'BEGIN{FS="/"} {indent=""; for(i=1;i<NF;i++) indent=indent"  "; print indent $NF}'
+echo "    prisma/           ($MIGRATIONS new migration(s))"
+# When PREV_TAG is not set, $MIGRATIONS represents all migrations, not just new ones.
+if [ -n "${PREV_TAG:-}" ]; then
+    MIGRATION_LABEL="new"
+else
+    MIGRATION_LABEL="total"
+fi
+echo "    prisma/           ($MIGRATIONS $MIGRATION_LABEL migration(s))"
 echo ""
