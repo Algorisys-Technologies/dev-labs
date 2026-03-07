@@ -118,6 +118,7 @@ echo "==> Cloning backend @ $LATEST_TAG ..."
 git clone -q --depth 1 --branch "$LATEST_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_src" 2>/dev/null
 
 # ─── Frontend .env check ─────────────────────────────────────────────────────
+# TODO: Add a check for .env file to ensure if all the VITE_ prefixed environment variables are set
 
 FRONTEND_ENV="$SCRIPT_DIR/.env"
 if [ ! -f "$FRONTEND_ENV" ]; then
