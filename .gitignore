@@ -28,3 +28,9 @@ playwright.config.ts
 node_modules
 # Sentry Config File
 .sentryclirc
+.vscode
+
+# Vishal-Jayaswal
+/Vishal-Jayaswal/optimisation-problem/cmd/app2/__debug_bin.exe
+/Vishal-Jayaswal/optimisation-problem/data/
+/Vishal-Jayaswal/optimisation-problem/data2/

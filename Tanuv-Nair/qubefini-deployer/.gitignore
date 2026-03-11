@@ -1,0 +1,5 @@
+# Built deployment packages
+qubefini-*/
+
+# Frontend build-time environment (contains secrets, never commit)
+.env
