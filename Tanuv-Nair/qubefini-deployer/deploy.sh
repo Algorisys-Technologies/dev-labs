@@ -2,10 +2,11 @@
 # deploy.sh - Build and package a qubefini deployment
 #
 # Usage:
-#   ./deploy.sh [--tag v1.0.1] [--platform windows|linux|all]
+#   ./deploy.sh [--tag v1.0.1] [--platform windows|linux|all] [--all-migrations]
 #
-#   --tag        Git tag to check out (default: latest v* tag)
-#   --platform   Target platform: windows, linux, or all (default: windows)
+#   --tag             Git tag to check out (default: latest v* tag)
+#   --platform        Target platform: windows, linux, or all (default: windows)
+#   --all-migrations  Include all Prisma migrations, not just those new since the previous tag
 #
 # Requirements:
 #   git, node/npm, go (with cross-compilation support)
@@ -34,6 +35,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 LATEST_TAG=""
 PLATFORM="windows"  # default
+ALL_MIGRATIONS=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -45,9 +47,13 @@ while [[ $# -gt 0 ]]; do
             PLATFORM="$2"
             shift 2
             ;;
+        --all-migrations)
+            ALL_MIGRATIONS=true
+            shift
+            ;;
         *)
             echo "ERROR: Unknown argument '$1'" >&2
-            echo "Usage: $0 [--tag v1.0.1] [--platform windows|linux|all]" >&2
+            echo "Usage: $0 [--tag v1.0.1] [--platform windows|linux|all] [--all-migrations]" >&2
             exit 1
             ;;
     esac
@@ -99,9 +105,10 @@ WORK_DIR=$(mktemp -d)
 trap 'echo ""; echo "Cleaning up temporary files..."; rm -rf "$WORK_DIR"' EXIT
 
 echo ""
-echo "Working directory : $WORK_DIR"
-echo "Output directory  : $OUTPUT_DIR"
-echo "Platform          : $PLATFORM ($BUILD_PLATFORM)"
+echo "Working directory  : $WORK_DIR"
+echo "Output directory   : $OUTPUT_DIR"
+echo "Platform           : $PLATFORM ($BUILD_PLATFORM)"
+echo "All migrations     : $ALL_MIGRATIONS"
 echo ""
 
 # ─── Clone repos ─────────────────────────────────────────────────────────────
@@ -207,62 +214,74 @@ cp    "$WORK_DIR/frontend_src/package-lock.json" "$OUTPUT_DIR/frontend/"
 cp -r "$WORK_DIR/backend_src/bin"               "$OUTPUT_DIR/backend/"
 cp    "$WORK_DIR/backend_src/.env.example"      "$OUTPUT_DIR/backend/"
 
-# ─── Prisma: only new migrations ─────────────────────────────────────────────
+# ─── Prisma migrations ───────────────────────────────────────────────────────
 
 echo ""
-echo "==> Determining new prisma migrations since previous release ..."
+if $ALL_MIGRATIONS; then
+    echo "==> Including all prisma migrations (--all-migrations) ..."
+else
+    echo "==> Determining new prisma migrations since previous release ..."
+fi
 mkdir -p "$OUTPUT_DIR/backend/prisma"
 
 # Copy top-level prisma files (schema.prisma, etc.) — always included
 find "$WORK_DIR/backend_src/prisma" -maxdepth 1 -type f \
     -exec cp {} "$OUTPUT_DIR/backend/prisma/" \;
 
-# Find the tag immediately before the current one in the backend repo
-PREV_TAG=$(
-    git ls-remote --tags --sort="-version:refname" "$BACKEND_REPO" \
-    | grep -v '\^{}' \
-    | grep 'refs/tags/v' \
-    | awk '{print $2}' \
-    | sed 's|refs/tags/||' \
-    | awk -v tag="$LATEST_TAG" 'found{print; exit} $0==tag{found=1}'
-)
-
-if [ -z "$PREV_TAG" ]; then
-    echo "    No previous tag found — including all migrations."
+if $ALL_MIGRATIONS; then
+    # Include every migration regardless of previous releases
+    echo "    Copying all migrations."
     [ -d "$WORK_DIR/backend_src/prisma/migrations" ] && \
         cp -r "$WORK_DIR/backend_src/prisma/migrations" "$OUTPUT_DIR/backend/prisma/"
+    PREV_TAG=""
 else
-    echo "    Previous tag: $PREV_TAG  →  current tag: $LATEST_TAG"
-    git clone -q --depth 1 --branch "$PREV_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_prev" 2>/dev/null || true
+    # Find the tag immediately before the current one in the backend repo
+    PREV_TAG=$(
+        git ls-remote --tags --sort="-version:refname" "$BACKEND_REPO" \
+        | grep -v '\^{}' \
+        | grep 'refs/tags/v' \
+        | awk '{print $2}' \
+        | sed 's|refs/tags/||' \
+        | awk -v tag="$LATEST_TAG" 'found{print; exit} $0==tag{found=1}'
+    )
 
-    # Collect migration dirs that existed in the previous release
-    declare -A PREV_MIGRATION_SET
-    if [ -d "$WORK_DIR/backend_prev/prisma/migrations" ]; then
-        while IFS= read -r dir; do
-            PREV_MIGRATION_SET["$(basename "$dir")"]=1
-        done < <(find "$WORK_DIR/backend_prev/prisma/migrations" \
-                      -mindepth 1 -maxdepth 1 -type d)
-    fi
-
-    # Copy only migrations that did not exist in the previous release
-    mkdir -p "$OUTPUT_DIR/backend/prisma/migrations"
-    NEW_COUNT=0
-    if [ -d "$WORK_DIR/backend_src/prisma/migrations" ]; then
-        while IFS= read -r dir; do
-            name="$(basename "$dir")"
-            if [ -z "${PREV_MIGRATION_SET[$name]+_}" ]; then
-                cp -r "$dir" "$OUTPUT_DIR/backend/prisma/migrations/"
-                echo "    + $name"
-                (( NEW_COUNT++ )) || true
-            fi
-        done < <(find "$WORK_DIR/backend_src/prisma/migrations" \
-                      -mindepth 1 -maxdepth 1 -type d | sort)
-    fi
-
-    if [ "$NEW_COUNT" -eq 0 ]; then
-        echo "    No new migrations in this release."
+    if [ -z "$PREV_TAG" ]; then
+        echo "    No previous tag found — including all migrations."
+        [ -d "$WORK_DIR/backend_src/prisma/migrations" ] && \
+            cp -r "$WORK_DIR/backend_src/prisma/migrations" "$OUTPUT_DIR/backend/prisma/"
     else
-        echo "    $NEW_COUNT new migration(s) included."
+        echo "    Previous tag: $PREV_TAG  →  current tag: $LATEST_TAG"
+        git clone -q --depth 1 --branch "$PREV_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_prev" 2>/dev/null || true
+
+        # Collect migration dirs that existed in the previous release
+        declare -A PREV_MIGRATION_SET
+        if [ -d "$WORK_DIR/backend_prev/prisma/migrations" ]; then
+            while IFS= read -r dir; do
+                PREV_MIGRATION_SET["$(basename "$dir")"]=1
+            done < <(find "$WORK_DIR/backend_prev/prisma/migrations" \
+                          -mindepth 1 -maxdepth 1 -type d)
+        fi
+
+        # Copy only migrations that did not exist in the previous release
+        mkdir -p "$OUTPUT_DIR/backend/prisma/migrations"
+        NEW_COUNT=0
+        if [ -d "$WORK_DIR/backend_src/prisma/migrations" ]; then
+            while IFS= read -r dir; do
+                name="$(basename "$dir")"
+                if [ -z "${PREV_MIGRATION_SET[$name]+_}" ]; then
+                    cp -r "$dir" "$OUTPUT_DIR/backend/prisma/migrations/"
+                    echo "    + $name"
+                    (( NEW_COUNT++ )) || true
+                fi
+            done < <(find "$WORK_DIR/backend_src/prisma/migrations" \
+                          -mindepth 1 -maxdepth 1 -type d | sort)
+        fi
+
+        if [ "$NEW_COUNT" -eq 0 ]; then
+            echo "    No new migrations in this release."
+        else
+            echo "    $NEW_COUNT new migration(s) included."
+        fi
     fi
 fi
 
@@ -297,9 +316,9 @@ else
     BIN_COUNT=$(find "$OUTPUT_DIR/backend/bin" -type f 2>/dev/null | wc -l | tr -d ' ')
     echo "    bin/${GOOS}_${GOARCH}/  ($BIN_COUNT binaries)"
 fi
-echo "    prisma/           ($MIGRATIONS new migration(s))"
-# When PREV_TAG is not set, $MIGRATIONS represents all migrations, not just new ones.
-if [ -n "${PREV_TAG:-}" ]; then
+if $ALL_MIGRATIONS; then
+    MIGRATION_LABEL="total"
+elif [ -n "${PREV_TAG:-}" ]; then
     MIGRATION_LABEL="new"
 else
     MIGRATION_LABEL="total"

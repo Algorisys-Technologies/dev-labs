@@ -44,8 +44,11 @@ The Go toolchain must support cross-compilation for the target platform (it does
 # Build latest release for both platforms
 ./deploy.sh --platform all
 
-# Combine both flags
-./deploy.sh --tag v1.0.1 --platform windows
+# Include all migrations (not just those new since the previous tag)
+./deploy.sh --all-migrations
+
+# Combine flags
+./deploy.sh --tag v1.0.1 --platform windows --all-migrations
 ```
 
 ### Flags
@@ -54,6 +57,7 @@ The Go toolchain must support cross-compilation for the target platform (it does
 |------|--------|---------|-------------|
 | `--tag` | e.g. `v1.0.1` | latest `v*` tag | Git tag to check out on both repos |
 | `--platform` | `windows`, `linux`, `all` | `windows` | Target platform for backend binaries |
+| `--all-migrations` | _(boolean flag)_ | off | Include **all** Prisma migrations instead of only those new since the previous tag |
 
 ## Output
 
@@ -78,6 +82,7 @@ qubefini-v1.0.1/
     ├── prisma/
     │   ├── schema.prisma
     │   └── migrations/        ← only migrations new since the previous tag
+                               ← (all migrations if --all-migrations is set)
     └── .env.example
 ```
 
@@ -91,7 +96,7 @@ When `--platform all` is used, `bin/` will contain both `linux_amd64/` and `wind
 4. **Builds the frontend** — copies `.env` into the source tree, then runs `npm install && npm run build`.
 5. **Builds the backend** — runs `./scripts/build.sh -p <platform>` which cross-compiles to the target OS/arch.
 6. **Assembles the package** — copies build artefacts and supporting files into `qubefini-<tag>/`.
-7. **Filters Prisma migrations** — diffs against the previous tag and includes only migrations that are new in this release.
+7. **Filters Prisma migrations** — by default, diffs against the previous tag and includes only migrations that are new in this release. Pass `--all-migrations` to include every migration unconditionally.
 8. **Cleans up** — the temporary working directory is always removed on exit, including on Ctrl+C.
 
 ## Repositories
