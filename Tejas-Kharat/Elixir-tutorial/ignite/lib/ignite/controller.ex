@@ -19,6 +19,12 @@ defmodule Ignite.Controller do
     }
   end
 
+  def render(conn, template_name, assigns \\ []) do
+    template_path = Path.join("templates", "#{template_name}.html.eex")
+    content = EEx.eval_file(template_path, assigns: Enum.into(assigns, %{}))
+    html(conn, content)
+  end
+
   def send_resp(conn) do
     status_line = "HTTP/1.1 #{conn.status} #{status_text(conn.status)}\r\n"
 

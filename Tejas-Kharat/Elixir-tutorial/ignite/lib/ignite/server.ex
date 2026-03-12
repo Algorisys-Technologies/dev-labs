@@ -1,7 +1,25 @@
 defmodule Ignite.Server do
+  use GenServer
   require Logger
 
-  def start(port \\ 4000) do
+  # --- Client API ---
+  # Called by the supervisor to start us.
+
+  def start_link(port) do
+    GenServer.start_link(__MODULE__, port, name: __MODULE__)
+  end
+
+  # --- GenServer Callbacks ---
+
+  @impl true
+  def init(port) do
+    # Return fast so the supervisor isn't blocked.
+    # handle_continue runs immediately after.
+    {:ok, %{port: port}, {:continue, :listen}}
+  end
+
+  @impl true
+  def handle_continue(:listen, %{port: port} = state) do
     {:ok, listen_socket} = :gen_tcp.listen(port, [
       :binary,
       packet: :http,
@@ -11,12 +29,18 @@ defmodule Ignite.Server do
 
     Logger.info("Ignite is heating up on http://localhost:#{port}")
 
-    loop_acceptor(listen_socket)
+    # Linked process: if the acceptor crashes, we crash too,
+    # so the supervisor can restart both.
+    spawn_link(fn -> loop_acceptor(listen_socket) end)
+
+    {:noreply, Map.put(state, :listen_socket, listen_socket)}
   end
+
+  # --- Private Functions ---
 
   defp loop_acceptor(listen_socket) do
     {:ok, client_socket} = :gen_tcp.accept(listen_socket)
-    spawn(fn -> serve(client_socket) end)
+    Task.start(fn -> serve(client_socket) end)
     loop_acceptor(listen_socket)
   end
 
