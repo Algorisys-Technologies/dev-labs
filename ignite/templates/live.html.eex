@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= @assigns[:title] || "Ignite LiveView" %></title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      color: #333;
+    }
+    button { cursor: pointer; margin: 5px; }
+    #ignite-app { min-height: 100px; }
+  </style>
+</head>
+<body>
+  <div id="ignite-app">Connecting...</div>
+  <hr>
+  <p><small>Powered by <a href="/">Ignite</a></small></p>
+  <script src="/assets/morphdom.min.js"></script>
+  <script src="/assets/ignite.js"></script>
+</body>
+</html>
