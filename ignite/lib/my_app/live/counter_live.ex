@@ -22,6 +22,15 @@ defmodule MyApp.CounterLive do
       <p style="font-size: 3em; margin: 20px 0;">#{assigns.count}</p>
       <button ignite-click="decrement" style="font-size: 1.5em; padding: 10px 20px;">-</button>
       <button ignite-click="increment" style="font-size: 1.5em; padding: 10px 20px;">+</button>
+
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+        <p style="color: #888; font-size: 14px;">Navigate without page reload:</p>
+        <a href="/" style="margin: 0 8px;">Home</a>
+        <a href="/dashboard" ignite-navigate="/dashboard" style="margin: 0 8px;">Dashboard</a>
+        <a href="/shared-counter" ignite-navigate="/shared-counter" style="margin: 0 8px;">Shared Counter</a>
+        <a href="/components" ignite-navigate="/components" style="margin: 0 8px;">Components</a>
+        <a href="/hooks" ignite-navigate="/hooks" style="margin: 0 8px;">Hooks</a>
+      </div>
     </div>
     """
   end

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><%= @assigns[:title] || "Ignite LiveView" %></title>
+  <title><%= assigns[:title] || "Ignite LiveView" %></title>
   <style>
     body {
       font-family: system-ui, -apple-system, sans-serif;
@@ -14,10 +14,15 @@
   </style>
 </head>
 <body>
-  <div id="ignite-app">Connecting...</div>
+  <div id="ignite-app"
+       data-live-path="<%= assigns[:live_path] || "/live" %>"
+       data-live-routes='<%= assigns[:live_routes] || "{}" %>'>
+    Connecting...
+  </div>
   <hr>
   <p><small>Powered by <a href="/">Ignite</a></small></p>
   <script src="/assets/morphdom.min.js"></script>
+  <script src="/assets/hooks.js"></script>
   <script src="/assets/ignite.js"></script>
 </body>
 </html>

@@ -45,4 +45,13 @@ defmodule Ignite.Controller do
     content = EEx.eval_file(template_path, assigns: Enum.into(assigns, %{}))
     html(conn, content)
   end
+  def json(conn, data, status \\ 200) do
+  %Ignite.Conn{
+    conn
+    | status: status,
+      resp_body: Jason.encode!(data),
+      resp_headers: Map.put(conn.resp_headers, "content-type", "application/json"),
+      halted: true
+  }
+end
 end

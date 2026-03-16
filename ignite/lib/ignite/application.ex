@@ -18,12 +18,17 @@ defmodule Ignite.Application do
         {:_,
          [
            {"/live", Ignite.LiveView.Handler, %{view: MyApp.CounterLive}},
+           {"/live/dashboard", Ignite.LiveView.Handler, %{view: MyApp.DashboardLive}},
+           {"/live/shared-counter", Ignite.LiveView.Handler, %{view: MyApp.SharedCounterLive}},
+           {"/live/components", Ignite.LiveView.Handler, %{view: MyApp.ComponentsDemoLive}},
+           {"/live/hooks", Ignite.LiveView.Handler, %{view: MyApp.HooksDemoLive}},
            {"/assets/[...]", :cowboy_static, {:dir, "assets"}},
            {"/[...]", Ignite.Adapters.Cowboy, []}
          ]}
       ])
 
     children = [
+      Ignite.PubSub,
       %{
         id: :cowboy_listener,
         start: {:cowboy, :start_clear, [

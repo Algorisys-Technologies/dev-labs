@@ -15,7 +15,11 @@ defmodule MyApp.Router do
   get("/crash", to: MyApp.WelcomeController, action: :crash)
 
   # Step 12-14: LiveView route
-  get("/counter", to: MyApp.WelcomeController, action: :counter)
+    get "/counter", to: MyApp.WelcomeController, action: :counter
+    get "/dashboard", to: MyApp.WelcomeController, action: :dashboard
+    get "/shared-counter", to: MyApp.WelcomeController, action: :shared_counter
+    get "/components", to: MyApp.WelcomeController, action: :components
+    get "/hooks", to: MyApp.WelcomeController, action: :hooks
 
   finalize_routes()
 
@@ -31,4 +35,6 @@ defmodule MyApp.Router do
     new_headers = Map.put(conn.resp_headers, "x-powered-by", "Ignite")
     %Ignite.Conn{conn | resp_headers: new_headers}
   end
+  get "/api/status", to: MyApp.ApiController, action: :status
+  post "/api/echo", to: MyApp.ApiController, action: :echo
 end
