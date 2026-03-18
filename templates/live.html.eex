@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ignite LiveView</title>
+  <!-- Using CDN for morphdom since it's missing locally -->
+  <script src="https://unpkg.com/morphdom@2.7.2/dist/morphdom-umd.min.js"></script>
+  <script src="/assets/hooks.js"></script>
+  <script src="/assets/ignite.js"></script>
+</head>
+<body>
+    <!-- Safely pass the initial state via a JSON script tag -->
+    <script id="ignite-rendered" type="application/json">
+      <%= @rendered %>
+    </script>
+
+    <div id="ignite-root" 
+         data-module="<%= @module %>" 
+         data-live-routes='<%= @live_routes || "{}" %>'>
+      <%= @body %>
+    </div>
+</body>
+</html>
