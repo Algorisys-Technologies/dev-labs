@@ -1,3 +1,8 @@
+# Database
+*.db
+*.db-shm
+*.db-wal
+
 # The directory Mix will write compiled artifacts to.
 /_build/
 
@@ -21,3 +26,6 @@ ignite-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# SSL Certificates
+/priv/ssl/

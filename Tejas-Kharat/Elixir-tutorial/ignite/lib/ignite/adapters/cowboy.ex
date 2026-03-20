@@ -13,17 +13,78 @@ defmodule Ignite.Adapters.Cowboy do
 
   @impl true
   def init(req, state) do
-    conn = cowboy_to_conn(req)
-    conn = MyApp.Router.call(conn)
+    # Generate a unique request ID for log correlation and tracing.
+    request_id = :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
 
-    req = :cowboy_req.reply(
-      conn.status,
-      conn.resp_headers,
-      conn.resp_body,
-      req
-    )
+    # Attach request_id to Logger metadata so ALL downstream Logger calls
+    # in this process automatically include it.
+    Logger.metadata(request_id: request_id)
+
+    # Start the timer — monotonic_time is immune to clock adjustments.
+    start_time = System.monotonic_time()
+
+    # Build conn outside the try — available in rescue for debug context
+    conn = cowboy_to_conn(req)
+    conn = put_in(conn.private[:request_id], request_id)
+
+    Logger.info("#{conn.method} #{conn.path}")
+
+    req =
+      try do
+        conn = MyApp.Router.call(conn)
+
+        # Encode session and set cookie
+        cookie_value = Ignite.Session.encode(conn.session)
+
+        req =
+          :cowboy_req.set_resp_cookie(
+            Ignite.Session.cookie_name(),
+            cookie_value,
+            req,
+            %{path: "/", http_only: true, same_site: :lax}
+          )
+
+        # Add x-request-id header for correlation
+        resp_headers = Map.put(conn.resp_headers, "x-request-id", request_id)
+
+        duration = log_duration(start_time)
+        Logger.info("Sent #{conn.status} in #{duration}")
+
+        :cowboy_req.reply(
+          conn.status,
+          resp_headers,
+          conn.resp_body,
+          req
+        )
+      rescue
+        exception ->
+          duration = log_duration(start_time)
+
+          Logger.error("""
+          [Ignite] Request crashed (#{duration}):
+          #{Exception.format(:error, exception, __STACKTRACE__)}
+          """)
+
+          :cowboy_req.reply(
+            500,
+            %{"content-type" => "text/html", "x-request-id" => request_id},
+            Ignite.DebugPage.render(exception, __STACKTRACE__, conn),
+            req
+          )
+      end
 
     {:ok, req, state}
+  end
+
+  defp log_duration(start_time) do
+    diff = System.monotonic_time() - start_time
+    micro = System.convert_time_unit(diff, :native, :microsecond)
+
+    cond do
+      micro < 1_000 -> "#{micro}µs"
+      micro < 1_000_000 -> "#{Float.round(micro / 1_000, 1)}ms"
+      true -> "#{Float.round(micro / 1_000_000, 2)}s"
+    end
   end
 
   defp cowboy_to_conn(req) do
@@ -35,28 +96,145 @@ defmodule Ignite.Adapters.Cowboy do
       req.headers
       |> Enum.into(%{}, fn {k, v} -> {String.downcase(k), v} end)
 
+    # Parse cookies and session
+    cookies = Ignite.Session.parse_cookies(Map.get(headers, "cookie"))
+
+    raw_session =
+      case Ignite.Session.decode(Map.get(cookies, Ignite.Session.cookie_name())) do
+        {:ok, data} -> data
+        :error -> %{}
+      end
+
+    # Pop flash from session -> store in private for get_flash to read
+    {flash, session} = Map.pop(raw_session, "_flash", %{})
+
+    # Ensure a CSRF token exists in session
+    session =
+      if Map.has_key?(session, "_csrf_token") do
+        session
+      else
+        Map.put(session, "_csrf_token", Ignite.CSRF.generate_token())
+      end
+
+    # Extract peer IP for rate limiting
+    {peer_ip_tuple, _peer_port} = :cowboy_req.peer(req)
+    peer_ip = peer_ip_tuple |> :inet.ntoa() |> to_string()
+
     %Ignite.Conn{
       method: req.method,
       path: req.path,
       headers: headers,
-      params: body_params
+      params: body_params,
+      cookies: cookies,
+      session: session,
+      private: %{flash: flash, peer_ip: peer_ip}
     }
   end
 
   defp read_cowboy_body(req) do
-    case :cowboy_req.has_body(req) do
-      true ->
-        {:ok, body, req} = :cowboy_req.read_body(req)
-        content_type = :cowboy_req.header("content-type", req, "")
-        {parse_body(body, content_type), req}
+    content_type = :cowboy_req.header("content-type", req, "")
 
-      false ->
-        {%{}, req}
+    if String.starts_with?(content_type, "multipart/form-data") do
+      read_multipart(req, %{})
+    else
+      case :cowboy_req.has_body(req) do
+        true ->
+          {:ok, body, req} = :cowboy_req.read_body(req)
+          {parse_body(body, content_type), req}
+
+        false ->
+          {%{}, req}
+      end
     end
+  end
+
+  # Loops through all parts of a multipart/form-data request.
+  defp read_multipart(req, params) do
+    case :cowboy_req.read_part(req) do
+      {:ok, headers, req} ->
+        {name, filename} = parse_disposition(headers)
+
+        if filename do
+          # File part — stream to temp file
+          {:ok, tmp_path} = Ignite.Upload.random_file("multipart")
+          Ignite.Upload.schedule_cleanup(tmp_path)
+          {:ok, file} = File.open(tmp_path, [:write, :binary, :raw])
+          {:ok, req} = read_part_body_to_file(req, file)
+          File.close(file)
+
+          upload_content_type =
+            case Map.get(headers, "content-type") do
+              nil -> "application/octet-stream"
+              ct -> ct
+            end
+
+          upload = %Ignite.Upload{
+            path: tmp_path,
+            filename: filename,
+            content_type: upload_content_type
+          }
+
+          read_multipart(req, Map.put(params, name, upload))
+        else
+          # Regular field — read body as string
+          {:ok, body, req} = :cowboy_req.read_part_body(req)
+          read_multipart(req, Map.put(params, name, body))
+        end
+
+      {:done, req} ->
+        {params, req}
+    end
+  end
+
+  # Streams part body chunks to a file handle.
+  defp read_part_body_to_file(req, file) do
+    case :cowboy_req.read_part_body(req) do
+      {:ok, data, req} ->
+        IO.binwrite(file, data)
+        {:ok, req}
+
+      {:more, data, req} ->
+        IO.binwrite(file, data)
+        read_part_body_to_file(req, file)
+    end
+  end
+
+  # Extracts "name" and "filename" from the content-disposition header.
+  defp parse_disposition(headers) do
+    case Map.get(headers, "content-disposition") do
+      nil ->
+        {nil, nil}
+
+      disposition ->
+        name = extract_header_param(disposition, "name")
+        filename = extract_header_param(disposition, "filename")
+        {name, filename}
+    end
+  end
+
+  defp extract_header_param(header, param_name) do
+    header
+    |> String.split(";")
+    |> Enum.find_value(fn part ->
+      trimmed = String.trim(part)
+
+      case String.split(trimmed, "=", parts: 2) do
+        [^param_name, value] -> String.trim(value, "\"")
+        _ -> nil
+      end
+    end)
   end
 
   defp parse_body(body, "application/x-www-form-urlencoded" <> _) do
     URI.decode_query(body)
+  end
+
+  defp parse_body(body, "application/json" <> _) when byte_size(body) > 0 do
+    case Jason.decode(body) do
+      {:ok, parsed} when is_map(parsed) -> parsed
+      {:ok, parsed} -> %{"_json" => parsed}
+      {:error, _} -> %{"_body" => body}
+    end
   end
 
   defp parse_body(body, _) when byte_size(body) > 0 do

@@ -12,26 +12,62 @@ defmodule Ignite.Application do
   def start(_type, _args) do
     port = Application.get_env(:ignite, :port, 4000)
 
+    # Build static asset manifest before Cowboy starts
+    Ignite.Static.init()
+
     # Cowboy routing: send ALL requests to our adapter
     dispatch =
       :cowboy_router.compile([
-        {:_, [{"/[...]", Ignite.Adapters.Cowboy, []}]}
+        {:_,
+         [
+           {"/live", Ignite.LiveView.Handler, %{view: MyApp.CounterLive}},
+           {"/live/dashboard", Ignite.LiveView.Handler, %{view: MyApp.DashboardLive}},
+           {"/live/shared-counter", Ignite.LiveView.Handler, %{view: MyApp.SharedCounterLive}},
+           {"/live/streams", Ignite.LiveView.Handler, %{view: MyApp.StreamDemoLive}},
+           {"/live/upload-demo", Ignite.LiveView.Handler, %{view: MyApp.UploadDemoLive}},
+           {"/live/components", Ignite.LiveView.Handler, %{view: MyApp.ComponentsDemoLive}},
+           {"/live/hooks", Ignite.LiveView.Handler, %{view: MyApp.HooksDemoLive}},
+           {"/live/presence", Ignite.LiveView.Handler, %{view: MyApp.PresenceDemoLive}},
+           {"/assets/[...]", :cowboy_static, {:dir, "assets"}},
+           {"/[...]", Ignite.Adapters.Cowboy, []}
+         ]}
       ])
 
     children = [
-      %{
-        id: :cowboy_listener,
-        start: {:cowboy, :start_clear, [
-          :ignite_http,
-          [port: port],
-          %{env: %{dispatch: dispatch}}
-        ]}
-      }
-    ]
+      MyApp.Repo,
+      Ignite.PubSub,
+      Ignite.Presence,
+      Ignite.RateLimiter,
 
-    Logger.info("Ignite is heating up on http://localhost:#{port}")
+      # Start Cowboy — HTTP or HTTPS depending on :ssl config
+      Ignite.SSL.child_spec(port, dispatch)
+    ] ++ redirect_children(port) ++ dev_children()
+
+    scheme = if Ignite.SSL.ssl_configured?(), do: "https", else: "http"
+    Logger.info("Ignite is heating up on #{scheme}://localhost:#{port}")
 
     opts = [strategy: :one_for_one, name: Ignite.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp dev_children do
+    if Application.get_env(:ignite, :env) == :dev do
+      [{Ignite.Reloader, [path: "lib"]}]
+    else
+      []
+    end
+  end
+
+  # Optional HTTP→HTTPS redirect listener (only when SSL is configured).
+  # Set `config :ignite, http_redirect_port: 4080` to enable.
+  defp redirect_children(https_port) do
+    http_port = Application.get_env(:ignite, :http_redirect_port)
+
+    if http_port && Ignite.SSL.ssl_configured?() do
+      Logger.info("HTTP→HTTPS redirect on port #{http_port}")
+      [Ignite.SSL.redirect_child_spec(http_port, https_port)]
+    else
+      []
+    end
   end
 end
