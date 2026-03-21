@@ -59,7 +59,7 @@ defmodule Ignite.LiveView do
 
   def live_component(parent_assigns, module, opts) do
     id = Keyword.fetch!(opts, :id)
-    props = opts |> Keyword.delete(:id) |> Map.new()
+    props = opts |> Map.new()
 
     # Look up existing component state
     components = Map.get(parent_assigns, :__components__, %{})
