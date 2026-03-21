@@ -5,16 +5,22 @@ defmodule Ignite.MixProject do
     [
       app: :ignite,
       version: "0.1.0",
-      elixir: "~> 1.19",
+      elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      releases: [
+        ignite: [
+          include_executables_for: [:unix],
+          steps: [:assemble, :tar]
+        ]
+      ]
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :crypto, :ssl, :public_key],
       mod: {Ignite.Application, []}
     ]
   end
@@ -22,8 +28,10 @@ defmodule Ignite.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:jason, "~> 1.4"},
+      {:plug_cowboy, "~> 2.6"},
+      {:ecto_sql, "~> 3.12"},
+      {:ecto_sqlite3, "~> 0.17"}
     ]
   end
 end
