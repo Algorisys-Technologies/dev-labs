@@ -26,6 +26,7 @@ defmodule MyApp.WelcomeController do
     #{flash_html}
     <h3>Create User</h3>
       <form action="/users" method="POST" style="background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #eee;">
+        #{csrf_token_tag(conn)}
         <div style="margin-bottom:10px;">
           <input type="text" name="username" placeholder="Username" style="padding:8px; border:1px solid #ddd; border-radius:4px; width:200px;" required>
         </div>

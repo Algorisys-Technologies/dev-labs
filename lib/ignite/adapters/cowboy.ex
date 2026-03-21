@@ -13,29 +13,81 @@ defmodule Ignite.Adapters.Cowboy do
 
   @impl true
   def init(req, state) do
+    # Generate a unique request ID for log correlation and tracing.
+    # 16 random bytes → base64url gives a short, URL-safe identifier.
+    request_id = :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
+
+    # Attach request_id to Logger metadata so ALL downstream Logger calls
+    # in this process automatically include it — no explicit passing needed.
+    Logger.metadata(request_id: request_id)
+
+    # Start the timer — monotonic_time is immune to clock adjustments.
+    start_time = System.monotonic_time()
+
+    # Build conn outside the try so it's available in the rescue block
+    # for the debug error page to display request context.
     conn = cowboy_to_conn(req)
-    conn = MyApp.Router.call(conn)
+    conn = put_in(conn.private[:request_id], request_id)
 
-    # Encode conn.session as-is (has new flash only if put_flash was called)
-    cookie_value = Ignite.Session.encode(conn.session)
-
-    req =
-      :cowboy_req.set_resp_cookie(
-        Ignite.Session.cookie_name(),
-        cookie_value,
-        req,
-        %{path: "/", http_only: true, same_site: :lax}
-      )
+    Logger.info("#{conn.method} #{conn.path}")
 
     req =
-      :cowboy_req.reply(
-        conn.status,
-        conn.resp_headers,
-        conn.resp_body,
-        req
-      )
+      try do
+        # 1. Route through our framework
+        conn = MyApp.Router.call(conn)
+
+        # 2. Set session cookie via Cowboy's cookie API
+        # Encode conn.session as-is (has new flash only if put_flash was called)
+        cookie_value = Ignite.Session.encode(conn.session)
+
+        req =
+          :cowboy_req.set_resp_cookie(Ignite.Session.cookie_name(), cookie_value, req, %{
+            path: "/",
+            http_only: true,
+            same_site: :lax
+          })
+
+        # 3. Add request ID to response headers for client-side correlation
+        resp_headers = Map.put(conn.resp_headers, "x-request-id", request_id)
+
+        # 4. Log the completion with timing
+        duration = log_duration(start_time)
+        Logger.info("Sent #{conn.status} in #{duration}")
+
+        # 5. Send response back through Cowboy
+        :cowboy_req.reply(conn.status, resp_headers, conn.resp_body, req)
+      rescue
+        exception ->
+          duration = log_duration(start_time)
+
+          Logger.error("""
+          [Ignite] Request crashed (#{duration}):
+          #{Exception.format(:error, exception, __STACKTRACE__)}
+          """)
+
+          # Render a debug error page (rich in dev, generic in prod)
+          :cowboy_req.reply(
+            500,
+            %{"content-type" => "text/html", "x-request-id" => request_id},
+            Ignite.DebugPage.render_error(conn, exception, __STACKTRACE__),
+            req
+          )
+      end
 
     {:ok, req, state}
+  end
+
+  # Calculates elapsed time since `start_time` and formats it as a
+  # human-readable string.
+  defp log_duration(start_time) do
+    diff = System.monotonic_time() - start_time
+    micro = System.convert_time_unit(diff, :native, :microsecond)
+
+    cond do
+      micro < 1_000 -> "#{micro}µs"
+      micro < 1_000_000 -> "#{Float.round(micro / 1_000, 1)}ms"
+      true -> "#{Float.round(micro / 1_000_000, 2)}s"
+    end
   end
 
   defp cowboy_to_conn(req) do
@@ -59,6 +111,18 @@ defmodule Ignite.Adapters.Cowboy do
     # Pop flash from session -> store in private for get_flash to read.
     {flash, session} = Map.pop(raw_session, "_flash", %{})
 
+    # Step 31: CSRF Protection
+    session =
+      if Map.has_key?(session, "_csrf_token") do
+        session
+      else
+        Map.put(session, "_csrf_token", Ignite.CSRF.generate_token())
+      end
+
+    # Extract peer IP
+    {peer_ip_tuple, _peer_port} = :cowboy_req.peer(req)
+    peer_ip = peer_ip_tuple |> :inet.ntoa() |> to_string()
+
     %Ignite.Conn{
       method: req.method,
       path: req.path,
@@ -66,7 +130,7 @@ defmodule Ignite.Adapters.Cowboy do
       params: body_params,
       cookies: cookies,
       session: session,
-      private: %{flash: flash}
+      private: %{flash: flash, peer_ip: peer_ip}
     }
   end
 

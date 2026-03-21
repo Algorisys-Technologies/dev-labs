@@ -36,6 +36,10 @@ defmodule Ignite.Controller do
     }
   end
 
+  def static_path(filename) do
+    Ignite.Static.static_path(filename)
+  end
+
   def redirect(conn, to: path) do
     %{conn |
       status: 302,
@@ -63,6 +67,18 @@ defmodule Ignite.Controller do
     conn |> get_flash() |> Map.get(to_string(key))
   end
 
+  def csrf_token_tag(conn) do
+    Ignite.CSRF.csrf_token_tag(conn)
+  end
+
+  def csp_nonce(conn) do
+    Ignite.CSP.csp_nonce(conn)
+  end
+
+  def csp_script_tag(conn, js_code) do
+    Ignite.CSP.csp_script_tag(conn, js_code)
+  end
+
   def send_resp(conn) do
     status_line = "HTTP/1.1 #{conn.status} #{status_text(conn.status)}\r\n"
 
@@ -77,7 +93,10 @@ defmodule Ignite.Controller do
   end
 
   defp status_text(200), do: "OK"
+  defp status_text(403), do: "Forbidden"
   defp status_text(404), do: "Not Found"
+  defp status_text(429), do: "Too Many Requests"
+  defp status_text(422), do: "Unprocessable Entity"
   defp status_text(500), do: "Internal Server Error"
   defp status_text(_),   do: "OK"
 end

@@ -23,7 +23,7 @@ defmodule Ignite.LiveView.Handler do
         :error -> %{}
       end
 
-    {:cowboy_websocket, req, Map.put(state, :session, session)}
+    {:cowboy_websocket, req, %{session: session}}
   end
 
   # Initial state is empty, wait for lv:join

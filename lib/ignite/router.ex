@@ -6,12 +6,41 @@ defmodule Ignite.Router do
 
       Module.register_attribute(__MODULE__, :plugs, accumulate: true)
       Module.register_attribute(__MODULE__, :route_info, accumulate: true)
+    end
+  end
+
+  defmacro __before_compile__(env) do
+    plugs = Module.get_attribute(env.module, :plugs) |> Enum.reverse()
+    route_info = Module.get_attribute(env.module, :route_info) |> Enum.reverse()
+    helpers_module = Module.concat(env.module, Helpers)
+    helper_functions = Ignite.Router.Helpers.build_helper_functions(route_info)
+
+    # Convert tuples to maps for cleaner access
+    routes_list =
+      Enum.map(route_info, fn {method, path, controller, action} ->
+        %{method: method, path: path, controller: controller, action: action}
+      end)
+
+    # Macro.escape/1 converts runtime data into quoted AST that can be embedded
+    escaped_routes = Macro.escape(routes_list)
+
+    quote do
+      defmodule unquote(helpers_module) do
+        @moduledoc false
+        unquote_splicing(helper_functions)
+      end
+
+      def __routes__, do: unquote(escaped_routes)
 
       def call(conn) do
-        # Step 8: Run common plugs
-        conn = Enum.reduce(@plugs, conn, fn plug, conn ->
-          if conn.halted, do: conn, else: apply(__MODULE__, plug, [conn])
-        end)
+        # Add default headers
+        conn = %{conn | resp_headers: Map.put(conn.resp_headers, "x-powered-by", "Ignite")}
+
+        # Step 8: Run common plugs (Step 38 fix: moved to @before_compile)
+        conn =
+          Enum.reduce(unquote(plugs), conn, fn plug, conn ->
+            if conn.halted, do: conn, else: apply(__MODULE__, plug, [conn])
+          end)
 
         if conn.halted do
           conn
@@ -19,18 +48,6 @@ defmodule Ignite.Router do
           segments = String.split(conn.path, "/", trim: true)
           dispatch(conn, segments)
         end
-      end
-    end
-  end
-
-  defmacro __before_compile__(env) do
-    route_info = Module.get_attribute(env.module, :route_info) |> Enum.reverse()
-    helpers_module = Module.concat(env.module, Helpers)
-    helper_functions = Ignite.Router.Helpers.build_helper_functions(route_info)
-
-    quote do
-      defmodule unquote(helpers_module) do
-        unquote_splicing(helper_functions)
       end
     end
   end
@@ -136,14 +153,7 @@ defmodule Ignite.Router do
         params = unquote(build_params_map(param_names))
         conn = %Ignite.Conn{conn | params: Map.merge(conn.params, params)}
         
-        # Step 11: Error handling wrapping the action
-        try do
-          apply(unquote(controller), unquote(action), [conn])
-        rescue
-          e ->
-            IO.inspect(e, label: "CRASH IN CONTROLLER")
-            Ignite.Controller.text(conn, "500 - Internal Server Error", 500)
-        end
+        apply(unquote(controller), unquote(action), [conn])
       end
     end
   end

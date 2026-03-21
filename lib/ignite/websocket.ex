@@ -40,7 +40,7 @@ defmodule Ignite.Websocket do
 
   defp unmask(<<byte::8, rest::binary>>, mask, acc) do
     # Circular shift mask
-    unmasked_byte = byte ^^^ (mask >>> 24)
+    unmasked_byte = bxor(byte, (mask >>> 24))
     new_mask = ((mask <<< 8) &&& 0xFFFFFFFF) ||| (mask >>> 24)
     unmask(rest, new_mask, acc <> <<unmasked_byte>>)
   end

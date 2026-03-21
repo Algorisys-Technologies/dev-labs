@@ -41,14 +41,14 @@ defmodule MyApp.UserController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User '#{user.username}' created!")
-        |> redirect(to: "/")
+        |> redirect(to: "/users")
 
       {:error, changeset} ->
         errors = format_errors(changeset)
 
         conn
         |> put_flash(:error, "Failed to create user: #{errors}")
-        |> redirect(to: "/")
+        |> redirect(to: "/users")
     end
   end
 

@@ -6,7 +6,16 @@ defmodule Ignite.LiveView do
 
   defmacro __using__(_opts) do
     quote do
-      import Ignite.LiveView
+      import Ignite.LiveView, only: [
+        push_redirect: 2,
+        live_component: 3,
+        collect_components: 1,
+        sigil_L: 2,
+        sigil_F: 2,
+        raw: 1,
+        subscribe: 1,
+        broadcast: 2
+      ]
       import Ignite.LiveView.UploadHelpers, only: [
         allow_upload: 3,
         consume_uploaded_entries: 3,
@@ -107,4 +116,12 @@ defmodule Ignite.LiveView do
   defmacro sigil_L({:<<>>, _meta, [template]}, _modifiers) do
     EEx.compile_string(template, engine: Ignite.LiveView.EExEngine)
   end
+
+  defmacro sigil_F({:<<>>, _meta, [template]}, _modifiers) do
+    # Shorthand: @name -> assigns.name
+    processed = Regex.replace(~r/(?<![.\w:\/])@(\w+)/, template, "assigns.\\1")
+    EEx.compile_string(processed, engine: Ignite.LiveView.FEExEngine)
+  end
+
+  def raw(val), do: {:safe, val}
 end

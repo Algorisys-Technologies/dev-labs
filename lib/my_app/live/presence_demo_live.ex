@@ -1,6 +1,7 @@
 # lib/my_app/live/presence_demo_live.ex
 defmodule MyApp.PresenceDemoLive do
   use Ignite.LiveView
+  require Logger
   alias Ignite.Presence
   alias Ignite.PubSub
 
