@@ -1,0 +1,101 @@
+defmodule Ignite.Reloader do
+  @moduledoc """
+  Watches lib/ for code changes and assets/ for static asset changes.
+  Recompiles modules and rebuilds the static manifest on the fly.
+  """
+  use GenServer
+  require Logger
+
+  @check_interval 1_000
+
+  def start_link(opts \\ []) do
+    path = Keyword.get(opts, :path, "lib")
+    GenServer.start_link(__MODULE__, path, name: __MODULE__)
+  end
+
+  @impl true
+  def init(path) do
+    state = %{
+      path: path,
+      mtimes: get_mtimes(path),
+      asset_mtimes: get_asset_mtimes()
+    }
+
+    schedule_check()
+    Logger.info("[Reloader] Watching #{path}/ and assets/ for changes...")
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_info(:check, state) do
+    new_mtimes = get_mtimes(state.path)
+
+    if new_mtimes != state.mtimes do
+      reload_changed(state.mtimes, new_mtimes)
+    end
+
+    # Check for asset file changes and rebuild the static manifest (Step 37)
+    new_asset_mtimes = get_asset_mtimes()
+
+    if new_asset_mtimes != state.asset_mtimes do
+      Logger.info("[Reloader] Asset changes detected — rebuilding static manifest...")
+      Ignite.Static.rebuild()
+    end
+
+    schedule_check()
+    {:noreply, %{state | mtimes: new_mtimes, asset_mtimes: new_asset_mtimes}}
+  end
+
+  # Scan lib/ for all .ex files and record their modification times.
+  defp get_mtimes(path) do
+    Path.join(path, "**/*.ex")
+    |> Path.wildcard()
+    |> Enum.into(%{}, fn file ->
+      case File.stat(file) do
+        {:ok, stat} -> {file, stat.mtime}
+        _ -> {file, nil}
+      end
+    end)
+  end
+
+  # Scan assets/ for all files and record their modification times.
+  defp get_asset_mtimes do
+    if File.dir?("assets") do
+      Path.join("assets", "**/*")
+      |> Path.wildcard()
+      |> Enum.filter(&File.regular?/1)
+      |> Enum.into(%{}, fn file ->
+        case File.stat(file) do
+          {:ok, stat} -> {file, stat.mtime}
+          _ -> {file, nil}
+        end
+      end)
+    else
+      %{}
+    end
+  end
+
+  # Find files that changed and recompile them.
+  defp reload_changed(old_mtimes, new_mtimes) do
+    Enum.each(new_mtimes, fn {file, mtime} ->
+      old_mtime = Map.get(old_mtimes, file)
+
+      if mtime != old_mtime do
+        Logger.info("[Reloader] Recompiling: #{file}")
+
+        try do
+          Code.put_compiler_option(:ignore_module_conflict, true)
+          Code.compile_file(file)
+          Code.put_compiler_option(:ignore_module_conflict, false)
+        rescue
+          error ->
+            Logger.error("[Reloader] Compile error in #{file}: #{Exception.message(error)}")
+        end
+      end
+    end)
+  end
+
+  defp schedule_check do
+    Process.send_after(self(), :check, @check_interval)
+  end
+end
