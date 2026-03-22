@@ -297,7 +297,7 @@ def handle_sales(query):
             forecasts = sales_data.get("forecasts", [])
             if forecasts:
                 lines = [
-                    "📊 SALES FORECAST — SAP Joule Intelligence",
+                    "📊 SALES FORECAST",
                     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
                 ]
                 for fc in forecasts[:6]:
