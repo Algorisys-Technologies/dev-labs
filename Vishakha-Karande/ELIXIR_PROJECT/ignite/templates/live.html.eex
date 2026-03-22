@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ignite LiveView</title>
+  <script src="<%= Ignite.Static.static_path("morphdom-umd.min.js") %>"></script>
+  <script src="<%= Ignite.Static.static_path("hooks.js") %>"></script>
+  <script src="<%= Ignite.Static.static_path("ignite.js") %>"></script>
+  <style>
+    .status { font-size: 12px; color: #888; min-height: 18px; font-family: sans-serif; margin: 10px; }
+    .status.connected { color: #27ae60; }
+    .status.disconnected { color: #e74c3c; }
+  </style>
+</head>
+<body>
+    <!-- Safely pass the initial state via a JSON script tag -->
+    <script id="ignite-rendered" type="application/json">
+      <%= @rendered %>
+    </script>
+
+    <p class="status" id="ignite-status"></p>
+    <div id="ignite-app" 
+         data-live-path="<%= @live_path || "/live" %>"
+         data-module="<%= @module %>" 
+         data-live-routes='<%= @live_routes || "{}" %>'>
+      <%= @body %>
+    </div>
+</body>
+</html>

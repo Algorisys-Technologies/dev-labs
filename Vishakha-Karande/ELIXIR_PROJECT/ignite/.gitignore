@@ -22,3 +22,12 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 ignite-*.tar
 
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# Temp scripts
+reproduce_presence.exs
+check_schema.exs
+health_output.json

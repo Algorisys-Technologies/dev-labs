@@ -1,0 +1,10 @@
+<h1>User Profile</h1>
+<div style="background:#fff; padding:20px; border-radius:8px; border:1px solid #ddd; max-width:400px;">
+  <p><strong>ID:</strong> <%= @id %></p>
+  <p><strong>Name:</strong> <%= @name %></p>
+  <p><strong>Email:</strong> <%= @email %></p>
+  <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+  <p style="color:#888; font-size:12px;">Server Time: <%= DateTime.utc_now() %></p>
+</div>
+<br>
+<a href="/" style="color:#007bff; text-decoration:none;">&larr; Back to Home</a>
