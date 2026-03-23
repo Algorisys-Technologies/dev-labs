@@ -28,6 +28,7 @@ defmodule Ignite.Application do
            {"/live/components", Ignite.LiveView.Handler, %{view: MyApp.ComponentsDemoLive}},
            {"/live/hooks", Ignite.LiveView.Handler, %{view: MyApp.HooksDemoLive}},
            {"/live/presence", Ignite.LiveView.Handler, %{view: MyApp.PresenceDemoLive}},
+           {"/live/todo", Ignite.LiveView.Handler, %{view: MyApp.TodoLive}},
            {"/assets/[...]", :cowboy_static, {:dir, "assets"}},
            {"/[...]", Ignite.Adapters.Cowboy, []}
          ]}
@@ -52,7 +53,7 @@ defmodule Ignite.Application do
 
   defp dev_children do
     if Application.get_env(:ignite, :env) == :dev do
-      [{Ignite.Reloader, [path: "lib"]}]
+      [{Ignite.Reloader, [path: ["lib", "examples"]]}]
     else
       []
     end

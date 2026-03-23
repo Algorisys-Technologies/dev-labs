@@ -10,21 +10,23 @@ defmodule Ignite.Reloader do
   end
 
   @impl true
-  def init(path) do
+  def init(paths) do
+    paths = List.wrap(paths)
     state = %{
-      path: path,
-      mtimes: get_mtimes(path),
+      paths: paths,
+      mtimes: get_mtimes(paths),
       asset_mtimes: get_asset_mtimes()
     }
 
     schedule_check()
-    Logger.info("[Reloader] Watching #{path}/ and assets/ for changes...")
+    paths_str = Enum.join(paths, ", ")
+    Logger.info("[Reloader] Watching #{paths_str} and assets for changes...")
     {:ok, state}
   end
 
   @impl true
   def handle_info(:check, state) do
-    new_mtimes = get_mtimes(state.path)
+    new_mtimes = get_mtimes(state.paths)
 
     if new_mtimes != state.mtimes do
       reload_changed(state.mtimes, new_mtimes)
@@ -42,10 +44,13 @@ defmodule Ignite.Reloader do
     {:noreply, %{state | mtimes: new_mtimes, asset_mtimes: new_asset_mtimes}}
   end
 
-  # Scan lib/ for all .ex files and record their modification times.
-  defp get_mtimes(path) do
-    Path.join(path, "**/*.ex")
-    |> Path.wildcard()
+  # Scan watched paths for all .ex files and record their modification times.
+  defp get_mtimes(paths) do
+    paths
+    |> List.wrap()
+    |> Enum.flat_map(fn path ->
+      Path.join(path, "**/*.ex") |> Path.wildcard()
+    end)
     |> Enum.into(%{}, fn file ->
       case File.stat(file) do
         {:ok, stat} -> {file, stat.mtime}

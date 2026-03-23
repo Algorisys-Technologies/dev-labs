@@ -12,6 +12,9 @@
     button { cursor: pointer; margin: 5px; }
     #ignite-app { min-height: 100px; }
   </style>
+  <link rel="stylesheet" href="<%= Ignite.Static.static_path("todo.css") %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="ignite-app" 

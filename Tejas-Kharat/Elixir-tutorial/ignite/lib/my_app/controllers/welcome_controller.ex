@@ -39,6 +39,7 @@ defmodule MyApp.WelcomeController do
       <li><a href="/upload-demo">LiveView Uploads (Part B)</a></li>
       <li><a href="/helpers"><strong>Path Helpers Demo (New)</strong></a></li>
       <li><a href="/presence"><strong>Presence Tracking Demo (New)</strong></a></li>
+      <li><a href="/todo" style="color:#6366f1"><strong>📋 Todo App (Capstone)</strong></a></li>
     </ul>
 
     <h2>Create User</h2>
@@ -110,7 +111,8 @@ defmodule MyApp.WelcomeController do
                  "/hooks" => "/live/hooks",
                  "/streams" => "/live/streams",
                  "/upload-demo" => "/live/upload-demo",
-                 "/presence" => "/live/presence"
+                 "/presence" => "/live/presence",
+                 "/todo" => "/live/todo"
                })
 
   def counter(conn) do
@@ -169,6 +171,14 @@ defmodule MyApp.WelcomeController do
     render(conn, "live",
       title: "Who's Online — Ignite",
       live_path: "/live/presence",
+      live_routes: @live_routes
+    )
+  end
+
+  def todo(conn) do
+    render(conn, "live",
+      title: "Todo App — Ignite",
+      live_path: "/live/todo",
       live_routes: @live_routes
     )
   end

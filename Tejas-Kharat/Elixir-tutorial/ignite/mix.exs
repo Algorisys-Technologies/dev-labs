@@ -8,6 +8,7 @@ defmodule Ignite.MixProject do
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      elixirc_paths: ["lib", "examples"],
       releases: [
         ignite: [
           include_executables_for: [:unix],

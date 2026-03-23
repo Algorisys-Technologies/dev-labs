@@ -460,6 +460,15 @@
                 var params = {};
                 var value = target.getAttribute("ignite-value");
                 if (value) params.value = value;
+
+                var jsonParams = target.getAttribute("ignite-params");
+                if (jsonParams) {
+                    try {
+                        var parsed = JSON.parse(jsonParams);
+                        for (var k in parsed) params[k] = parsed[k];
+                    } catch (err) { console.error("[Ignite] Invalid ignite-params JSON", err); }
+                }
+
                 sendEvent(resolveEvent(eventName, target), params);
                 return;
             }
@@ -492,6 +501,7 @@
                 if (!(value instanceof File)) params[key] = value;
             });
             sendEvent(resolveEvent(eventName, form), params);
+            form.reset();
         }
     });
 

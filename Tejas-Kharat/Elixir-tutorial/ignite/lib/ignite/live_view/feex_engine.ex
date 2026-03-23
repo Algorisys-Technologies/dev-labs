@@ -104,6 +104,16 @@ defmodule Ignite.LiveView.FEExEngine do
 
   # --- Runtime helpers ---
 
+  def escape(%Ignite.LiveView.Rendered{} = rendered) do
+    Enum.zip(rendered.statics, rendered.dynamics ++ [""])
+    |> Enum.map(fn {s, d} -> s <> escape(d) end)
+    |> Enum.join()
+  end
+
+  def escape(list) when is_list(list) do
+    list |> Enum.map(&escape/1) |> Enum.join()
+  end
+
   def escape({:safe, val}), do: to_string(val)
   def escape(nil), do: ""
 

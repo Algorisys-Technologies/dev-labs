@@ -24,6 +24,7 @@ defmodule MyApp.Router do
   get "/hooks", to: MyApp.WelcomeController, action: :hooks
   get "/helpers", to: MyApp.WelcomeController, action: :helpers
   get "/presence", to: MyApp.WelcomeController, action: :presence
+  get "/todo", to: MyApp.WelcomeController, action: :todo
   get "/health", to: MyApp.ApiController, action: :health
 
   # API Routes grouped under /api
