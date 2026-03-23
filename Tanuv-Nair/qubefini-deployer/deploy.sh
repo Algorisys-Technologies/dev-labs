@@ -2,9 +2,11 @@
 # deploy.sh - Build and package a qubefini deployment
 #
 # Usage:
-#   ./deploy.sh [--tag v1.0.1] [--platform windows|linux|all] [--all-migrations]
+#   ./deploy.sh [--tag v1.0.1] [--frontend-tag v1.2.0 --backend-tag v1.2.3] [--platform windows|linux|all] [--all-migrations]
 #
-#   --tag             Git tag to check out (default: latest v* tag)
+#   --tag             Single Git tag to use for both frontend and backend
+#   --frontend-tag    Frontend tag to use (must be paired with --backend-tag)
+#   --backend-tag     Backend tag to use (must be paired with --frontend-tag)
 #   --platform        Target platform: windows, linux, or all (default: windows)
 #   --all-migrations  Include all Prisma migrations, not just those new since the previous tag
 #
@@ -31,9 +33,44 @@ BACKEND_REPO="https://github.com/Algorisys-Technologies/mini-etl"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+get_repo_tags() {
+    local repo="$1"
+    git ls-remote --tags --sort="-version:refname" "$repo" \
+        | grep -v '\^{}' \
+        | grep 'refs/tags/v' \
+        | awk '{print $2}' \
+        | sed 's|refs/tags/||'
+}
+
+tag_exists_in_repo() {
+    local tag="$1"
+    local repo="$2"
+    if get_repo_tags "$repo" | grep -q "^${tag}$"; then
+        return 0
+    fi
+    return 1
+}
+
+extract_major_minor() {
+    local tag="$1"
+    if [[ "$tag" =~ ^v?([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
+        echo "${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
+        return 0
+    fi
+    return 1
+}
+
+latest_of_two_tags() {
+    local tag_a="$1"
+    local tag_b="$2"
+    printf "%s\n%s\n" "$tag_a" "$tag_b" | sort -Vr | head -1
+}
+
 # ─── Parse flags ─────────────────────────────────────────────────────────────
 
 LATEST_TAG=""
+REQUESTED_FRONTEND_TAG=""
+REQUESTED_BACKEND_TAG=""
 PLATFORM="windows"  # default
 ALL_MIGRATIONS=false
 
@@ -41,6 +78,14 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --tag)
             LATEST_TAG="$2"
+            shift 2
+            ;;
+        --frontend-tag)
+            REQUESTED_FRONTEND_TAG="$2"
+            shift 2
+            ;;
+        --backend-tag)
+            REQUESTED_BACKEND_TAG="$2"
             shift 2
             ;;
         --platform)
@@ -53,11 +98,22 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "ERROR: Unknown argument '$1'" >&2
-            echo "Usage: $0 [--tag v1.0.1] [--platform windows|linux|all] [--all-migrations]" >&2
+            echo "Usage: $0 [--tag v1.0.1] [--frontend-tag v1.2.0 --backend-tag v1.2.3] [--platform windows|linux|all] [--all-migrations]" >&2
             exit 1
             ;;
     esac
 done
+
+if [ -n "$LATEST_TAG" ] && { [ -n "$REQUESTED_FRONTEND_TAG" ] || [ -n "$REQUESTED_BACKEND_TAG" ]; }; then
+    echo "ERROR: Use either --tag OR (--frontend-tag and --backend-tag), not both." >&2
+    exit 1
+fi
+
+if { [ -n "$REQUESTED_FRONTEND_TAG" ] && [ -z "$REQUESTED_BACKEND_TAG" ]; } || \
+   { [ -z "$REQUESTED_FRONTEND_TAG" ] && [ -n "$REQUESTED_BACKEND_TAG" ]; }; then
+    echo "ERROR: --frontend-tag and --backend-tag must be provided together." >&2
+    exit 1
+fi
 
 # Map friendly names to the format build.sh expects (-p flag)
 case "$PLATFORM" in
@@ -72,26 +128,81 @@ esac
 
 # ─── Resolve tag ─────────────────────────────────────────────────────────────
 
+FRONTEND_TAG=""
+BACKEND_TAG=""
+SKIP_COMPATIBILITY_CHECK=false
+
 if [ -n "$LATEST_TAG" ]; then
     echo "Using specified tag: $LATEST_TAG"
-else
-    echo "Fetching latest release tag from $FRONTEND_REPO ..."
-    LATEST_TAG=$(
-        git ls-remote --tags --sort="-version:refname" "$FRONTEND_REPO" \
-        | grep -v '\^{}' \
-        | grep 'refs/tags/v' \
-        | head -1 \
-        | awk '{print $2}' \
-        | sed 's|refs/tags/||'
-    )
-    if [ -z "$LATEST_TAG" ]; then
-        echo "ERROR: Could not determine latest tag from $FRONTEND_REPO" >&2
+    if ! tag_exists_in_repo "$LATEST_TAG" "$FRONTEND_REPO"; then
+        echo "ERROR: Tag '$LATEST_TAG' does not exist in frontend repo." >&2
         exit 1
     fi
-    echo "Latest release tag: $LATEST_TAG"
+    if ! tag_exists_in_repo "$LATEST_TAG" "$BACKEND_REPO"; then
+        echo "ERROR: Tag '$LATEST_TAG' does not exist in backend repo." >&2
+        exit 1
+    fi
+    FRONTEND_TAG="$LATEST_TAG"
+    BACKEND_TAG="$LATEST_TAG"
+elif [ -n "$REQUESTED_FRONTEND_TAG" ] && [ -n "$REQUESTED_BACKEND_TAG" ]; then
+    FRONTEND_TAG="$REQUESTED_FRONTEND_TAG"
+    BACKEND_TAG="$REQUESTED_BACKEND_TAG"
+    echo "Using requested tags: frontend=$FRONTEND_TAG backend=$BACKEND_TAG"
+
+    if ! tag_exists_in_repo "$FRONTEND_TAG" "$FRONTEND_REPO"; then
+        echo "ERROR: Tag '$FRONTEND_TAG' does not exist in frontend repo." >&2
+        exit 1
+    fi
+    if ! tag_exists_in_repo "$BACKEND_TAG" "$BACKEND_REPO"; then
+        echo "ERROR: Tag '$BACKEND_TAG' does not exist in backend repo." >&2
+        exit 1
+    fi
+    SKIP_COMPATIBILITY_CHECK=true
+else
+    echo "Resolving latest frontend/backend tags and checking compatibility ..."
+    FRONTEND_TAGS="$(get_repo_tags "$FRONTEND_REPO")"
+    BACKEND_TAGS="$(get_repo_tags "$BACKEND_REPO")"
+
+    FRONTEND_TAG="$(echo "$FRONTEND_TAGS" | head -1)"
+    BACKEND_TAG="$(echo "$BACKEND_TAGS" | head -1)"
+
+    if [ -z "$FRONTEND_TAG" ] || [ -z "$BACKEND_TAG" ]; then
+        echo "ERROR: Could not determine latest tags for both repositories." >&2
+        echo "       Frontend latest: ${FRONTEND_TAG:-none}" >&2
+        echo "       Backend latest : ${BACKEND_TAG:-none}" >&2
+        exit 1
+    fi
+
+    echo "Frontend tag: $FRONTEND_TAG"
+    echo "Backend tag : $BACKEND_TAG"
 fi
 
-OUTPUT_DIR="$SCRIPT_DIR/qubefini-$LATEST_TAG"
+if ! $SKIP_COMPATIBILITY_CHECK; then
+    FRONTEND_MM="$(extract_major_minor "$FRONTEND_TAG" || true)"
+    BACKEND_MM="$(extract_major_minor "$BACKEND_TAG" || true)"
+
+    if [ -z "$FRONTEND_MM" ] || [ -z "$BACKEND_MM" ]; then
+        echo "ERROR: Could not parse semantic version from selected tags." >&2
+        echo "       Frontend tag: $FRONTEND_TAG" >&2
+        echo "       Backend tag : $BACKEND_TAG" >&2
+        exit 1
+    fi
+
+    if [ "$FRONTEND_MM" != "$BACKEND_MM" ]; then
+        echo "ERROR: Selected frontend/backend versions are incompatible." >&2
+        echo "       Frontend tag: $FRONTEND_TAG (major.minor=$FRONTEND_MM)" >&2
+        echo "       Backend tag : $BACKEND_TAG (major.minor=$BACKEND_MM)" >&2
+        echo "       Compatibility rule: major.minor must match." >&2
+        exit 1
+    fi
+
+    echo "Compatibility check passed (major.minor: $FRONTEND_MM)"
+else
+    echo "Skipping compatibility check because explicit frontend/backend tags were provided."
+fi
+
+OUTPUT_TAG="$(latest_of_two_tags "$FRONTEND_TAG" "$BACKEND_TAG")"
+OUTPUT_DIR="$SCRIPT_DIR/qubefini-$OUTPUT_TAG"
 
 if [ -d "$OUTPUT_DIR" ]; then
     echo "ERROR: Output directory already exists: $OUTPUT_DIR" >&2
@@ -113,16 +224,16 @@ echo ""
 
 # ─── Clone repos ─────────────────────────────────────────────────────────────
 
-echo "==> Cloning frontend @ $LATEST_TAG ..."
+echo "==> Cloning frontend @ $FRONTEND_TAG ..."
 if [ ! -d "$WORK_DIR/frontend_src/.git" ]; then
-    git clone -q --depth 1 --branch "$LATEST_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src" 2>/dev/null
+    git clone -q --depth 1 --branch "$FRONTEND_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src" 2>/dev/null
 else
     echo "    (already cloned during .env check, skipping)"
 fi
 
 echo ""
-echo "==> Cloning backend @ $LATEST_TAG ..."
-git clone -q --depth 1 --branch "$LATEST_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_src" 2>/dev/null
+echo "==> Cloning backend @ $BACKEND_TAG ..."
+git clone -q --depth 1 --branch "$BACKEND_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_src" 2>/dev/null
 
 # ─── Frontend .env check ─────────────────────────────────────────────────────
 # TODO: Add a check for .env file to ensure if all the VITE_ prefixed environment variables are set
@@ -138,7 +249,7 @@ if [ ! -f "$FRONTEND_ENV" ]; then
     echo "Required variables (from .env.example in the frontend repo):"  >&2
     # Clone just enough to read .env.example if not already cloned
     if [ ! -f "$WORK_DIR/frontend_src/.env.example" ]; then
-        git clone -q --depth 1 --branch "$LATEST_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src" >/dev/null 2>&1 || true
+        git clone -q --depth 1 --branch "$FRONTEND_TAG" "$FRONTEND_REPO" "$WORK_DIR/frontend_src" >/dev/null 2>&1 || true
     fi
     if [ -f "$WORK_DIR/frontend_src/.env.example" ]; then
         grep '^VITE_' "$WORK_DIR/frontend_src/.env.example" | sed 's/^/  /' >&2
@@ -242,7 +353,7 @@ else
         | grep 'refs/tags/v' \
         | awk '{print $2}' \
         | sed 's|refs/tags/||' \
-        | awk -v tag="$LATEST_TAG" 'found{print; exit} $0==tag{found=1}'
+        | awk -v tag="$BACKEND_TAG" 'found{print; exit} $0==tag{found=1}'
     )
 
     if [ -z "$PREV_TAG" ]; then
@@ -250,7 +361,7 @@ else
         [ -d "$WORK_DIR/backend_src/prisma/migrations" ] && \
             cp -r "$WORK_DIR/backend_src/prisma/migrations" "$OUTPUT_DIR/backend/prisma/"
     else
-        echo "    Previous tag: $PREV_TAG  →  current tag: $LATEST_TAG"
+        echo "    Previous tag: $PREV_TAG  →  current tag: $BACKEND_TAG"
         git clone -q --depth 1 --branch "$PREV_TAG" "$BACKEND_REPO" "$WORK_DIR/backend_prev" 2>/dev/null || true
 
         # Collect migration dirs that existed in the previous release
@@ -298,7 +409,8 @@ echo "│  Deployment package ready                                   │"
 echo "└─────────────────────────────────────────────────────────────┘"
 echo ""
 echo "  Location : $OUTPUT_DIR"
-echo "  Tag      : $LATEST_TAG"
+echo "  Frontend : $FRONTEND_TAG"
+echo "  Backend  : $BACKEND_TAG"
 echo "  Platform : $PLATFORM"
 echo ""
 echo "  frontend/"
