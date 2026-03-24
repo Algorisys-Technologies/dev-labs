@@ -5,6 +5,10 @@ defmodule Ignite.LiveView.FEExEngine do
   Supports:
   1. Auto HTML escaping of dynamic values.
   2. Block expressions (if, for, case, cond) via handle_begin/handle_end.
+  3. Nested ~F templates (Rendered structs) rendered safely as HTML strings.
+
+  IMPORTANT: escape/1 always returns a String.t(), never a tuple.
+  This ensures safe use inside IO.iodata_to_binary in nested blocks.
   """
   @behaviour EEx.Engine
 
@@ -41,9 +45,8 @@ defmodule Ignite.LiveView.FEExEngine do
 
     wrapped =
       if block_expr?(expr) do
-        # Block expression (if/for/case/cond) written as <%= if ... do %>.
-        # The body was compiled by handle_begin/handle_end and contains
-        # already-escaped inner expressions. Don't escape again.
+        # Block expression (if/for/case/cond) - body already built by handle_end.
+        # The body returns a string, so just cast it safely.
         quote do
           case unquote(expr) do
             nil -> ""
@@ -65,11 +68,8 @@ defmodule Ignite.LiveView.FEExEngine do
 
     wrapped =
       quote do
-        case unquote(expr) do
-          nil -> ""
-          list when is_list(list) -> Enum.join(list)
-          val -> to_string(val)
-        end
+        _ = unquote(expr)
+        ""
       end
 
     {[pending | statics], [wrapped | dynamics], ""}
@@ -104,9 +104,15 @@ defmodule Ignite.LiveView.FEExEngine do
 
   # --- Runtime helpers ---
 
+  @doc """
+  Escapes a value for safe HTML insertion. ALWAYS returns a String (binary).
+  Handles: Rendered structs, {:safe, val} tuples, lists, nil, and binaries.
+  """
   def escape(%Ignite.LiveView.Rendered{} = rendered) do
+    # dynamics inside a Rendered struct are already-escaped strings from the
+    # inner ~F template  — do NOT call escape/1 on them again (double-escape).
     Enum.zip(rendered.statics, rendered.dynamics ++ [""])
-    |> Enum.map(fn {s, d} -> s <> escape(d) end)
+    |> Enum.map(fn {s, d} -> s <> to_string(d) end)
     |> Enum.join()
   end
 

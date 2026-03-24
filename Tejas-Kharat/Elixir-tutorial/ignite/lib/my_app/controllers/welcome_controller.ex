@@ -26,7 +26,7 @@ defmodule MyApp.WelcomeController do
 
     html(conn, """
     #{flash_html}
-    <h1>Welcome to Ignite!</h1>
+    <h1>Welcome to Ignite (RELOAD TEST)</h1>
     <p>Hot reloading is active.</p>
     <ul>
       <li><a href="/counter">Counter (LiveView)</a></li>
@@ -176,6 +176,8 @@ defmodule MyApp.WelcomeController do
   end
 
   def todo(conn) do
+    IO.puts(">>> DEBUG: WelcomeController.todo hit")
+
     render(conn, "live",
       title: "Todo App — Ignite",
       live_path: "/live/todo",

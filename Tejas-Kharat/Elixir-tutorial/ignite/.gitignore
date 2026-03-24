@@ -29,3 +29,6 @@ ignite-*.tar
 
 # SSL Certificates
 /priv/ssl/
+
+# Server Logs
+/*.log

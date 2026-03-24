@@ -7,6 +7,7 @@ defmodule MyApp.TodoItem do
     field :description, :string
     field :priority, :string, default: "medium"
     field :status, :string, default: "pending"
+    field :bookmarked, :boolean, default: false
     field :due_date, :date
     belongs_to :user, MyApp.TodoUser
     belongs_to :category, MyApp.Category
@@ -16,10 +17,10 @@ defmodule MyApp.TodoItem do
 
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:title, :description, :priority, :status, :due_date, :user_id, :category_id])
+    |> cast(attrs, [:title, :description, :priority, :status, :bookmarked, :due_date, :user_id, :category_id])
     |> validate_required([:title, :user_id])
     |> validate_inclusion(:priority, ["low", "medium", "high"])
-    |> validate_inclusion(:status, ["pending", "completed", "archived"])
+    |> validate_inclusion(:status, ["pending", "in_progress", "completed", "archived"])
     |> foreign_key_constraint(:category_id)
     |> foreign_key_constraint(:user_id)
   end

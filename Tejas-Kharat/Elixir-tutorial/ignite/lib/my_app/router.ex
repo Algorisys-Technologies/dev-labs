@@ -9,11 +9,15 @@ defmodule MyApp.Router do
   plug :add_server_header
   plug :verify_csrf_token
 
+  get "/todo", to: MyApp.WelcomeController, action: :todo
+  post "/todo/login", to: MyApp.SessionController, action: :login
+  post "/todo/register", to: MyApp.SessionController, action: :register
+  post "/todo/logout", to: MyApp.SessionController, action: :logout
+  get "/counter", to: MyApp.WelcomeController, action: :counter
   get "/", to: MyApp.WelcomeController, action: :index
   get "/hello", to: MyApp.WelcomeController, action: :hello
   resources "/users", MyApp.UserController
   get "/crash", to: MyApp.WelcomeController, action: :crash
-  get "/counter", to: MyApp.WelcomeController, action: :counter
   get "/dashboard", to: MyApp.WelcomeController, action: :dashboard
   get "/shared-counter", to: MyApp.WelcomeController, action: :shared_counter
   get "/streams", to: MyApp.WelcomeController, action: :streams
@@ -24,7 +28,6 @@ defmodule MyApp.Router do
   get "/hooks", to: MyApp.WelcomeController, action: :hooks
   get "/helpers", to: MyApp.WelcomeController, action: :helpers
   get "/presence", to: MyApp.WelcomeController, action: :presence
-  get "/todo", to: MyApp.WelcomeController, action: :todo
   get "/health", to: MyApp.ApiController, action: :health
 
   # API Routes grouped under /api

@@ -94,8 +94,16 @@ defmodule Ignite.LiveView.Handler do
 
         # 3. Handle possible redirect
         case Map.pop(new_assigns, :__redirect__) do
-          {nil, clean_assigns} ->
-            send_render_update(state, clean_assigns)
+          {nil, assigns_no_redirect} ->
+            # 4. Handle possible session update
+            case Map.pop(assigns_no_redirect, :__set_session__) do
+              {nil, clean_assigns} ->
+                send_render_update(state, clean_assigns)
+
+              {session_data, clean_assigns} ->
+                cookie = Ignite.Session.build_cookie_header(session_data)
+                send_render_update_with_cookie(state, clean_assigns, cookie)
+            end
 
           {redirect_info, clean_assigns} ->
             payload = Jason.encode!(%{redirect: redirect_info})
@@ -183,6 +191,30 @@ defmodule Ignite.LiveView.Handler do
 
     # Include streams in payload if present
     payload_map = %{d: diff_payload}
+
+    payload_map =
+      if streams_payload,
+        do: Map.put(payload_map, :streams, streams_payload),
+        else: payload_map
+
+    payload = Jason.encode!(payload_map)
+    {:reply, {:text, payload}, new_state}
+  end
+
+  defp send_render_update_with_cookie(state, assigns, cookie_header) do
+    {_statics, new_dynamics} = Engine.render(state.view, assigns)
+    final_assigns = LiveView.collect_components(assigns)
+
+    diff_payload =
+      case Map.get(state, :prev_dynamics) do
+        nil -> new_dynamics
+        prev -> Engine.diff(prev, new_dynamics)
+      end
+
+    {streams_payload, final_assigns} = Ignite.LiveView.Stream.extract_stream_ops(final_assigns)
+    new_state = %{state | assigns: final_assigns, prev_dynamics: new_dynamics}
+
+    payload_map = %{d: diff_payload, set_cookie: cookie_header}
 
     payload_map =
       if streams_payload,
