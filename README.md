@@ -31,14 +31,43 @@ graph TD
 
 ---
 
+## 🔑 How to Get & Link Your Keys
+
+To make this agent work, you need three "Secret Ingredients" configured in your `.env` file:
+
+### **1. VideoSDK (The Campaign Engine)**
+*   **What it is**: The platform that manages the AI workers and the virtual rooms where the call happens.
+*   **Where to get**: 
+    1. Sign up at [VideoSDK.live](https://www.videosdk.live/).
+    2. Go to **API Keys** -> Copy your `API Key` and `Secret`.
+    3. Use the **Auth Token** provided there or generate one using your secret.
+
+### **2. Twilio (The Phone Line / SIP)**
+*   **What it is**: The "Service Provider" that actually connects to the regular mobile network.
+*   **How to Link**: 
+    1. Sign up at [Twilio.com](https://www.twilio.com/).
+    2. Buy a phone number.
+    3. Go to the **VideoSDK Dashboard** -> **Telephony** -> **Outbound Gateway**.
+    4. Click "Add New" and enter your Twilio **Account SID** and **Auth Token**.
+    5. VideoSDK will give you a **Gateway ID**. Copy this into `VIDEOSDK_OUTBOUND_GATEWAY_ID` in your `.env`.
+
+### **3. OpenAI (The Brains)**
+*   **What it is**: The AI that listens (STT), thinks (LLM), and talks (TTS).
+*   **Where to get**: 
+    1. Sign up at [OpenAI Platform](https://platform.openai.com/).
+    2. Create a new **API Key**. 
+    3. **Important**: Your account must have a credit balance (Tier 1+) to use the `gpt-4o-realtime-preview` model used in this agent.
+
+---
+
 ## 🛠️ Tool Selection: "Why these tools?"
 
 | Tool | Why we used it |
 | :--- | :--- |
-| **VideoSDK** | Best-in-class low-latency infrastructure for WebRTC and Telephony (SIP). It provides the "bridge" between the AI and the phone network. |
-| **OpenAI GPT-4o Realtime** | The most advanced voice model currently available. It allows the agent to sound human, and handle interruptions and language switching natively. |
-| **Python `videosdk-agents`** | The official toolkit for building persistent AI workers that can join and manage calls autonomously. |
-| **Bilingual Prompting** | Ensures reachability across diverse demographics (Hindi-first customers and English-speaking users). |
+| **VideoSDK** | Acts as the **Bridge** between the phone (SIP) and the AI. Without it, the AI wouldn't know when a call is answered. |
+| **OpenAI Realtime** | Provides **Unified Voice**. Instead of 3 separate delay-heavy steps, it handles the "Hearing" and "Talking" in one stream. |
+| **Twilio** | Provides the **Physical Phone Number** for the SIP protocol to reach the customer. |
+| **Bilingual Prompting** | Ensures reachability across diverse demographics (Hindi-first and English-speaking users). |
 
 ---
 
