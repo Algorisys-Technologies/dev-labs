@@ -1,0 +1,17 @@
+Customer: Vishakha Karande
+Phone: +919082388617
+Policy ID: POL-1001
+Status: Matured
+Maturity Date: 2026-03-25
+Maturity Amount: 500000 INR
+Branch Office: 123 Main Street, Mumbai
+Support Contact: 1800-123-4567
+
+Customer: Jane Smith
+Phone: +1987654321
+Policy ID: POL-1002
+Status: Active
+Maturity Date: 2026-04-10
+Maturity Amount: 250000 INR
+Branch Office: 456 Elm Street, New York
+Support Contact: 1800-987-6543
