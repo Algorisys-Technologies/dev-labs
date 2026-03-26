@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"os"
 	"strings"
 
 	"intergold-preoptimization-cleanup/internal/process_map"
@@ -168,6 +169,50 @@ func TestParseProcessDate_ddmmyyyyAndYearWindowAndSentinel(t *testing.T) {
 	})
 }
 
+func TestRulesConfigFromEnv_usesDotEnvExampleFallbacksWhenUnset(t *testing.T) {
+	// Ensure none of the keys are set so fallbacks apply.
+	keys := []string{
+		"PROD_END_DT_COL_INDEX",
+		"BLOC_COL_INDEX",
+		"FIRST_BLOC_PROCESS_COL_INDEX",
+		"LAST_BLOC_PROCESS_COL_INDEX",
+		"NULL_DATE_YEAR_WINDOW_X",
+		"REMARKS_EXTENSION_NEEDED",
+	}
+	for _, k := range keys {
+		_ = os.Unsetenv(k)
+	}
+
+	cfg, err := rulesConfigFromEnv()
+	if err != nil {
+		t.Fatalf("rulesConfigFromEnv(): %v", err)
+	}
+
+	// Values from .env.example:
+	// PROD_END_DT_COL_INDEX="W" -> 22
+	// BLOC_COL_INDEX="BD" -> 55
+	// FIRST_BLOC_PROCESS_COL_INDEX="AB" -> 27
+	// LAST_BLOC_PROCESS_COL_INDEX="AY" -> 50
+	if cfg.ProdEndDtColIndex != 22 {
+		t.Fatalf("ProdEndDtColIndex: got %d, want %d", cfg.ProdEndDtColIndex, 22)
+	}
+	if cfg.BLOCColIndex != 55 {
+		t.Fatalf("BLOCColIndex: got %d, want %d", cfg.BLOCColIndex, 55)
+	}
+	if cfg.FirstBlocProcessColIndex != 27 {
+		t.Fatalf("FirstBlocProcessColIndex: got %d, want %d", cfg.FirstBlocProcessColIndex, 27)
+	}
+	if cfg.LastBlocProcessColIndex != 50 {
+		t.Fatalf("LastBlocProcessColIndex: got %d, want %d", cfg.LastBlocProcessColIndex, 50)
+	}
+	if cfg.NullDateYearWindowX != 5 {
+		t.Fatalf("NullDateYearWindowX: got %d, want %d", cfg.NullDateYearWindowX, 5)
+	}
+	if cfg.RemarksExtensionNeeded != "extension needed" {
+		t.Fatalf("RemarksExtensionNeeded: got %q, want %q", cfg.RemarksExtensionNeeded, "extension needed")
+	}
+}
+
 func TestAdjustBusinessDays_skipsWeekend(t *testing.T) {
 	t.Parallel()
 
@@ -222,7 +267,7 @@ func TestAdjustBusinessDays_zeroKeepsBusinessDayOrSkipsToNext(t *testing.T) {
 	t.Run("sundayToMonday", func(t *testing.T) {
 		t.Parallel()
 		start := time.Date(2026, 3, 22, 0, 0, 0, 0, time.UTC) // Sunday
-		want := time.Date(2026, 3, 23, 0, 0, 0, 0, time.UTC) // Monday
+		want := time.Date(2026, 3, 23, 0, 0, 0, 0, time.UTC)  // Monday
 		got := adjustBusinessDays(start, 0, isHoliday)
 		if !got.Equal(want) {
 			t.Fatalf("adjustBusinessDays: got %s, want %s", got.Format("2006-01-02"), want.Format("2006-01-02"))
@@ -768,7 +813,7 @@ func TestApplyRulesToRow_mainScheduling_filingAndPrePolishSameDayAllowed(t *test
 		"01-03-2026", // Filing (< now)
 		"01-01-1900", // PFMG invalid -> skipped (so Filing and PrePolish become consecutive updated steps)
 		"01-03-2026", // PrePolish (< now)
-		"RFIL",        // Bloc
+		"RFIL",       // Bloc
 	}
 
 	updatedRow, remarks, err := ApplyRulesToRow(header, row, cfg, processMap, now, nil)

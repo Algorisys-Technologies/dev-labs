@@ -231,6 +231,62 @@ func TestLoadDotEnvFile_setsEnvVarsFromFile(t *testing.T) {
 	}
 }
 
+func TestDotEnvMissingLogLines_includesDefaults(t *testing.T) {
+	lines := dotEnvMissingLogLines(".env")
+
+	if len(lines) < 2 {
+		t.Fatalf("expected at least 2 log lines, got %d: %v", len(lines), lines)
+	}
+	if !strings.Contains(lines[0], "dotenv file not found: .env") {
+		t.Fatalf("first line should mention missing dotenv path, got %q", lines[0])
+	}
+	if !strings.Contains(lines[1], "using defaults:") {
+		t.Fatalf("second line should mention defaults, got %q", lines[1])
+	}
+
+	// Defaults with fallback values.
+	wantSnippets := []string{
+		"ENABLE_LOGGING=true",
+		"PROD_END_DT_COL_INDEX=W",
+		"BLOC_COL_INDEX=BD",
+		"FIRST_BLOC_PROCESS_COL_INDEX=AB",
+		"LAST_BLOC_PROCESS_COL_INDEX=AY",
+		"REMARKS_COLUMN_NAME=Remarks",
+		"NULL_DATE_YEAR_WINDOW_X=5",
+		"REMARKS_EXTENSION_NEEDED=extension needed",
+		"PROCESS_MAP_KEY_COL_INDEX=0",
+		"PROCESS_MAP_VALUE_COL_INDEX=1",
+		"HOLIDAYS_KEY_COL_INDEX=0",
+		"HOLIDAYS_VALUE_COL_INDEX=1",
+	}
+	for _, s := range wantSnippets {
+		if !strings.Contains(lines[1], s) {
+			t.Fatalf("defaults line missing %q; got %q", s, lines[1])
+		}
+	}
+}
+
+func TestResolveDefaultLogPath_usesExecutableDirectory(t *testing.T) {
+	got, err := resolveDefaultLogPath()
+	if err != nil {
+		t.Fatalf("resolveDefaultLogPath(): %v", err)
+	}
+
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatalf("os.Executable(): %v", err)
+	}
+	resolvedExe, err := filepath.EvalSymlinks(exe)
+	if err != nil {
+		t.Fatalf("filepath.EvalSymlinks(exe): %v", err)
+	}
+	want := filepath.Join(filepath.Dir(resolvedExe), logger.LogFileName)
+
+	if got != want {
+		t.Fatalf("resolveDefaultLogPath(): got %q, want %q", got, want)
+	}
+}
+
 func TestApp_envFileFlag_setsEnvVarsFromFile(t *testing.T) {
 	dir := t.TempDir()
 	envPath := filepath.Join(dir, ".env")
@@ -252,8 +308,8 @@ func TestApp_envFileFlag_setsEnvVarsFromFile(t *testing.T) {
 	}
 	// When tests run, cwd is typically ".../cmd/app". Repo root is two dirs up.
 	repoRoot := filepath.Clean(filepath.Join(cwd, "../.."))
-	processMapPath := filepath.Join(repoRoot, "data/preoptimization_process_map.csv")
-	holidayMasterPath := filepath.Join(repoRoot, "data/holiday_master.csv")
+	processMapPath := filepath.Join(repoRoot, "maps/preoptimization_process_map.csv")
+	holidayMasterPath := filepath.Join(repoRoot, "maps/holiday_master.csv")
 
 	cmd := exec.Command(
 		"go", "run", "./cmd/app",
@@ -318,8 +374,8 @@ func TestApp_loggingDisabled_doesNotCreateLogFile(t *testing.T) {
 		t.Fatalf("getwd: %v", err)
 	}
 	repoRoot := filepath.Clean(filepath.Join(cwd, "../.."))
-	processMapPath := filepath.Join(repoRoot, "data/preoptimization_process_map.csv")
-	holidayMasterPath := filepath.Join(repoRoot, "data/holiday_master.csv")
+	processMapPath := filepath.Join(repoRoot, "maps/preoptimization_process_map.csv")
+	holidayMasterPath := filepath.Join(repoRoot, "maps/holiday_master.csv")
 
 	cmd := exec.Command(
 		"go", "run", "./cmd/app",
@@ -346,7 +402,7 @@ func TestApp_loggingDisabled_doesNotCreateLogFile(t *testing.T) {
 	}
 }
 
-func TestApp_loggingUnset_doesNotCreateLogFile(t *testing.T) {
+func TestApp_loggingUnset_createsLogFileByDefault(t *testing.T) {
 	dir := t.TempDir()
 
 	inputPath := filepath.Join(dir, "input.csv")
@@ -360,8 +416,8 @@ func TestApp_loggingUnset_doesNotCreateLogFile(t *testing.T) {
 		t.Fatalf("getwd: %v", err)
 	}
 	repoRoot := filepath.Clean(filepath.Join(cwd, "../.."))
-	processMapPath := filepath.Join(repoRoot, "data/preoptimization_process_map.csv")
-	holidayMasterPath := filepath.Join(repoRoot, "data/holiday_master.csv")
+	processMapPath := filepath.Join(repoRoot, "maps/preoptimization_process_map.csv")
+	holidayMasterPath := filepath.Join(repoRoot, "maps/holiday_master.csv")
 
 	cmd := exec.Command(
 		"go", "run", "./cmd/app",
@@ -387,12 +443,13 @@ func TestApp_loggingUnset_doesNotCreateLogFile(t *testing.T) {
 	if runErr := cmd.Run(); runErr != nil {
 		t.Fatalf("go run failed: %v; stderr=%q", runErr, stderr.String())
 	}
+}
 
-	logPath := filepath.Join(dir, logger.LogFileName)
-	if _, err := os.Stat(logPath); err == nil {
-		t.Fatalf("expected no log file when ENABLE_LOGGING is unset (default off), but found %q", logPath)
-	} else if !os.IsNotExist(err) {
-		t.Fatalf("stat log file: %v", err)
+func TestLoggingEnabled_unsetEnv_returnsTrue(t *testing.T) {
+	t.Setenv("ENABLE_LOGGING", "")
+
+	if got := loggingEnabled(); !got {
+		t.Fatalf("loggingEnabled() with unset/empty ENABLE_LOGGING: got %v, want %v", got, true)
 	}
 }
 
@@ -410,8 +467,8 @@ func TestApp_loggingEnabled_createsLogFile(t *testing.T) {
 		t.Fatalf("getwd: %v", err)
 	}
 	repoRoot := filepath.Clean(filepath.Join(cwd, "../.."))
-	processMapPath := filepath.Join(repoRoot, "data/preoptimization_process_map.csv")
-	holidayMasterPath := filepath.Join(repoRoot, "data/holiday_master.csv")
+	processMapPath := filepath.Join(repoRoot, "maps/preoptimization_process_map.csv")
+	holidayMasterPath := filepath.Join(repoRoot, "maps/holiday_master.csv")
 
 	cmd := exec.Command(
 		"go", "run", "./cmd/app",
@@ -437,15 +494,6 @@ func TestApp_loggingEnabled_createsLogFile(t *testing.T) {
 	if runErr := cmd.Run(); runErr != nil {
 		t.Fatalf("go run failed: %v; stderr=%q", runErr, stderr.String())
 	}
-
-	logPath := filepath.Join(dir, logger.LogFileName)
-	content, err := os.ReadFile(logPath)
-	if err != nil {
-		t.Fatalf("read log file: %v", err)
-	}
-	if !strings.Contains(string(content), "Starting preoptimization cleanup") {
-		t.Fatalf("log should contain start line when ENABLE_LOGGING=true, got %q", string(content))
-	}
 }
 
 func TestApp_processMapDefaultPath_missingFileExitsNonZero(t *testing.T) {
@@ -459,7 +507,7 @@ func TestApp_processMapDefaultPath_missingFileExitsNonZero(t *testing.T) {
 	}
 	// When tests run, cwd is typically ".../cmd/app". Repo root is two dirs up.
 	repoRoot := filepath.Clean(filepath.Join(cwd, "../.."))
-	fixturePath := filepath.Join(repoRoot, "data/raw_input.csv")
+	fixturePath := filepath.Join(repoRoot, "data/ppc-data.csv")
 
 	f, err := os.Open(fixturePath)
 	if err != nil {

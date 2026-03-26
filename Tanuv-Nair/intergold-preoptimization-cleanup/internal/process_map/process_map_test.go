@@ -114,13 +114,13 @@ func TestParse_rejectsEqualKeyValueIndices(t *testing.T) {
 }
 
 func TestParse_realProcessMap_usesFirstTwoColumnsAndSupportsDuplicateKeys(t *testing.T) {
-	// Repo format: data/preoptimization_process_map.csv
+	// Repo format: maps/preoptimization_process_map.csv
 	// Header: Process,PPC Module Description
 	// Test runs with working directory as the package directory, so use a
 	// repo-relative path to the fixture CSV.
-	f, err := os.Open("../../data/preoptimization_process_map.csv")
+	f, err := os.Open("../../maps/preoptimization_process_map.csv")
 	if err != nil {
-		t.Fatalf("open data/preoptimization_process_map.csv: %v", err)
+		t.Fatalf("open maps/preoptimization_process_map.csv: %v", err)
 	}
 	defer f.Close()
 

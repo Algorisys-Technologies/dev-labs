@@ -166,6 +166,54 @@ func TestRunStream_appendsRemarksEvenIfInputAlreadyHasRemarksColumn(t *testing.T
 	}
 }
 
+func TestRunStream_withDefaultEnvConfigAndShortHeader_fallsBackToPlaceholderBehavior(t *testing.T) {
+	// Ensure defaults apply (via rulesConfigFromEnv fallbacks) but the input CSV is too small
+	// for those indices. The cleanup should fall back to placeholder behavior instead of erroring.
+	t.Setenv("PROD_END_DT_COL_INDEX", "")
+	t.Setenv("BLOC_COL_INDEX", "")
+	t.Setenv("FIRST_BLOC_PROCESS_COL_INDEX", "")
+	t.Setenv("LAST_BLOC_PROCESS_COL_INDEX", "")
+	t.Setenv("NULL_DATE_YEAR_WINDOW_X", "")
+	t.Setenv("REMARKS_EXTENSION_NEEDED", "")
+	t.Setenv("REMARKS_COLUMN_NAME", "")
+
+	dir := t.TempDir()
+	processMapPath := filepath.Join(dir, "process_map.csv")
+	if err := os.WriteFile(processMapPath, []byte("Process,PPC Module Description\nRPOL,Polish\n"), 0600); err != nil {
+		t.Fatalf("write process map csv: %v", err)
+	}
+	t.Setenv("PROCESS_MAP_CSV_PATH", processMapPath)
+
+	emptyHolidaysPath := filepath.Join(dir, "no_holidays.csv")
+	if err := os.WriteFile(emptyHolidaysPath, []byte("Date,Status\n"), 0600); err != nil {
+		t.Fatalf("write empty holidays csv: %v", err)
+	}
+	t.Setenv("HOLIDAYS_CSV_PATH", emptyHolidaysPath)
+
+	input := "A,B\n1,2\n"
+	var out bytes.Buffer
+	_, _, err := RunStream(strings.NewReader(input), &out, nil)
+	if err != nil {
+		t.Fatalf("RunStream: %v", err)
+	}
+
+	reader := csv.NewReader(bytes.NewReader(out.Bytes()))
+	reader.FieldsPerRecord = -1
+	records, err := reader.ReadAll()
+	if err != nil {
+		t.Fatalf("read output CSV: %v", err)
+	}
+	if len(records) != 2 {
+		t.Fatalf("expected header + 1 data row, got %d records", len(records))
+	}
+	if got := records[0][len(records[0])-1]; got != "Remarks" {
+		t.Fatalf("output header last column: got %q, want %q", got, "Remarks")
+	}
+	if got := records[1][len(records[1])-1]; got != "" {
+		t.Fatalf("output remarks should be empty in placeholder mode, got %q", got)
+	}
+}
+
 func TestRunStream_appliesBlocSchedulingRules_whenProdEndBeforeCurrentDate_andBlocIsRPOL(t *testing.T) {
 	// Set deterministic config so the rule engine can locate the relevant columns.
 	t.Setenv("PROD_END_DT_COL_INDEX", "0")
@@ -177,6 +225,12 @@ func TestRunStream_appliesBlocSchedulingRules_whenProdEndBeforeCurrentDate_andBl
 	t.Setenv("REMARKS_COLUMN_NAME", "Remarks")
 
 	dir := t.TempDir()
+	processMapPath := filepath.Join(dir, "process_map.csv")
+	if err := os.WriteFile(processMapPath, []byte("Process,PPC Module Description\nRPOL,Polish\n"), 0600); err != nil {
+		t.Fatalf("write process map csv: %v", err)
+	}
+	t.Setenv("PROCESS_MAP_CSV_PATH", processMapPath)
+
 	emptyHolidaysPath := filepath.Join(dir, "no_holidays.csv")
 	if err := os.WriteFile(emptyHolidaysPath, []byte("Date,Status\n"), 0600); err != nil {
 		t.Fatalf("write empty holidays csv: %v", err)
@@ -273,10 +327,10 @@ func TestLoadHolidayProviderFromEnv_loadsFixtureWhenPathSet(t *testing.T) {
 		t.Fatalf("getwd: %v", err)
 	}
 	repoRoot := filepath.Clean(filepath.Join(cwd, "../.."))
-	masterPath := filepath.Join(repoRoot, "data/holiday_master.csv")
+	masterPath := filepath.Join(repoRoot, "maps/holiday_master.csv")
 	fi, statErr := os.Stat(masterPath)
 	if statErr != nil || fi.IsDir() {
-		t.Skip("no repo data/holiday_master.csv fixture")
+		t.Skip("no repo maps/holiday_master.csv fixture")
 	}
 
 	t.Setenv("HOLIDAYS_CSV_PATH", masterPath)

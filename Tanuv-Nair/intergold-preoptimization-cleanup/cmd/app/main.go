@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -25,6 +26,9 @@ func (n *noOpLogger) Close() error { return nil }
 
 func loggingEnabled() bool {
 	v := strings.TrimSpace(strings.ToLower(os.Getenv("ENABLE_LOGGING")))
+	if v == "" {
+		return true
+	}
 	switch v {
 	case "true", "1", "yes", "on":
 		return true
@@ -42,7 +46,10 @@ func main() {
 
 	// Load dotenv file if present so env-based configuration works out of the box.
 	// Missing dotenv file is not an error.
-	_ = loadDotEnvFileIfPresent(args.envFilePath)
+	dotEnvMissing, err := loadDotEnvFileIfPresent(args.envFilePath)
+	if err != nil {
+		log.Fatalf("load env file: %v", err)
+	}
 
 	// Process map and holiday paths come only from flags or defaults,
 	// not from environment variables or .env (cleanup still receives paths via Setenv below).
@@ -66,13 +73,10 @@ func main() {
 	var appLog cleanup.Logger = &noOpLogger{}
 	if loggingEnabled() {
 		// Create log file in all cases (success or failure) so every run is recorded.
-		var logDir string
-		if outputPath != "" {
-			logDir = filepath.Dir(outputPath)
-		} else {
-			logDir, _ = os.Getwd()
+		logPath, err := resolveDefaultLogPath()
+		if err != nil {
+			log.Fatalf("cannot resolve log path: %v", err)
 		}
-		logPath := filepath.Join(logDir, logger.LogFileName)
 		fileLogger, err := logger.New(logPath)
 		if err != nil {
 			log.Fatalf("cannot create log file: %v", err)
@@ -80,6 +84,12 @@ func main() {
 		appLog = fileLogger
 	}
 	defer appLog.Close()
+
+	if dotEnvMissing {
+		for _, line := range dotEnvMissingLogLines(args.envFilePath) {
+			appLog.Log(line)
+		}
+	}
 
 	appLog.Log("Starting preoptimization cleanup")
 	appLog.Log("Input file: " + inputPath)
@@ -137,14 +147,56 @@ func resolveHolidayMasterPath(flagVal, defaultPath string) string {
 	return defaultPath
 }
 
-func loadDotEnvFileIfPresent(path string) error {
+func loadDotEnvFileIfPresent(path string) (missing bool, err error) {
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
-			return nil
+			return true, nil
 		}
-		return err
+		return false, err
 	}
-	return godotenv.Load(path)
+	if err := godotenv.Load(path); err != nil {
+		return false, err
+	}
+	return false, nil
+}
+
+func resolveDefaultLogPath() (string, error) {
+	exeDir, err := config.ExecutableDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(exeDir, logger.LogFileName), nil
+}
+
+func dotEnvMissingLogLines(path string) []string {
+	defaults := map[string]string{
+		"ENABLE_LOGGING":               "true",
+		"PROD_END_DT_COL_INDEX":        "W",
+		"BLOC_COL_INDEX":               "BD",
+		"FIRST_BLOC_PROCESS_COL_INDEX": "AB",
+		"LAST_BLOC_PROCESS_COL_INDEX":  "AY",
+		"REMARKS_COLUMN_NAME":          "Remarks",
+		"NULL_DATE_YEAR_WINDOW_X":      "5",
+		"REMARKS_EXTENSION_NEEDED":     "extension needed",
+		"PROCESS_MAP_KEY_COL_INDEX":    "0",
+		"PROCESS_MAP_VALUE_COL_INDEX":  "1",
+		"HOLIDAYS_KEY_COL_INDEX":       "0",
+		"HOLIDAYS_VALUE_COL_INDEX":     "1",
+	}
+	keys := make([]string, 0, len(defaults))
+	for k := range defaults {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	pairs := make([]string, 0, len(keys))
+	for _, k := range keys {
+		pairs = append(pairs, k+"="+defaults[k])
+	}
+
+	return []string{
+		"dotenv file not found: " + path,
+		"using defaults: " + strings.Join(pairs, ", "),
+	}
 }
 
 type appArgs struct {

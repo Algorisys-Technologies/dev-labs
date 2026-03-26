@@ -70,6 +70,27 @@ func RunStream(r io.Reader, w io.Writer, log Logger) (inputRows, outputRows int,
 	processMap, mapErr := loadProcessMap()
 	holFn, holidaysErr := loadHolidayProviderFromEnv()
 
+	rulesConfigFitsRow := func(cfg RulesConfig, row []string) bool {
+		if cfg.ProdEndDtColIndex < 0 || cfg.ProdEndDtColIndex >= len(row) {
+			return false
+		}
+		if cfg.BLOCColIndex < 0 || cfg.BLOCColIndex >= len(row) {
+			return false
+		}
+		if cfg.FirstBlocProcessColIndex < 0 {
+			return false
+		}
+		if cfg.LastBlocProcessColIndex < cfg.FirstBlocProcessColIndex {
+			return false
+		}
+		if cfg.LastBlocProcessColIndex >= len(row) {
+			return false
+		}
+		// ApplyRulesToRow also requires startColIndex to be found in the header, but
+		// that depends on bloc value (row content) and processMap; keep that validation there.
+		return true
+	}
+
 	for {
 		row, readErr := stream.Read()
 		if readErr != nil {
@@ -90,7 +111,7 @@ func RunStream(r io.Reader, w io.Writer, log Logger) (inputRows, outputRows int,
 
 		// Apply rules only when configuration and process map are available.
 		// Otherwise fall back to placeholder behavior (existing tests rely on this).
-		if cfgErr == nil && mapErr == nil {
+		if cfgErr == nil && mapErr == nil && rulesConfigFitsRow(cfg, row) {
 			if holidaysErr != nil {
 				err = holidaysErr
 				if log != nil {
@@ -130,7 +151,7 @@ func RunStream(r io.Reader, w io.Writer, log Logger) (inputRows, outputRows int,
 func rulesConfigFromEnv() (RulesConfig, error) {
 	prodEndIdxStr := strings.TrimSpace(os.Getenv("PROD_END_DT_COL_INDEX"))
 	if prodEndIdxStr == "" {
-		return RulesConfig{}, fmt.Errorf("missing PROD_END_DT_COL_INDEX")
+		prodEndIdxStr = "W"
 	}
 	prodEndIdx, err := colIndexFromEnvValue(prodEndIdxStr)
 	if err != nil {
@@ -139,7 +160,7 @@ func rulesConfigFromEnv() (RulesConfig, error) {
 
 	blocIdxStr := strings.TrimSpace(os.Getenv("BLOC_COL_INDEX"))
 	if blocIdxStr == "" {
-		return RulesConfig{}, fmt.Errorf("missing BLOC_COL_INDEX")
+		blocIdxStr = "BD"
 	}
 	blocIdx, err := colIndexFromEnvValue(blocIdxStr)
 	if err != nil {
@@ -148,7 +169,7 @@ func rulesConfigFromEnv() (RulesConfig, error) {
 
 	firstIdxStr := strings.TrimSpace(os.Getenv("FIRST_BLOC_PROCESS_COL_INDEX"))
 	if firstIdxStr == "" {
-		return RulesConfig{}, fmt.Errorf("missing FIRST_BLOC_PROCESS_COL_INDEX")
+		firstIdxStr = "AB"
 	}
 	firstIdx, err := colIndexFromEnvValue(firstIdxStr)
 	if err != nil {
@@ -157,7 +178,7 @@ func rulesConfigFromEnv() (RulesConfig, error) {
 
 	lastIdxStr := strings.TrimSpace(os.Getenv("LAST_BLOC_PROCESS_COL_INDEX"))
 	if lastIdxStr == "" {
-		return RulesConfig{}, fmt.Errorf("missing LAST_BLOC_PROCESS_COL_INDEX")
+		lastIdxStr = "AY"
 	}
 	lastIdx, err := colIndexFromEnvValue(lastIdxStr)
 	if err != nil {
