@@ -567,6 +567,25 @@ func TestResolveHolidayMasterPath_flagOrDefault(t *testing.T) {
 	}
 }
 
+func TestResolveRelativeToExeDir(t *testing.T) {
+	exeDir := "/exe/dir"
+	cases := []struct {
+		path string
+		want string
+	}{
+		{"", ""},                                 // empty stays empty
+		{"/abs/path.csv", "/abs/path.csv"},       // absolute unchanged
+		{"file.csv", "/exe/dir/file.csv"},        // bare filename → exe dir
+		{"../data/file.csv", "../data/file.csv"}, // relative with dir → unchanged
+		{"sub/file.csv", "sub/file.csv"},         // relative with dir → unchanged
+	}
+	for _, c := range cases {
+		if got := resolveRelativeToExeDir(c.path, exeDir); got != c.want {
+			t.Errorf("resolveRelativeToExeDir(%q, %q) = %q, want %q", c.path, exeDir, got, c.want)
+		}
+	}
+}
+
 func TestParseArgs_defaultsWhenNoFlagsProvided(t *testing.T) {
 	fs := flag.NewFlagSet("app", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)

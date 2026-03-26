@@ -44,6 +44,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Resolve bare filenames against the executable's directory so that default
+	// file lookups succeed regardless of the process working directory.
+	exeDir, err := config.ExecutableDir()
+	if err != nil {
+		log.Fatalf("cannot resolve executable directory: %v", err)
+	}
+	args.inputPath = resolveRelativeToExeDir(args.inputPath, exeDir)
+	args.outputPath = resolveRelativeToExeDir(args.outputPath, exeDir)
+	args.processMapPath = resolveRelativeToExeDir(args.processMapPath, exeDir)
+	args.holidayMasterPath = resolveRelativeToExeDir(args.holidayMasterPath, exeDir)
+	args.envFilePath = resolveRelativeToExeDir(args.envFilePath, exeDir)
+
 	// Load dotenv file if present so env-based configuration works out of the box.
 	// Missing dotenv file is not an error.
 	dotEnvMissing, err := loadDotEnvFileIfPresent(args.envFilePath)
@@ -129,6 +141,20 @@ func main() {
 // logging success or failure; run only returns the row counts and error. It is exported for testing.
 func run(inputPath, outputPath string, appLog cleanup.Logger) (inputRows, outputRows int, err error) {
 	return cleanup.Run(inputPath, outputPath, appLog)
+}
+
+// resolveRelativeToExeDir resolves a bare filename against exeDir so that
+// default file lookups are relative to the executable's location rather than
+// the process working directory. Absolute paths and paths that already contain
+// a directory separator are returned unchanged.
+func resolveRelativeToExeDir(path, exeDir string) string {
+	if path == "" || filepath.IsAbs(path) {
+		return path
+	}
+	if filepath.Dir(path) == "." {
+		return filepath.Join(exeDir, path)
+	}
+	return path
 }
 
 // resolveProcessMapPath returns the process map path: flag if set, else default.
