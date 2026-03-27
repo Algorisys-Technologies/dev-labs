@@ -1,0 +1,36 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+kwil-metsa-data-file-converter
+
+# Test output
+*.test
+*.out
+coverage.html
+coverage.txt
+
+# Go workspace
+go.work
+go.work.sum
+
+# Dependency vendor dir
+vendor/
+
+# Environment / config
+.env
+*.local
+config/config.yaml
+
+# Editor / OS
+.DS_Store
+.idea/
+*.swp
+*.swo
+Thumbs.db
+
+# Data
+data/
