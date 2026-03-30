@@ -1,0 +1,320 @@
+diff --git a/examples/todo/schemas/category.ex b/examples/todo/schemas/category.ex
+new file mode 100644
+index 0000000..d458cc7
+--- /dev/null
++++ b/examples/todo/schemas/category.ex
+@@ -0,0 +1,16 @@
++defmodule TodoApp.Category do
++  use Ecto.Schema
++  import Ecto.Changeset
++
++  schema "todo_categories" do
++    field :name, :string
++    timestamps()
++  end
++
++  def changeset(category, attrs) do
++    category
++    |> cast(attrs, [:name])
++    |> validate_required([:name])
++    |> validate_length(:name, min: 1, max: 100)
++  end
++end
+diff --git a/examples/todo/schemas/subtask.ex b/examples/todo/schemas/subtask.ex
+new file mode 100644
+index 0000000..8c253c9
+--- /dev/null
++++ b/examples/todo/schemas/subtask.ex
+@@ -0,0 +1,18 @@
++defmodule TodoApp.Subtask do
++  use Ecto.Schema
++  import Ecto.Changeset
++
++  schema "todo_subtasks" do
++    field :title, :string
++    field :status, :string, default: "pending"
++    belongs_to :todo, TodoApp.TodoItem
++    timestamps()
++  end
++
++  def changeset(subtask, attrs) do
++    subtask
++    |> cast(attrs, [:title, :status, :todo_id])
++    |> validate_required([:title, :todo_id])
++    |> validate_inclusion(:status, ["pending", "completed"])
++  end
++end
+diff --git a/examples/todo/schemas/todo_item.ex b/examples/todo/schemas/todo_item.ex
+new file mode 100644
+index 0000000..8a3d365
+--- /dev/null
++++ b/examples/todo/schemas/todo_item.ex
+@@ -0,0 +1,21 @@
++defmodule TodoApp.TodoItem do
++  use Ecto.Schema
++  import Ecto.Changeset
++
++  schema "todo_items" do
++    field :title, :string
++    field :status, :string, default: "pending"
++    field :bookmarked, :boolean, default: false
++    belongs_to :user, TodoApp.User
++    belongs_to :category, TodoApp.Category
++    has_many :subtasks, TodoApp.Subtask, foreign_key: :todo_id
++    timestamps()
++  end
++
++  def changeset(todo, attrs) do
++    todo
++    |> cast(attrs, [:title, :status, :bookmarked, :user_id, :category_id])
++    |> validate_required([:title, :user_id])
++    |> validate_inclusion(:status, ["pending", "in_progress", "completed"])
++  end
++end
+diff --git a/examples/todo/schemas/user.ex b/examples/todo/schemas/user.ex
+new file mode 100644
+index 0000000..ed608a3
+--- /dev/null
++++ b/examples/todo/schemas/user.ex
+@@ -0,0 +1,45 @@
++defmodule TodoApp.User do
++  use Ecto.Schema
++  import Ecto.Changeset
++
++  schema "todo_users" do
++    field :username, :string
++    field :email, :string
++    field :password_hash, :string
++    field :password, :string, virtual: true
++    timestamps()
++  end
++
++  def registration_changeset(user, attrs) do
++    user
++    |> cast(attrs, [:username, :email, :password])
++    |> validate_required([:username, :email, :password])
++    |> validate_length(:username, min: 2, max: 50)
++    |> validate_format(:email, ~r/@/)
++    |> validate_length(:password, min: 6)
++    |> unique_constraint(:email)
++    |> hash_password()
++  end
++
++  def verify_password(user, password) do
++    hash =
++      :crypto.hash(:sha256, "ignite_todo_salt:" <> password)
++      |> Base.encode16(case: :lower)
++
++    Plug.Crypto.secure_compare(hash, user.password_hash)
++  end
++
++  defp hash_password(changeset) do
++    case get_change(changeset, :password) do
++      nil ->
++        changeset
++
++      password ->
++        hash =
++          :crypto.hash(:sha256, "ignite_todo_salt:" <> password)
++          |> Base.encode16(case: :lower)
++
++        put_change(changeset, :password_hash, hash)
++    end
++  end
++end
+diff --git a/lib/ignite/application.ex b/lib/ignite/application.ex
+index d1b9dab..a593088 100644
+--- a/lib/ignite/application.ex
++++ b/lib/ignite/application.ex
+@@ -31,6 +31,7 @@ defmodule Ignite.Application do
+            {"/live/streams", Ignite.LiveView.Handler, %{view: MyApp.StreamDemoLive}},
+            {"/live/upload-demo", Ignite.LiveView.Handler, %{view: MyApp.UploadDemoLive}},        
+            {"/live/presence", Ignite.LiveView.Handler, %{view: MyApp.PresenceDemoLive}},
++           {"/live/todo", Ignite.LiveView.Handler, %{view: TodoApp.TodoLive}},
+            {"/assets/[...]", :cowboy_static, {:dir, "assets"}},
+            {"/uploads/[...]", :cowboy_static, {:dir, "uploads"}},
+            {"/[...]", Ignite.Adapters.Cowboy, []}
+diff --git a/lib/ignite/live_view/feex_engine.ex b/lib/ignite/live_view/feex_engine.ex
+index d1c2f60..86ce503 100644
+--- a/lib/ignite/live_view/feex_engine.ex
++++ b/lib/ignite/live_view/feex_engine.ex
+@@ -66,13 +66,7 @@ defmodule Ignite.LiveView.FEExEngine do
+         # Block expression (if/for/case/cond) written as <%= if ... do %>.
+         # The body was compiled by handle_begin/handle_end and contains
+         # already-escaped inner expressions. Don't escape again.
+-        quote do
+-          case unquote(expr) do
+-            nil -> ""
+-            list when is_list(list) -> Enum.join(list)
+-            val -> to_string(val)
+-          end
+-        end
++        quote do: Ignite.LiveView.FEExEngine.block_to_string(unquote(expr))
+       else
+         # Simple value expression: auto-escape HTML
+         quote do: Ignite.LiveView.FEExEngine.escape(unquote(expr))
+@@ -86,14 +80,7 @@ defmodule Ignite.LiveView.FEExEngine do
+     # Same as above but triggered via <% %> syntax.
+     {statics, dynamics, pending} = state
+
+-    wrapped =
+-      quote do
+-        case unquote(expr) do
+-          nil -> ""
+-          list when is_list(list) -> Enum.join(list)
+-          val -> to_string(val)
+-        end
+-      end
++    wrapped = quote do: Ignite.LiveView.FEExEngine.block_to_string(unquote(expr))
+
+     {[pending | statics], [wrapped | dynamics], ""}
+   end
+@@ -116,6 +103,19 @@ defmodule Ignite.LiveView.FEExEngine do
+
+   # ─── Runtime helpers ──────────────────────────────────────────────
+
++  @doc """
++  Converts block expression results to strings.
++
++  Handles the three return types from block expressions:
++  - `nil` from `if` without `else` → empty string
++  - `list` from `for` comprehension → joined string
++  - anything else → converted to string
++  """
++  def block_to_string(nil), do: ""
++  def block_to_string(list) when is_list(list), do: Enum.join(list)
++  def block_to_string(val) when is_binary(val), do: val
++  def block_to_string(val), do: to_string(val)
++
+   @doc """
+   Escapes HTML entities for safe rendering.
+
+diff --git a/lib/my_app/controllers/welcome_controller.ex b/lib/my_app/controllers/welcome_controller.ex
+index 1599c04..09a1522 100644
+--- a/lib/my_app/controllers/welcome_controller.ex
++++ b/lib/my_app/controllers/welcome_controller.ex
+@@ -16,7 +16,8 @@ defmodule MyApp.WelcomeController do
+                  "/hooks" => "/live/hooks",
+                  "/streams" => "/live/streams",
+                  "/upload-demo" => "/live/upload-demo",
+-                 "/presence" => "/live/presence"
++                 "/presence" => "/live/presence",
++                 "/todo" => "/live/todo"
+                })
+
+   def index(conn) do
+@@ -62,6 +63,7 @@ defmodule MyApp.WelcomeController do
+       <li><a href="/upload-demo">/upload-demo</a> — LiveView uploads (chunked WebSocket)</li>    
+       <li><a href="/users">/users</a> — Resource route (JSON index)</li>
+       <li><a href="/crash">/crash</a> — Error handler (500 page)</li>
++      <li><a href="/todo"><strong>/todo</strong></a> — Full Todo App example (auth, CRUD, pagination, search, favorites, categories, subtasks)</li>
+     </ul>
+     <h2>Flash Messages</h2>
+     <form action="/users" method="POST" style="background:#f4f4f4;padding:1em;border-radius:6px;margin-bottom:1em;">
+@@ -181,4 +183,12 @@ defmodule MyApp.WelcomeController do
+       live_routes: @live_routes
+     )
+   end
++
++  def todo(conn) do
++    render(conn, "todo_live",
++      title: "Todo App — Ignite",
++      live_path: "/live/todo",
++      live_routes: @live_routes
++    )
++  end
+ end
+diff --git a/lib/my_app/router.ex b/lib/my_app/router.ex
+index 31af655..5f8282b 100644
+--- a/lib/my_app/router.ex
++++ b/lib/my_app/router.ex
+@@ -30,6 +30,7 @@ defmodule MyApp.Router do
+   post "/upload", to: MyApp.UploadController, action: :upload
+   get "/upload-demo", to: MyApp.WelcomeController, action: :upload_demo
+   get "/presence", to: MyApp.WelcomeController, action: :presence
++  get "/todo", to: MyApp.WelcomeController, action: :todo
+   get "/health", to: MyApp.ApiController, action: :health
+
+   # Resource routes — expands into GET/POST/PUT/PATCH/DELETE for users
+diff --git a/mix.exs b/mix.exs
+index a75866d..6fd11be 100644
+--- a/mix.exs
++++ b/mix.exs
+@@ -7,6 +7,7 @@ defmodule Ignite.MixProject do
+       version: "0.1.0",
+       elixir: "~> 1.18",
+       start_permanent: Mix.env() == :prod,
++      elixirc_paths: ["lib", "examples"],
+       deps: deps(),
+       releases: [
+         ignite: [
+diff --git a/priv/repo/migrations/20260306000001_create_todo_app_tables.exs b/priv/repo/migrations/20260306000001_create_todo_app_tables.exs
+new file mode 100644
+index 0000000..bfacc79
+--- /dev/null
++++ b/priv/repo/migrations/20260306000001_create_todo_app_tables.exs
+@@ -0,0 +1,40 @@
++defmodule MyApp.Repo.Migrations.CreateTodoAppTables do
++  use Ecto.Migration
++
++  def change do
++    create table(:todo_categories) do
++      add :name, :string, null: false
++      timestamps()
++    end
++
++    create table(:todo_users) do
++      add :username, :string, null: false
++      add :email, :string, null: false
++      add :password_hash, :string, null: false
++      timestamps()
++    end
++
++    create unique_index(:todo_users, [:email])
++
++    create table(:todo_items) do
++      add :title, :string, null: false
++      add :status, :string, default: "pending"
++      add :bookmarked, :boolean, default: false
++      add :user_id, references(:todo_users, on_delete: :delete_all)
++      add :category_id, references(:todo_categories, on_delete: :nilify_all)
++      timestamps()
++    end
++
++    create index(:todo_items, [:user_id])
++    create index(:todo_items, [:category_id])
++
++    create table(:todo_subtasks) do
++      add :title, :string, null: false
++      add :status, :string, default: "pending"
++      add :todo_id, references(:todo_items, on_delete: :delete_all)
++      timestamps()
++    end
++
++    create index(:todo_subtasks, [:todo_id])
++  end
++end
+diff --git a/templates/todo_live.html.eex b/templates/todo_live.html.eex
+new file mode 100644
+index 0000000..0845ba0
+--- /dev/null
++++ b/templates/todo_live.html.eex
+@@ -0,0 +1,17 @@
++<!DOCTYPE html>
++<html lang="en">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1.0">
++  <title>Todo App — Ignite</title>
++  <link rel="stylesheet" href="<%= Ignite.Static.static_path("todo.css") %>">
++</head>
++<body>
++  <div id="ignite-app" data-live-path="/live/todo" data-live-routes='<%= @live_routes || "{}" %>'>
++    <div class="loading-screen">Connecting...</div>
++  </div>
++  <script src="<%= Ignite.Static.static_path("morphdom.min.js") %>"></script>
++  <script src="<%= Ignite.Static.static_path("hooks.js") %>"></script>
++  <script src="<%= Ignite.Static.static_path("ignite.js") %>"></script>
++</body>
++</html>
+(END)

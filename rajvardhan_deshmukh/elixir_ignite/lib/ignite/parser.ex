@@ -18,19 +18,23 @@ defmodule Ignite.Parser do
     {method, path} = read_request_line(client_socket)
     headers = read_headers(client_socket)
 
+    # New: Read and parse the request body
+    params = read_body(client_socket, headers)
+
     %Conn{
       method: to_string(method),
       path: to_string(path),
-      headers: headers
+      req_headers: headers,
+      params: params
     }
   end
 
   # Reads the first line of the HTTP request.
-  # Example: "GET /hello HTTP/1.1" becomes {:GET, "/hello"}
+  # Example: "GET /hello HTTP/1.1" becomes {"GET", "/hello"}
   defp read_request_line(socket) do
     case :gen_tcp.recv(socket, 0) do
       {:ok, {:http_request, method, {:abs_path, path}, _version}} ->
-        {method, path}
+        {to_string(method), to_string(path)}
 
       {:error, :closed} ->
         # Client disconnected before sending a full request — just stop silently
@@ -51,8 +55,43 @@ defmodule Ignite.Parser do
 
       {:ok, {:http_header, _, name, _, value}} ->
         # Normalize header names to lowercase strings
+        # and ensure values are strings (not charlists).
         key = name |> to_string() |> String.downcase()
-        read_headers(socket, Map.put(acc, key, value))
+        val = to_string(value)
+        read_headers(socket, Map.put(acc, key, val))
     end
+  end
+
+  # Reads the request body if a content-length header is present.
+  defp read_body(socket, headers) do
+    case Map.get(headers, "content-length") do
+      nil ->
+        %{}
+
+      length_str ->
+        content_length = String.to_integer(length_str)
+
+        # To read the raw body, we must switch the socket from :http
+        # parsing mode back to :raw byte mode.
+        :inet.setopts(socket, packet: :raw)
+
+        case :gen_tcp.recv(socket, content_length) do
+          {:ok, body} ->
+            parse_body(body, Map.get(headers, "content-type", ""))
+
+          _ ->
+            %{}
+        end
+    end
+  end
+
+  # Parses the body based on the Content-Type header.
+  # For now, we only support form data (application/x-www-form-urlencoded).
+  defp parse_body(body, "application/x-www-form-urlencoded" <> _) do
+    URI.decode_query(body)
+  end
+
+  defp parse_body(_body, _content_type) do
+    %{}
   end
 end

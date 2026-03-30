@@ -14,8 +14,14 @@ defmodule Ignite.Conn do
     # Request fields (filled by the parser)
     method: nil,
     path: nil,
-    headers: %{},
+    req_headers: %{},
     params: %{},
+
+    # Cookie & Session fields (Step 28 — Flash Messages)
+    cookies: %{},       # Parsed request cookies (from "cookie" header)
+    session: %{},       # Deserialized session data (from signed cookie)
+    resp_cookies: [],   # Reserved for future use
+    private: %{},       # Internal framework state (flash storage)
 
     # Response fields (filled by controllers)
     status: 200,
