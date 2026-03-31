@@ -393,11 +393,69 @@ func TestApplyRulesToRow_prodEndBeforeCurrentDate_nonRPOL_extensionNeededNoDateC
 			t.Fatalf("date column %d changed: got %q, want %q", i, got, row[i])
 		}
 	}
-	if got, want := remarks, "No changes made; extension needed"; got != want {
+	if got, want := remarks, "No changes made; extension needed, 4 day buffer used"; got != want {
 		t.Fatalf("remarks: got %q, want %q", got, want)
 	}
 	if strings.Contains(remarks, "Unchanged:") {
 		t.Fatalf("remarks must not include unchanged fields, got %q", remarks)
+	}
+}
+
+func TestApplyRulesToRow_prodEndBeforeCurrentDate_nonRPOL_usesFourDayBufferWhenChainFits(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC) // Friday
+
+	header := []string{
+		"ProdEndDt",
+		"ZCAD",
+		"ZCAM",
+		"PrePolish",
+		"Bloc",
+	}
+
+	cfg := RulesConfig{
+		ProdEndDtColIndex:        0,
+		BLOCColIndex:             4,
+		FirstBlocProcessColIndex: 1,
+		LastBlocProcessColIndex:  3,
+		NullDateYearWindowX:      5,
+		RemarksExtensionNeeded:   "extension needed",
+	}
+
+	processMap := process_map.ProcessMap{
+		"ZCAD": {"ZCAD"},
+	}
+
+	row := []string{
+		"19-03-2026", // ProdEndDt < now (20-03-2026) => extension-needed scenario
+		"01-03-2026", // ZCAD
+		"02-03-2026", // ZCAM
+		"03-03-2026", // PrePolish
+		"ZCAD",       // Bloc (non-RPOL)
+	}
+
+	updatedRow, remarks, err := ApplyRulesToRow(header, row, cfg, processMap, now, nil)
+	if err != nil {
+		t.Fatalf("ApplyRulesToRow: %v", err)
+	}
+
+	if got, want := updatedRow[0], "23-03-2026"; got != want {
+		t.Fatalf("ProdEndDt after 4-day buffer: got %q, want %q", got, want)
+	}
+
+	if got, want := updatedRow[1], "20-03-2026"; got != want {
+		t.Fatalf("ZCAD updated date: got %q, want %q", got, want)
+	}
+	if got, want := updatedRow[2], "21-03-2026"; got != want {
+		t.Fatalf("ZCAM updated date: got %q, want %q", got, want)
+	}
+	if got, want := updatedRow[3], "23-03-2026"; got != want {
+		t.Fatalf("PrePolish updated date: got %q, want %q", got, want)
+	}
+
+	if got, want := remarks, "Updated: ZCAD,ZCAM,PrePolish; 4 day buffer used"; got != want {
+		t.Fatalf("remarks: got %q, want %q", got, want)
 	}
 }
 
@@ -702,10 +760,11 @@ func TestApplyRulesToRow_mainScheduling_finalUndoWhenLastUpdatedExceedsProdEndDt
 		"ZCAD": {"ZCAD"},
 	}
 
-	// ProdEndDt is set such that the updated last process date (20-03-2026)
-	// exceeds ProdEndDt, triggering undo+extension-needed.
+	// ProdEndDt is set such that even after a 4-day buffer is applied, the
+	// updated last process date (20-03-2026) still exceeds ProdEndDt, triggering
+	// undo+extension-needed.
 	row := []string{
-		"19-03-2026", // ProdEndDt (before updated current business day)
+		"15-03-2026", // ProdEndDt (before updated current business day; +4 => 19-03-2026 but undo keeps original)
 		"01-03-2026", // ZCAD
 		"01-03-2026", // ZCAM
 		"01-03-2026", // Polish (last)
@@ -717,6 +776,10 @@ func TestApplyRulesToRow_mainScheduling_finalUndoWhenLastUpdatedExceedsProdEndDt
 		t.Fatalf("ApplyRulesToRow: %v", err)
 	}
 
+	if got, want := updatedRow[0], "19-03-2026"; got != want {
+		t.Fatalf("ProdEndDt should keep extended value after buffer+undo: got %q, want %q", got, want)
+	}
+
 	// Undo: all updated process columns should be restored to originals.
 	for i := cfg.FirstBlocProcessColIndex; i <= cfg.LastBlocProcessColIndex; i++ {
 		if got := updatedRow[i]; got != row[i] {
@@ -726,11 +789,69 @@ func TestApplyRulesToRow_mainScheduling_finalUndoWhenLastUpdatedExceedsProdEndDt
 	if strings.Contains(remarks, "Updated") {
 		t.Fatalf("remarks must not indicate updates when changes were undone, got %q", remarks)
 	}
-	if got, want := remarks, "No changes made; extension needed"; got != want {
+	if got, want := remarks, "No changes made; extension needed, 4 day buffer used"; got != want {
 		t.Fatalf("remarks: got %q, want %q", got, want)
 	}
 	if strings.Contains(remarks, "Unchanged:") {
 		t.Fatalf("remarks must not include unchanged fields, got %q", remarks)
+	}
+}
+
+func TestApplyRulesToRow_extensionNeeded_usesFourDayBufferWhenChainFits(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC) // Friday
+
+	header := []string{
+		"ProdEndDt",
+		"ZCAD",
+		"ZCAM",
+		"PrePolish",
+		"Bloc",
+	}
+
+	cfg := RulesConfig{
+		ProdEndDtColIndex:        0,
+		BLOCColIndex:             4,
+		FirstBlocProcessColIndex: 1,
+		LastBlocProcessColIndex:  3,
+		NullDateYearWindowX:      5,
+		RemarksExtensionNeeded:   "extension needed",
+	}
+
+	processMap := process_map.ProcessMap{
+		"ZCAD": {"ZCAD"},
+	}
+
+	row := []string{
+		"21-03-2026", // ProdEndDt (>= now but < final updated PrePolish)
+		"01-03-2026", // ZCAD
+		"02-03-2026", // ZCAM
+		"03-03-2026", // PrePolish
+		"ZCAD",       // Bloc
+	}
+
+	updatedRow, remarks, err := ApplyRulesToRow(header, row, cfg, processMap, now, nil)
+	if err != nil {
+		t.Fatalf("ApplyRulesToRow: %v", err)
+	}
+
+	if got, want := updatedRow[0], "25-03-2026"; got != want {
+		t.Fatalf("ProdEndDt after 4-day buffer: got %q, want %q", got, want)
+	}
+
+	if got, want := updatedRow[1], "20-03-2026"; got != want {
+		t.Fatalf("ZCAD updated date: got %q, want %q", got, want)
+	}
+	if got, want := updatedRow[2], "21-03-2026"; got != want {
+		t.Fatalf("ZCAM updated date: got %q, want %q", got, want)
+	}
+	if got, want := updatedRow[3], "23-03-2026"; got != want {
+		t.Fatalf("PrePolish updated date: got %q, want %q", got, want)
+	}
+
+	if got, want := remarks, "Updated: ZCAD,ZCAM,PrePolish; 4 day buffer used"; got != want {
+		t.Fatalf("remarks: got %q, want %q", got, want)
 	}
 }
 

@@ -238,17 +238,26 @@ func ApplyRulesToRow(
 	prodEndDt = dateOnlyUTC(prodEndDt)
 	nowDate := now
 
+	// Track whether a 4-day buffer has already been applied to ProdEndDt for
+	// this row so we do not keep extending it multiple times.
+	bufferApplied := false
+
 	// Case 1: ProdEndDt < CurrentDate
 	if prodEndDt.Before(nowDate) {
 		if blocCode != "RPOL" {
-			return updatedRow, fmt.Sprintf("No changes made; %s", cfg.RemarksExtensionNeeded), nil
+			// Non-RPOL rows that have ProdEndDt before the run date require an
+			// extension: apply a fixed 4-day buffer and then fall through to the
+			// main scheduling logic (Case 2) using the extended ProdEndDt.
+			prodEndDt = dateOnlyUTC(prodEndDt).AddDate(0, 0, 4)
+			updatedRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(prodEndDt)
+			bufferApplied = true
+		} else {
+			// RPOL: update mapped column immediately using the current business day.
+			newDate := adjustBusinessDays(nowDate, 0, holFn)
+			updatedRow[startColIndex] = formatDDMMYYYY(newDate)
+
+			return updatedRow, fmt.Sprintf("Updated: %s; changes made", header[startColIndex]), nil
 		}
-
-		// RPOL: update mapped column.
-		newDate := adjustBusinessDays(nowDate, 0, holFn)
-		updatedRow[startColIndex] = formatDDMMYYYY(newDate)
-
-		return updatedRow, fmt.Sprintf("Updated: %s; changes made", header[startColIndex]), nil
 	}
 
 	// Case 2: ProdEndDt >= CurrentDate
@@ -362,14 +371,41 @@ func ApplyRulesToRow(
 		prevExistingDate = currentExistingDate
 	}
 
-	// Final iteration: last updated date may exceed ProdEndDt => undo.
+	// Final iteration: last updated date may exceed ProdEndDt.
 	if len(updatedSet) > 0 && prevUpdatedDate.After(prodEndDt) {
+		// Apply a fixed 4-day buffer to ProdEndDt for extension-needed rows,
+		// but only once per row.
+		if !bufferApplied {
+			extendedProdEndDt := dateOnlyUTC(prodEndDt).AddDate(0, 0, 4)
+			bufferApplied = true
+			prodEndDt = extendedProdEndDt
+			updatedRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(extendedProdEndDt)
+
+			// If the updated chain still does not fit within the extended ProdEndDt,
+			// undo all process-date changes but keep the extended ProdEndDt.
+			if prevUpdatedDate.After(extendedProdEndDt) {
+				for col := range updatedSet {
+					updatedRow[col] = originalValues[col]
+				}
+				return updatedRow, fmt.Sprintf("No changes made; %s, 4 day buffer used", cfg.RemarksExtensionNeeded), nil
+			}
+
+			// Otherwise, keep the updated process dates and the extended ProdEndDt and
+			// surface a remark indicating the 4-day buffer was used.
+			return updatedRow, buildRemarks(header, scanStart, cfg.LastBlocProcessColIndex, updatedSet, "4 day buffer used"), nil
+		}
+
+		// Buffer has already been applied once and the updated chain still
+		// exceeds ProdEndDt: undo all process-date changes but keep the already
+		// extended ProdEndDt.
 		for col := range updatedSet {
 			updatedRow[col] = originalValues[col]
 		}
-		// Undo restored all modified process columns back to their original values.
-		// In this case, we must not report per-column updates.
-		return updatedRow, fmt.Sprintf("No changes made; %s", cfg.RemarksExtensionNeeded), nil
+		return updatedRow, fmt.Sprintf("No changes made; %s, 4 day buffer used", cfg.RemarksExtensionNeeded), nil
+	}
+
+	if bufferApplied {
+		return updatedRow, buildRemarks(header, scanStart, cfg.LastBlocProcessColIndex, updatedSet, "4 day buffer used"), nil
 	}
 
 	tail := "changes made"

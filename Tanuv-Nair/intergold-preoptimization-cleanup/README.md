@@ -20,7 +20,7 @@ It streams the input file so large CSVs can be processed without loading the ent
 - Process columns are scanned from the mapped start column through `LAST_BLOC_PROCESS_COL_INDEX` (bounded by `FIRST_BLOC_PROCESS_COL_INDEX`).
 - If `ProdEndDt < CurrentDate`:
   - Only bloc `RPOL` is updated (mapped start column set to `CurrentDate` as a business day; if `CurrentDate` falls on Sunday or a holiday, it rolls forward to the next business day).
-  - Other blocs are not modified and are marked as extension-needed.
+  - Other blocs trigger an **extension-needed** flow (see “4-day buffer extension flow” below).
 - If `ProdEndDt >= CurrentDate`:
   - Iterate process columns in order.
   - For each valid process date:
@@ -30,7 +30,20 @@ It streams the input file so large CSVs can be processed without loading the ent
       - Next updated columns keep at least a `+1` business-day gap from the previous updated date.
       - Exception: `Filing -> PrePolish` is allowed on the same updated date (no forced +1 gap).
       - If previous and current original process dates were equal, their updated values are kept equal.
-- After updates, if the final updated date exceeds `ProdEndDt`, all date updates are undone and `Remarks` reports extension-needed.
+- After updates, if the final updated date exceeds `ProdEndDt`, the row triggers an **extension-needed** flow (see “4-day buffer extension flow” below).
+
+### 4-day buffer extension flow
+
+When a row is determined to require an extension, the tool applies a **4-day buffer** to `ProdEndDt` and re-evaluates using the usual scheduling logic.
+
+- If scheduling fits within the buffered `ProdEndDt`:
+  - **Keep** the updated process dates.
+  - **Keep** the buffered `ProdEndDt` value in the output.
+  - `Remarks` ends with: `4 day buffer used` and lists the updated column names, e.g. `Updated: ZCAD,ZCAM,PrePolish; 4 day buffer used`.
+- If scheduling still does not fit even after the buffer:
+  - **Undo** all process-date changes (restore the original process dates).
+  - **Keep** the buffered `ProdEndDt` value in the output.
+  - `Remarks`: `No changes made; extension needed, 4 day buffer used`.
 
 ## Prerequisites
 
