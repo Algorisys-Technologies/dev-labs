@@ -1,0 +1,379 @@
+# Step 17: PubSub — Real-Time Broadcasting Between LiveViews
+
+In the previous steps, each LiveView process was **isolated** — it only responded to its own events or its own timers. But what if you want one user's action to update every other user's screen? That's what **PubSub** (publish/subscribe) is for.
+
+We'll build a PubSub system using Erlang's built-in `:pg` (process groups) module — **zero external dependencies**.
+
+## What You'll Learn
+
+- Erlang's `:pg` module for process groups
+- The publish/subscribe pattern
+- Broadcasting messages between LiveView processes
+- Automatic cleanup when processes die
+
+## The Concept
+
+PubSub follows a simple pattern:
+
+1. **Subscribe** — A process joins a "topic" (a named group)
+2. **Broadcast** — Any process can send a message to all subscribers of a topic
+3. **Receive** — Each subscriber gets the message via `handle_info/2`
+4. **Cleanup** — When a process dies, `:pg` automatically removes it from all groups
+
+```
+Tab A (Process #1)          PubSub              Tab B (Process #2)
+    │                         │                       │
+    │── subscribe("counter") ─│── subscribe("counter")│
+    │                         │                       │
+    │── increment ──────────> │                       │
+    │   broadcast({:updated}) │──────────────────────>│
+    │                         │            handle_info │
+    │                         │            re-renders  │
+```
+
+## Erlang's `:pg` Module
+
+`:pg` (process groups) is built into the Erlang standard library. It lets you:
+
+- **Create named scopes** — isolated group namespaces
+- **Join groups** — `join(scope, group, pid)` adds a process to a group
+- **List members** — `get_members(scope, group)` returns all PIDs in a group
+- **Auto-cleanup** — when a process dies, it's automatically removed
+
+This is the same foundation that Phoenix.PubSub uses (though Phoenix adds a layer for distributed clustering across nodes).
+
+## Elixir Concepts
+
+### `self()` — Current Process PID
+
+Every Elixir process has a unique PID (process identifier). `self()` returns the PID of the process calling it:
+
+```elixir
+iex> self()
+#PID<0.110.0>
+```
+
+We use `self()` in `subscribe/1` so the calling LiveView process registers itself, and in `broadcast/2` to exclude the sender.
+
+### `send/2` — Sending Messages Between Processes
+
+`send/2` delivers a message to another process's mailbox:
+
+```elixir
+send(pid, {:broadcast, "hello"})
+```
+
+This is the fundamental way processes communicate in Elixir. The message arrives in the recipient's `handle_info` callback (if it's a GenServer) or mailbox.
+
+### `for` Comprehension with Filter
+
+```elixir
+for pid <- list, pid != self() do
+  send(pid, message)
+end
+```
+
+`for` is a list comprehension. The comma-separated clause `pid != self()` is a **filter** — only elements passing this condition are processed. Unlike `Enum.each`, `for` returns a list of results (though here we use it for side effects).
+
+### `child_spec/1` Map
+
+The `%{id: ..., start: {Module, :function, [args]}}` map tells the supervisor how to start this process:
+
+```elixir
+%{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
+```
+
+The `start:` tuple is an MFA (Module, Function, Args) — the supervisor calls `apply(Module, :start_link, [opts])` to boot the process.
+
+## The Code
+
+### 1. `lib/ignite/pub_sub.ex`
+
+**Create `lib/ignite/pub_sub.ex`:**
+
+```elixir
+defmodule Ignite.PubSub do
+  @moduledoc """
+  A lightweight publish/subscribe system built on Erlang's :pg.
+  """
+
+  def start_link(_opts) do
+    :pg.start_link(__MODULE__)
+  end
+
+  def subscribe(topic) do
+    :pg.join(__MODULE__, topic, self())
+  end
+
+  def broadcast(topic, message) do
+    for pid <- :pg.get_members(__MODULE__, topic), pid != self() do
+      send(pid, message)
+    end
+    :ok
+  end
+
+  def child_spec(opts) do
+    %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
+  end
+end
+```
+
+**Key decisions:**
+
+- `start_link/1` — Starts a `:pg` scope named `Ignite.PubSub`. This scope is isolated from any other `:pg` usage in the system.
+- `subscribe/1` — Adds the calling process (`self()`) to the topic's group. No need to pass a PID — each LiveView handler process subscribes itself.
+- `broadcast/2` — Sends the message to **all subscribers except the sender** (`pid != self()`). This prevents echo loops where a process receives its own broadcast.
+- `child_spec/1` — Makes `Ignite.PubSub` compatible with `Supervisor.start_link/2`.
+
+### 2. Add to Supervision Tree
+
+**Update `lib/ignite/application.ex`** — add `Ignite.PubSub` to the `children` list before the Cowboy listener:
+
+```elixir
+children = [
+  Ignite.PubSub,  # Must start before LiveViews can subscribe
+  %{id: :cowboy_listener, start: {:cowboy, :start_clear, [...]}}
+] ++ dev_children()
+```
+
+PubSub must be running before any LiveView tries to subscribe — ordering in the children list guarantees this.
+
+### 3. Formalize `handle_info` in the Behaviour
+
+**Update `lib/ignite/live_view.ex`** — add `handle_info/2` as an optional callback:
+
+```elixir
+@callback handle_info(msg :: term(), assigns :: map()) :: {:noreply, map()}
+@optional_callbacks [handle_info: 2]
+```
+
+The handler already supports `handle_info` via `function_exported?/3` checks — this just makes the contract explicit.
+
+### 4. The Shared Counter LiveView
+
+**Create `lib/my_app/live/shared_counter_live.ex`:**
+
+```elixir
+defmodule MyApp.SharedCounterLive do
+  use Ignite.LiveView
+
+  @topic "shared_counter"
+
+  def mount(_params, _session) do
+    Ignite.PubSub.subscribe(@topic)
+    {:ok, %{count: 0}}
+  end
+
+  def handle_event("increment", _params, assigns) do
+    new_count = assigns.count + 1
+    Ignite.PubSub.broadcast(@topic, {:count_updated, new_count})
+    {:noreply, %{assigns | count: new_count}}
+  end
+
+  def handle_event("decrement", _params, assigns) do
+    new_count = assigns.count - 1
+    Ignite.PubSub.broadcast(@topic, {:count_updated, new_count})
+    {:noreply, %{assigns | count: new_count}}
+  end
+
+  def handle_info({:count_updated, count}, assigns) do
+    {:noreply, %{assigns | count: count}}
+  end
+
+  def render(assigns) do
+    """
+    <div id="shared-counter">
+      <h1>Shared Counter</h1>
+      <p>Open in multiple tabs — clicks sync in real time via PubSub</p>
+      <p style="font-size: 4em;">#{assigns.count}</p>
+      <button ignite-click="decrement">-</button>
+      <button ignite-click="increment">+</button>
+    </div>
+    """
+  end
+end
+```
+
+**How it works:**
+
+1. On mount, the process subscribes to the `"shared_counter"` topic
+2. When a user clicks "+", the handler updates its own count and broadcasts the new value
+3. Other processes receive `{:count_updated, count}` via `handle_info/2`
+4. Each process re-renders with the new count — morphdom patches the DOM
+
+## The Message Flow
+
+```
+Tab A clicks "+"
+  → handle_event("increment", ...) → count becomes 1
+  → broadcast("shared_counter", {:count_updated, 1})
+  → Returns {:noreply, %{count: 1}} — Tab A re-renders
+
+Tab B's handler process receives {:count_updated, 1}
+  → websocket_info dispatches to handle_info
+  → handle_info({:count_updated, 1}, assigns)
+  → Returns {:noreply, %{assigns | count: 1}} — Tab B re-renders
+```
+
+## Why `:pg` Instead of a Custom GenServer?
+
+You could build PubSub with a `GenServer` that maintains a `%{topic => [pids]}` map. But `:pg` gives you:
+
+- **Automatic cleanup** — no need to trap exits or monitor processes
+- **Battle-tested** — part of Erlang/OTP since OTP 23, used in production for decades
+- **Distribution-ready** — `:pg` works across clustered Erlang nodes out of the box
+- **Zero overhead** — it's a built-in C-level implementation, not Elixir code
+
+## Try It
+
+1. Start the server: `iex -S mix`
+2. Open http://localhost:4000/shared-counter in **two browser tabs**
+3. Click "+" in Tab A — watch both tabs update simultaneously
+4. Click "-" in Tab B — both tabs sync again
+5. Close one tab — the other continues working normally
+
+### 5. `websocket_info` in the Handler
+
+**Update `lib/ignite/live_view/handler.ex`** — add `websocket_info/2` to dispatch `handle_info` for Erlang messages (PubSub broadcasts, timers, etc.):
+
+```elixir
+# Server-push: handle messages sent to this process (e.g. PubSub, timers)
+@impl true
+def websocket_info(msg, state) do
+  if function_exported?(state.view, :handle_info, 2) do
+    case apply(state.view, :handle_info, [msg, state.assigns]) do
+      {:noreply, new_assigns} ->
+        dynamics = Engine.render_dynamics(state.view, new_assigns)
+        payload = Jason.encode!(%{d: dynamics})
+        {:reply, {:text, payload}, %{state | assigns: new_assigns}}
+
+      _ ->
+        {:ok, state}
+    end
+  else
+    {:ok, state}
+  end
+end
+```
+
+This uses `function_exported?/3` to check if the LiveView defines `handle_info/2` — if it doesn't, we silently ignore the message. This way, existing LiveViews (like `CounterLive`) work fine without implementing `handle_info`.
+
+### 6. The Dashboard LiveView
+
+**Create `lib/my_app/live/dashboard_live.ex`:**
+
+```elixir
+defmodule MyApp.DashboardLive do
+  use Ignite.LiveView
+
+  def mount(_params, _session) do
+    Process.send_after(self(), :tick, 1000)
+    {:ok, gather_stats()}
+  end
+
+  def handle_info(:tick, _assigns) do
+    Process.send_after(self(), :tick, 1000)
+    {:noreply, gather_stats()}
+  end
+
+  def handle_event("gc", _params, assigns) do
+    :erlang.garbage_collect()
+    {:noreply, assigns}
+  end
+
+  def render(assigns) do
+    """
+    <div id="dashboard" style="max-width: 600px; margin: 0 auto;">
+      <h1>BEAM Dashboard</h1>
+      <p style="color: #888;">Auto-refreshes every second via handle_info</p>
+      <p>Uptime: #{assigns.uptime}</p>
+      <p>Processes: #{assigns.process_count}</p>
+      <p>Memory: #{assigns.total_memory} MB</p>
+      <button ignite-click="gc">Run GC</button>
+    </div>
+    """
+  end
+
+  defp gather_stats do
+    memory = :erlang.memory()
+    {uptime_ms, _} = :erlang.statistics(:wall_clock)
+
+    %{
+      uptime: format_uptime(uptime_ms),
+      process_count: :erlang.system_info(:process_count),
+      total_memory: Float.round(memory[:total] / 1_048_576, 1)
+    }
+  end
+
+  defp format_uptime(ms) do
+    total_seconds = div(ms, 1000)
+    hours = div(total_seconds, 3600)
+    minutes = div(rem(total_seconds, 3600), 60)
+    seconds = rem(total_seconds, 60)
+
+    cond do
+      hours > 0 -> "#{hours}h #{minutes}m #{seconds}s"
+      minutes > 0 -> "#{minutes}m #{seconds}s"
+      true -> "#{seconds}s"
+    end
+  end
+end
+```
+
+The dashboard demonstrates **server-push** — the server sends updates to the browser via `handle_info` without any user interaction. `Process.send_after(self(), :tick, 1000)` schedules a message to itself, and the handler dispatches it to `handle_info/2`.
+
+### 7. Application and Router Updates
+
+**Update `lib/ignite/application.ex`** — add WebSocket routes for the new LiveViews:
+
+```elixir
+{"/live/dashboard", Ignite.LiveView.Handler, %{view: MyApp.DashboardLive}},
+{"/live/shared-counter", Ignite.LiveView.Handler, %{view: MyApp.SharedCounterLive}},
+```
+
+**Update `lib/my_app/router.ex`** — add HTTP routes:
+
+```elixir
+get "/dashboard", to: MyApp.WelcomeController, action: :dashboard
+get "/shared-counter", to: MyApp.WelcomeController, action: :shared_counter
+```
+
+**Update `lib/my_app/controllers/welcome_controller.ex`** — add controller actions:
+
+```elixir
+def dashboard(conn) do
+  render(conn, "live", title: "Dashboard — Ignite", live_path: "/live/dashboard")
+end
+
+def shared_counter(conn) do
+  render(conn, "live", title: "Shared Counter — Ignite", live_path: "/live/shared-counter")
+end
+```
+
+## File Checklist
+
+| File | Status |
+|------|--------|
+| `lib/ignite/pub_sub.ex` | **New** |
+| `lib/ignite/application.ex` | **Modified** — added `Ignite.PubSub` to supervision tree, new LiveView routes |
+| `lib/ignite/live_view.ex` | **Modified** — added `handle_info/2` optional callback |
+| `lib/ignite/live_view/handler.ex` | **Modified** — added `websocket_info/2` dispatch |
+| `lib/my_app/live/shared_counter_live.ex` | **New** |
+| `lib/my_app/live/dashboard_live.ex` | **New** |
+| `lib/my_app/controllers/welcome_controller.ex` | **Modified** — added dashboard and shared_counter actions |
+| `lib/my_app/router.ex` | **Modified** — added routes for shared counter and dashboard |
+
+## What's Next
+
+With PubSub, you can now build:
+
+- **Chat rooms** — broadcast messages to all participants
+- **Collaborative editing** — sync changes across users
+- **Live notifications** — push alerts to specific users
+- **Game state** — synchronize multiplayer game state
+
+The next step toward Phoenix parity would be **Presence** — tracking which users are currently online using CRDT (Conflict-free Replicated Data Types).
+
+---
+
+[← Previous: Step 16 - Morphdom Integration](16-morphdom.md) | [Next: Step 18 - LiveView Navigation — SPA-like Page Transitions →](18-live-navigation.md)
