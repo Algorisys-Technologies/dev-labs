@@ -287,6 +287,44 @@ func TestAdjustBusinessDays_zeroKeepsBusinessDayOrSkipsToNext(t *testing.T) {
 	})
 }
 
+func TestAddBusinessDaysForward_fourStepsFromThursday(t *testing.T) {
+	t.Parallel()
+
+	// 2026-03-19 is Thursday; Mon–Sat are business (only Sunday is skipped).
+	start := time.Date(2026, 3, 19, 0, 0, 0, 0, time.UTC)
+	got := addBusinessDaysForward(start, 4, nil)
+	want := time.Date(2026, 3, 24, 0, 0, 0, 0, time.UTC) // Tue after Fri, Sat, Mon, Tue
+	if !got.Equal(want) {
+		t.Fatalf("addBusinessDaysForward: got %s, want %s", got.Format("2006-01-02"), want.Format("2006-01-02"))
+	}
+}
+
+func TestAddBusinessDaysForward_fourStepsFromSundaySkipsToThursday(t *testing.T) {
+	t.Parallel()
+
+	start := time.Date(2026, 3, 15, 0, 0, 0, 0, time.UTC) // Sunday
+	got := addBusinessDaysForward(start, 4, nil)
+	want := time.Date(2026, 3, 19, 0, 0, 0, 0, time.UTC) // Mon 16, Tue 17, Wed 18, Thu 19
+	if !got.Equal(want) {
+		t.Fatalf("addBusinessDaysForward: got %s, want %s", got.Format("2006-01-02"), want.Format("2006-01-02"))
+	}
+}
+
+func TestAddBusinessDaysForward_respectsHoliday(t *testing.T) {
+	t.Parallel()
+
+	start := time.Date(2026, 3, 19, 0, 0, 0, 0, time.UTC)   // Thursday
+	holiday := time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC) // Friday holiday
+	isHoliday := func(d time.Time) bool {
+		return dateOnlyUTC(d).Equal(holiday)
+	}
+	got := addBusinessDaysForward(start, 1, isHoliday)
+	want := time.Date(2026, 3, 21, 0, 0, 0, 0, time.UTC) // skip Fri -> Saturday
+	if !got.Equal(want) {
+		t.Fatalf("addBusinessDaysForward: got %s, want %s", got.Format("2006-01-02"), want.Format("2006-01-02"))
+	}
+}
+
 func TestApplyRulesToRow_prodEndBeforeCurrentDate_RPOL_updatesMappedColumnAndRemarks(t *testing.T) {
 	t.Parallel()
 
@@ -387,13 +425,16 @@ func TestApplyRulesToRow_prodEndBeforeCurrentDate_nonRPOL_extensionNeededNoDateC
 		t.Fatalf("ApplyRulesToRow: %v", err)
 	}
 
-	// No dates should change in this branch.
+	// No process dates should change; buffered ProdEndDt must not be persisted.
+	if got, want := updatedRow[0], row[0]; got != want {
+		t.Fatalf("ProdEndDt should be unchanged when no process updates: got %q, want %q", got, want)
+	}
 	for i := cfg.FirstBlocProcessColIndex; i <= cfg.LastBlocProcessColIndex; i++ {
 		if got := updatedRow[i]; got != row[i] {
 			t.Fatalf("date column %d changed: got %q, want %q", i, got, row[i])
 		}
 	}
-	if got, want := remarks, "No changes made; extension needed, 4 day buffer used"; got != want {
+	if got, want := remarks, "tried 4 day buffer; needs optimization"; got != want {
 		t.Fatalf("remarks: got %q, want %q", got, want)
 	}
 	if strings.Contains(remarks, "Unchanged:") {
@@ -440,8 +481,8 @@ func TestApplyRulesToRow_prodEndBeforeCurrentDate_nonRPOL_usesFourDayBufferWhenC
 		t.Fatalf("ApplyRulesToRow: %v", err)
 	}
 
-	if got, want := updatedRow[0], "23-03-2026"; got != want {
-		t.Fatalf("ProdEndDt after 4-day buffer: got %q, want %q", got, want)
+	if got, want := updatedRow[0], "24-03-2026"; got != want {
+		t.Fatalf("ProdEndDt after 4 business-day buffer: got %q, want %q", got, want)
 	}
 
 	if got, want := updatedRow[1], "20-03-2026"; got != want {
@@ -455,6 +496,54 @@ func TestApplyRulesToRow_prodEndBeforeCurrentDate_nonRPOL_usesFourDayBufferWhenC
 	}
 
 	if got, want := remarks, "Updated: ZCAD,ZCAM,PrePolish; 4 day buffer used"; got != want {
+		t.Fatalf("remarks: got %q, want %q", got, want)
+	}
+}
+
+func TestApplyRulesToRow_prodEndBeforeCurrentDate_nonRPOL_doesNotPersistBufferedProdEndWhenNoProcessChanges(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC) // Friday
+
+	header := []string{
+		"ProdEndDt",
+		"ZCAD",
+		"ZCAM",
+		"PrePolish",
+		"Bloc",
+	}
+
+	cfg := RulesConfig{
+		ProdEndDtColIndex:        0,
+		BLOCColIndex:             4,
+		FirstBlocProcessColIndex: 1,
+		LastBlocProcessColIndex:  3,
+		NullDateYearWindowX:      5,
+		RemarksExtensionNeeded:   "extension needed",
+	}
+
+	processMap := process_map.ProcessMap{
+		"ZCAD": {"ZCAD"},
+	}
+
+	row := []string{
+		"19-03-2026", // ProdEndDt < now => buffer would be computed
+		"25-03-2026", // scanStart already >= now => stop immediately, no process updates
+		"01-03-2026",
+		"01-03-2026",
+		"ZCAD",
+	}
+
+	updatedRow, remarks, err := ApplyRulesToRow(header, row, cfg, processMap, now, nil)
+	if err != nil {
+		t.Fatalf("ApplyRulesToRow: %v", err)
+	}
+
+	// No process changes => must not persist buffered ProdEndDt.
+	if got, want := updatedRow[0], row[0]; got != want {
+		t.Fatalf("ProdEndDt should be unchanged when no process updates: got %q, want %q", got, want)
+	}
+	if got, want := remarks, "No changes made"; got != want {
 		t.Fatalf("remarks: got %q, want %q", got, want)
 	}
 }
@@ -760,11 +849,10 @@ func TestApplyRulesToRow_mainScheduling_finalUndoWhenLastUpdatedExceedsProdEndDt
 		"ZCAD": {"ZCAD"},
 	}
 
-	// ProdEndDt is set such that even after a 4-day buffer is applied, the
-	// updated last process date (20-03-2026) still exceeds ProdEndDt, triggering
-	// undo+extension-needed.
+	// ProdEndDt is set such that even after a 4 business-day buffer is applied,
+	// strict scheduling still exceeds ProdEndDt and batching cannot fit either.
 	row := []string{
-		"15-03-2026", // ProdEndDt (before updated current business day; +4 => 19-03-2026 but undo keeps original)
+		"15-03-2026", // ProdEndDt (Sunday; +4 business days => 19-03-2026 Thursday)
 		"01-03-2026", // ZCAD
 		"01-03-2026", // ZCAM
 		"01-03-2026", // Polish (last)
@@ -776,8 +864,9 @@ func TestApplyRulesToRow_mainScheduling_finalUndoWhenLastUpdatedExceedsProdEndDt
 		t.Fatalf("ApplyRulesToRow: %v", err)
 	}
 
-	if got, want := updatedRow[0], "19-03-2026"; got != want {
-		t.Fatalf("ProdEndDt should keep extended value after buffer+undo: got %q, want %q", got, want)
+	// Undo: processes weren't changed, so buffered ProdEndDt must not be persisted.
+	if got, want := updatedRow[0], row[0]; got != want {
+		t.Fatalf("ProdEndDt should be unchanged after undo: got %q, want %q", got, want)
 	}
 
 	// Undo: all updated process columns should be restored to originals.
@@ -789,7 +878,7 @@ func TestApplyRulesToRow_mainScheduling_finalUndoWhenLastUpdatedExceedsProdEndDt
 	if strings.Contains(remarks, "Updated") {
 		t.Fatalf("remarks must not indicate updates when changes were undone, got %q", remarks)
 	}
-	if got, want := remarks, "No changes made; extension needed, 4 day buffer used"; got != want {
+	if got, want := remarks, remarkNeedsOptimization; got != want {
 		t.Fatalf("remarks: got %q, want %q", got, want)
 	}
 	if strings.Contains(remarks, "Unchanged:") {
@@ -836,8 +925,8 @@ func TestApplyRulesToRow_extensionNeeded_usesFourDayBufferWhenChainFits(t *testi
 		t.Fatalf("ApplyRulesToRow: %v", err)
 	}
 
-	if got, want := updatedRow[0], "25-03-2026"; got != want {
-		t.Fatalf("ProdEndDt after 4-day buffer: got %q, want %q", got, want)
+	if got, want := updatedRow[0], "26-03-2026"; got != want {
+		t.Fatalf("ProdEndDt after 4 business-day buffer: got %q, want %q", got, want)
 	}
 
 	if got, want := updatedRow[1], "20-03-2026"; got != want {
@@ -852,6 +941,186 @@ func TestApplyRulesToRow_extensionNeeded_usesFourDayBufferWhenChainFits(t *testi
 
 	if got, want := remarks, "Updated: ZCAD,ZCAM,PrePolish; 4 day buffer used"; got != want {
 		t.Fatalf("remarks: got %q, want %q", got, want)
+	}
+}
+
+func TestApplyRulesToRow_batchingFitsWhenStrictExceedsBufferedProdEnd(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC) // Friday
+
+	header := []string{
+		"ProdEndDt",
+		"P1",
+		"P2",
+		"P3",
+		"P4",
+		"Bloc",
+	}
+
+	cfg := RulesConfig{
+		ProdEndDtColIndex:        0,
+		BLOCColIndex:             5,
+		FirstBlocProcessColIndex: 1,
+		LastBlocProcessColIndex:  4,
+		NullDateYearWindowX:      5,
+		RemarksExtensionNeeded:   "extension needed",
+	}
+
+	processMap := process_map.ProcessMap{
+		"ZCAD": {"P1"},
+	}
+
+	row := []string{
+		"18-03-2026", // ProdEndDt < now; +4 business days => Mon 23-Mar-2026
+		"01-03-2026",
+		"02-03-2026", // distinct so strict chain advances (last > buffered ProdEnd)
+		"03-03-2026",
+		"04-03-2026",
+		"ZCAD",
+	}
+
+	updatedRow, remarks, err := ApplyRulesToRow(header, row, cfg, processMap, now, nil)
+	if err != nil {
+		t.Fatalf("ApplyRulesToRow: %v", err)
+	}
+
+	if got, want := updatedRow[0], "23-03-2026"; got != want {
+		t.Fatalf("ProdEndDt after buffer: got %q, want %q", got, want)
+	}
+	// Batching: pair (P1,P2) on Fri 20; pair (P3,P4) on Sat 21 (next business day).
+	if got, want := updatedRow[1], "20-03-2026"; got != want {
+		t.Fatalf("P1: got %q, want %q", got, want)
+	}
+	if got, want := updatedRow[2], "20-03-2026"; got != want {
+		t.Fatalf("P2: got %q, want %q", got, want)
+	}
+	if got, want := updatedRow[3], "21-03-2026"; got != want {
+		t.Fatalf("P3: got %q, want %q", got, want)
+	}
+	if got, want := updatedRow[4], "21-03-2026"; got != want {
+		t.Fatalf("P4: got %q, want %q", got, want)
+	}
+	if got, want := remarks, "Updated: P1,P2,P3,P4; 4 day buffer used; Batched 2 per day"; got != want {
+		t.Fatalf("remarks: got %q, want %q", got, want)
+	}
+}
+
+func TestTryBatchSchedule_doesNotWasteDayOnEmptyPair(t *testing.T) {
+	t.Parallel()
+
+	// If a (col,col+1) pair has nothing assignable, batching should not consume a
+	// business day for it; otherwise later assignable pairs may incorrectly fall
+	// after ProdEndDt.
+	//
+	// This test currently fails because tryBatchSchedule advances the batch day
+	// regardless of whether anything was assigned for a pair.
+	header := []string{"ProdEndDt", "P1", "P2", "P3", "P4", "P5", "P6"}
+	_ = header
+
+	cfg := RulesConfig{
+		ProdEndDtColIndex:        0,
+		BLOCColIndex:             0,
+		FirstBlocProcessColIndex: 1,
+		LastBlocProcessColIndex:  6,
+		NullDateYearWindowX:      5,
+		RemarksExtensionNeeded:   "extension needed",
+	}
+
+	originalRow := []string{
+		"02-04-2026", // ProdEndDt (not used by tryBatchSchedule)
+		"01-03-2026", // P1 valid
+		"01-03-2026", // P2 valid
+		"01-03-2026", // P3 valid but not in overflow => should not be assigned
+		"01-03-2026", // P4 valid but not in overflow => should not be assigned
+		"01-03-2026", // P5 valid
+		"01-03-2026", // P6 valid
+	}
+	workRow := append([]string{}, originalRow...)
+
+	overflowCols := map[int]bool{
+		1: true,
+		2: true,
+		// gap at (3,4) => empty pair; should not consume a day
+		5: true,
+		6: true,
+	}
+
+	nowDate := time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC)            // Wednesday
+	prodEndDeadline := time.Date(2026, 4, 2, 0, 0, 0, 0, time.UTC)    // Thursday
+	ok, assigned := tryBatchSchedule(originalRow, workRow, cfg, 1, overflowCols, nowDate, nil, prodEndDeadline, 2026, 5)
+	if !ok {
+		t.Fatalf("tryBatchSchedule: expected ok=true, got ok=false")
+	}
+	if len(assigned) != 4 {
+		t.Fatalf("assigned size: got %d, want %d", len(assigned), 4)
+	}
+	if got, want := workRow[1], "01-04-2026"; got != want {
+		t.Fatalf("P1 assigned: got %q, want %q", got, want)
+	}
+	if got, want := workRow[2], "01-04-2026"; got != want {
+		t.Fatalf("P2 assigned: got %q, want %q", got, want)
+	}
+	if got, want := workRow[5], "02-04-2026"; got != want {
+		t.Fatalf("P5 assigned: got %q, want %q", got, want)
+	}
+	if got, want := workRow[6], "02-04-2026"; got != want {
+		t.Fatalf("P6 assigned: got %q, want %q", got, want)
+	}
+}
+
+func TestTryBatchSchedule_batchesByTwoEvenWhenSparse(t *testing.T) {
+	t.Parallel()
+
+	// When overflow columns are sparse (not aligned to fixed (col,col+1) pairs),
+	// we should still batch by two processes per business day by packing the
+	// next two eligible overflow columns onto the same date.
+	//
+	// This currently fails because tryBatchSchedule batches by fixed adjacent
+	// column pairs only, which can degrade to ~1 per day for sparse overflow.
+	cfg := RulesConfig{
+		ProdEndDtColIndex:        0,
+		BLOCColIndex:             0,
+		FirstBlocProcessColIndex: 1,
+		LastBlocProcessColIndex:  20,
+		NullDateYearWindowX:      5,
+		RemarksExtensionNeeded:   "extension needed",
+	}
+
+	originalRow := make([]string, 21)
+	originalRow[0] = "09-04-2026"
+	for i := 1; i <= 20; i++ {
+		originalRow[i] = "01-03-2026"
+	}
+	workRow := append([]string{}, originalRow...)
+
+	// Ten overflow columns but sparse (every other column across a wider range):
+	// adjacent-pair batching can degrade to one per day in many pairs.
+	overflowCols := map[int]bool{}
+	for col := 1; col <= 19; col += 2 {
+		overflowCols[col] = true
+	}
+
+	nowDate := time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC)         // Wed
+	prodEndDeadline := time.Date(2026, 4, 9, 0, 0, 0, 0, time.UTC) // Thu
+
+	// No holidays; only Sundays are non-business.
+	ok, assigned := tryBatchSchedule(originalRow, workRow, cfg, 1, overflowCols, nowDate, nil, prodEndDeadline, 2026, 5)
+	if !ok {
+		t.Fatalf("tryBatchSchedule: expected ok=true, got ok=false")
+	}
+	if len(assigned) != 10 {
+		t.Fatalf("assigned size: got %d, want %d", len(assigned), 10)
+	}
+
+	// Expect exactly 5 distinct assigned dates (2 per business day),
+	// starting at 01-04-2026.
+	seen := map[string]bool{}
+	for col := range overflowCols {
+		seen[workRow[col]] = true
+	}
+	if got, want := len(seen), 5; got != want {
+		t.Fatalf("distinct assigned days: got %d, want %d (dates=%v)", got, want, seen)
 	}
 }
 

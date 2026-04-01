@@ -126,6 +126,18 @@ func adjustBusinessDays(start time.Time, delta int, isHoliday func(time.Time) bo
 	return t
 }
 
+// addBusinessDaysForward moves forward n business days from the calendar date of
+// start (no snap-to-business-day before counting). Each step matches
+// adjustBusinessDays(..., delta>0, ...): next calendar day, then skip non-business days.
+func addBusinessDaysForward(start time.Time, n int, isHoliday func(time.Time) bool) time.Time {
+	if n <= 0 {
+		return dateOnlyUTC(start)
+	}
+	return adjustBusinessDays(dateOnlyUTC(start), n, isHoliday)
+}
+
+const remarkNeedsOptimization = "tried 4 day buffer; needs optimization"
+
 func dateOnlyUTC(t time.Time) time.Time {
 	u := t.In(time.UTC)
 	return time.Date(u.Year(), u.Month(), u.Day(), 0, 0, 0, 0, time.UTC)
@@ -163,6 +175,75 @@ func headerNameToIndex(header []string) map[string]int {
 	return out
 }
 
+// tryBatchSchedule assigns consecutive column pairs (scanStart+2k, scanStart+2k+1)
+// the same business day, advancing one business day between pair groups. Only
+// columns in overflowCols with valid dates in originalRow are written to workRow.
+// Returns ok when at least one column is assigned and every assigned date is on or
+// before prodEndDeadline.
+func tryBatchSchedule(
+	originalRow []string,
+	workRow []string,
+	cfg RulesConfig,
+	scanStart int,
+	overflowCols map[int]bool,
+	nowDate time.Time,
+	holFn func(time.Time) bool,
+	prodEndDeadline time.Time,
+	year int,
+	windowX int,
+) (ok bool, assigned map[int]bool) {
+	scanEnd := cfg.LastBlocProcessColIndex
+	batchDay := adjustBusinessDays(nowDate, 0, holFn)
+	assigned = make(map[int]bool)
+	var maxAssigned time.Time
+
+	eligible := make([]int, 0, len(overflowCols))
+	for col := scanStart; col <= scanEnd; col++ {
+		if !overflowCols[col] {
+			continue
+		}
+		_, okParse, err := parseProcessDateDDMMYYYYOrNull(originalRow[col], year, windowX)
+		if err != nil || !okParse {
+			continue
+		}
+		eligible = append(eligible, col)
+	}
+
+	for p := 0; ; p++ {
+		start := 2 * p
+		if start >= len(eligible) {
+			break
+		}
+		cols := []int{eligible[start]}
+		if start+1 < len(eligible) {
+			cols = append(cols, eligible[start+1])
+		}
+		assignedThisPair := 0
+		for _, col := range cols {
+			d := dateOnlyUTC(batchDay)
+			workRow[col] = formatDDMMYYYY(d)
+			assigned[col] = true
+			assignedThisPair++
+			if d.After(maxAssigned) {
+				maxAssigned = d
+			}
+		}
+		// Only advance to the next business day when at least one process was
+		// assigned for this pair; otherwise we would waste a day on an empty pair.
+		if assignedThisPair > 0 {
+			batchDay = adjustBusinessDays(batchDay, 1, holFn)
+		}
+	}
+
+	if len(assigned) == 0 {
+		return false, nil
+	}
+	if maxAssigned.After(dateOnlyUTC(prodEndDeadline)) {
+		return false, nil
+	}
+	return true, assigned
+}
+
 // ApplyRulesToRow applies the bloc-process scheduling/extension rules for a
 // single CSV data row.
 //
@@ -191,6 +272,7 @@ func ApplyRulesToRow(
 	}
 
 	updatedRow := append([]string{}, row...)
+	originalProdEndStr := updatedRow[cfg.ProdEndDtColIndex]
 
 	holFn := holidays
 	if holFn == nil {
@@ -246,11 +328,17 @@ func ApplyRulesToRow(
 	if prodEndDt.Before(nowDate) {
 		if blocCode != "RPOL" {
 			// Non-RPOL rows that have ProdEndDt before the run date require an
-			// extension: apply a fixed 4-day buffer and then fall through to the
+			// extension: apply a 4 business-day buffer and then fall through to the
 			// main scheduling logic (Case 2) using the extended ProdEndDt.
-			prodEndDt = dateOnlyUTC(prodEndDt).AddDate(0, 0, 4)
-			updatedRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(prodEndDt)
+			prodEndDt = addBusinessDaysForward(prodEndDt, 4, holFn)
 			bufferApplied = true
+
+			// If the buffered ProdEndDt is still before the run date, this row cannot
+			// be scheduled (even with batching) without violating ProdEndDt.
+			if prodEndDt.Before(nowDate) {
+				updatedRow[cfg.ProdEndDtColIndex] = originalProdEndStr
+				return updatedRow, remarkNeedsOptimization, nil
+			}
 		} else {
 			// RPOL: update mapped column immediately using the current business day.
 			newDate := adjustBusinessDays(nowDate, 0, holFn)
@@ -322,6 +410,11 @@ func ApplyRulesToRow(
 				if len(updatedSet) == 0 {
 					tail = "No changes made"
 				}
+				if bufferApplied && len(updatedSet) > 0 {
+					updatedRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(prodEndDt)
+				} else {
+					updatedRow[cfg.ProdEndDtColIndex] = originalProdEndStr
+				}
 				remarks := buildRemarks(header, scanStart, cfg.LastBlocProcessColIndex, updatedSet, tail)
 				return updatedRow, remarks, nil
 			}
@@ -373,38 +466,40 @@ func ApplyRulesToRow(
 
 	// Final iteration: last updated date may exceed ProdEndDt.
 	if len(updatedSet) > 0 && prevUpdatedDate.After(prodEndDt) {
-		// Apply a fixed 4-day buffer to ProdEndDt for extension-needed rows,
-		// but only once per row.
 		if !bufferApplied {
-			extendedProdEndDt := dateOnlyUTC(prodEndDt).AddDate(0, 0, 4)
+			extendedProdEndDt := addBusinessDaysForward(prodEndDt, 4, holFn)
 			bufferApplied = true
 			prodEndDt = extendedProdEndDt
-			updatedRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(extendedProdEndDt)
 
-			// If the updated chain still does not fit within the extended ProdEndDt,
-			// undo all process-date changes but keep the extended ProdEndDt.
-			if prevUpdatedDate.After(extendedProdEndDt) {
-				for col := range updatedSet {
-					updatedRow[col] = originalValues[col]
-				}
-				return updatedRow, fmt.Sprintf("No changes made; %s, 4 day buffer used", cfg.RemarksExtensionNeeded), nil
+			if !prevUpdatedDate.After(extendedProdEndDt) {
+				updatedRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(prodEndDt)
+				return updatedRow, buildRemarks(header, scanStart, cfg.LastBlocProcessColIndex, updatedSet, "4 day buffer used"), nil
 			}
-
-			// Otherwise, keep the updated process dates and the extended ProdEndDt and
-			// surface a remark indicating the 4-day buffer was used.
-			return updatedRow, buildRemarks(header, scanStart, cfg.LastBlocProcessColIndex, updatedSet, "4 day buffer used"), nil
 		}
 
-		// Buffer has already been applied once and the updated chain still
-		// exceeds ProdEndDt: undo all process-date changes but keep the already
-		// extended ProdEndDt.
+		overflowCols := make(map[int]bool, len(updatedSet))
+		for col := range updatedSet {
+			overflowCols[col] = true
+		}
 		for col := range updatedSet {
 			updatedRow[col] = originalValues[col]
 		}
-		return updatedRow, fmt.Sprintf("No changes made; %s, 4 day buffer used", cfg.RemarksExtensionNeeded), nil
+
+		batchRow := append([]string{}, updatedRow...)
+		if ok, assigned := tryBatchSchedule(row, batchRow, cfg, scanStart, overflowCols, nowDate, holFn, prodEndDt, now.Year(), cfg.NullDateYearWindowX); ok {
+			batchRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(prodEndDt)
+			return batchRow, buildRemarks(header, scanStart, cfg.LastBlocProcessColIndex, assigned, "4 day buffer used; Batched 2 per day"), nil
+		}
+		updatedRow[cfg.ProdEndDtColIndex] = originalProdEndStr
+		return updatedRow, remarkNeedsOptimization, nil
 	}
 
 	if bufferApplied {
+		if len(updatedSet) > 0 {
+			updatedRow[cfg.ProdEndDtColIndex] = formatDDMMYYYY(prodEndDt)
+		} else {
+			updatedRow[cfg.ProdEndDtColIndex] = originalProdEndStr
+		}
 		return updatedRow, buildRemarks(header, scanStart, cfg.LastBlocProcessColIndex, updatedSet, "4 day buffer used"), nil
 	}
 

@@ -34,16 +34,27 @@ It streams the input file so large CSVs can be processed without loading the ent
 
 ### 4-day buffer extension flow
 
-When a row is determined to require an extension, the tool applies a **4-day buffer** to `ProdEndDt` and re-evaluates using the usual scheduling logic.
+When a row is determined to require an extension, the tool attempts a **4 working-day buffer** on `ProdEndDt` (Mon–Sat excluding holidays; Sundays are non-business) and re-evaluates.
 
-- If scheduling fits within the buffered `ProdEndDt`:
-  - **Keep** the updated process dates.
-  - **Keep** the buffered `ProdEndDt` value in the output.
-  - `Remarks` ends with: `4 day buffer used` and lists the updated column names, e.g. `Updated: ZCAD,ZCAM,PrePolish; 4 day buffer used`.
-- If scheduling still does not fit even after the buffer:
-  - **Undo** all process-date changes (restore the original process dates).
-  - **Keep** the buffered `ProdEndDt` value in the output.
-  - `Remarks`: `No changes made; extension needed, 4 day buffer used`.
+- If after buffering, `ProdEndDt` is still before `CurrentDate`:
+  - No scheduling is attempted.
+  - `Remarks`: `tried 4 day buffer; needs optimization`.
+- Else:
+  - Run the usual scheduling logic (one process per business day step).
+  - If the resulting chain fits within the buffered `ProdEndDt` **and at least one process date was updated**:
+    - **Keep** the updated process dates.
+    - **Keep** the buffered `ProdEndDt` value in the output.
+    - `Remarks` ends with: `4 day buffer used` and lists the updated column names, e.g. `Updated: ZCAD,ZCAM,PrePolish; 4 day buffer used`.
+  - If the strict chain does not fit:
+    - Try a batching fallback: fit process dates by assigning **two process columns per business day**, advancing one business day after every 2 assigned processes.
+    - If batching fits within buffered `ProdEndDt`:
+      - **Keep** the batched process dates.
+      - **Keep** the buffered `ProdEndDt` value in the output.
+      - `Remarks` ends with: `4 day buffer used; Batched 2 per day` and lists the updated column names.
+    - If batching still does not fit:
+      - `Remarks`: `tried 4 day buffer; needs optimization`.
+
+In all optimization-needed cases, the output row preserves original process dates and does **not** persist the buffered `ProdEndDt`.
 
 ## Prerequisites
 
